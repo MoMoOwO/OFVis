@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "element-ui": "^2.12.0",
+    "leaflet": "^1.5.1",
     "vue": "^2.5.2",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vue2-leaflet": "^2.2.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

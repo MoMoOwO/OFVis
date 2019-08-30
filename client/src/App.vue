@@ -2,9 +2,9 @@
   <div id="app">
     <el-container>
       <!-- 头部 -->
-      <el-header height="4%">OFVis</el-header>
+      <el-header height="4%">XC吃屎！</el-header>
       <!-- 主体 -->
-      <el-main>
+     <!-- <el-main>
         <div style="height:100%;width:100%">
           <el-row :gutter="10">
             <el-col :span="8">
@@ -13,7 +13,9 @@
               <div class="grid-contentButtom bg-purple"></div>
             </el-col>
             <el-col :span="8">
-              <div class="grid-contentHeight bg-purple"></div>
+              <div class="grid-contentHeight bg-purple">
+
+              </div>
             </el-col>
             <el-col :span="8">
               <div class="grid-content bg-purple"></div>
@@ -34,7 +36,9 @@
             </el-col>
           </el-row>
         </div>
-      </el-main>
+      </el-main> -->
+
+      <mapchart class="map"></mapchart>
 
       <!-- 底部 -->
       <el-footer height="4%">版权所有©***</el-footer>
@@ -43,6 +47,8 @@
 </template>
 
 <script>
+import mapchart from '@/components/MapChart.vue';
+
 export default {
   data() {
     return {};
@@ -51,11 +57,18 @@ export default {
   methods: {},
   created() {},
   mounted() {},
+  components: {
+    mapchart
+  },
   props: {}
 };
 </script>
 
 <style>
+.map{
+  height: 100%;
+  width: 70%;
+}
 html,
 body,
 #app,

@@ -12,6 +12,9 @@ import 'element-ui/lib/theme-chalk/index.css';
 
 Vue.config.productionTip = false
 
+// 引入leaflet样式
+import 'leaflet/dist/leaflet.css';
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
