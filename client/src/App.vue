@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <el-header height="4%">XC吃屎！</el-header>
       <!-- 主体 -->
-     <!-- <el-main>
+     <el-main>
         <div style="height:100%;width:100%">
           <el-row :gutter="10">
             <el-col :span="8">
@@ -14,7 +14,9 @@
             </el-col>
             <el-col :span="8">
               <div class="grid-contentHeight bg-purple">
-
+                <mapchart class="map"></mapchart>
+                
+                <mapchart class="map"></mapchart>
               </div>
             </el-col>
             <el-col :span="8">
@@ -24,7 +26,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="10">
+          <el-row :gutter="10" id="elrowlast">
             <el-col :span="8">
               <div class="grid-content bg-purple"></div>
             </el-col>
@@ -36,9 +38,7 @@
             </el-col>
           </el-row>
         </div>
-      </el-main> -->
-
-      <mapchart class="map"></mapchart>
+      </el-main>
 
       <!-- 底部 -->
       <el-footer height="4%">版权所有©***</el-footer>
@@ -66,8 +66,9 @@ export default {
 
 <style>
 .map{
-  height: 100%;
-  width: 70%;
+  height: 80%;
+  width: 15%;
+  position: absolute;
 }
 html,
 body,
@@ -96,9 +97,10 @@ body,
 
 .el-row {
   margin-bottom: 10px;
-  &:last-child {
-    margin-bottom: 0;
-  }
+}
+
+#elrowlast{
+  margin-bottom: 0;
 }
 .el-col {
   border-radius: 4px;
@@ -118,6 +120,9 @@ body,
   min-width: 100px;
 }
 .grid-contentHeight {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   border-radius: 4px;
   min-height: 560px;
   min-width: 100px;

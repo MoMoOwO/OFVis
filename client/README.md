@@ -20,6 +20,8 @@
 
 1. el-row 行 el-col 列
 2. 跨行跨列，位移等
+3. 利用br换行标签实现在某行某列中添加两个div从而在平行列中实现跨行
+4. br会继承父元素的line-height属性，此时可以将br的display设置为none
 
 ## 引入leaflet开源地图js库，自行封装地图组件
 
@@ -34,8 +36,9 @@
     4. scrollWheelZoom: 滚轮缩放 bool,
     5. doubleClickZoom: 双击缩放 bool,
     6. dragging: 拖拽 bool,
-    7. ...
-4. 加载图层/切片，通过URL设置切片，执行完如下步骤，才算显示一张地图
+    7. attributionControl: 瓦片提供商，建议显示，版权.... bool,
+    8. ...
+4. 加载图层/切片(瓦片)，通过URL设置切片，执行完如下步骤，才算显示一张地图。[Leaflet地图框架使用手册——L.TileLayer](https://blog.csdn.net/black2Girl/article/details/85264597)
 
 ``` bash
 L.tileLayer(
@@ -44,5 +47,25 @@ L.tileLayer(
       ).addTo(mymap);
 ```
 
-![](https://i.loli.net/2019/08/30/LHSM6OthoIZnP8i.jpg)
+![效果](https://i.loli.net/2019/08/30/LHSM6OthoIZnP8i.jpg)
+
+## 使用Mapbox来设计符合自身需求的style的地图(由于设计需要，地图上不必要的文本信息不必要显示，防止干扰)
+
+1. 去[Mapbox官网](https://www.mapbox.com/)注册登录
+2. 点击右上角头像，选择studio，进入studio创作自己style的地图瓦片
+3. 选择New style开始创建地图瓦片
+4. 官方为我们提供了一些模板
+![模板](https://i.loli.net/2019/08/31/KRqdf8gQB1tZiPl.jpg)
+5. 我们选择Light主题，左侧为地理属性的style设置，如下我们式删除一些属性的前后变化
+![修改前](https://i.loli.net/2019/08/31/iIdGe3EWKtoJ6UC.jpg)
+![修改后](https://i.loli.net/2019/08/31/61Wwyz3UojV5iDF.jpg)
+6. 接下来制作瓦片链接(tileLayer中的url链接)
+7. 点击右上角的Share...，如下图，复制Share中的链接即用来创建地图瓦片url
+![Share](https://i.loli.net/2019/08/31/bSeJElDQjnTRMCr.jpg)
+8. 按如下模板修改url格式：
+https://api.mapbox.com/styles/v1/Your_Username/Your_Style_Id/tiles/256/{z}/{x}/{y}?access_token=Your_Access_Token
+
+9. 之后我们便可以使用这个url替换之前L.tileLayer中的url
+
+![使用自制的瓦片](https://i.loli.net/2019/08/31/gLkYS65wfrPCXnh.jpg)
 
