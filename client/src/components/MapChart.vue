@@ -46,7 +46,7 @@ export default {
           // 线性比例尺
           let scaleLinear = d3.scaleLinear().domain([result.data.message.mintemp, result.data.message.maxtemp]).range([0, 1]);
 
-          console.log(result.data.message.data);
+          //console.log(result.data.message.data);
           result.data.message.data.forEach(item => {
             L.circle([item.lat, item.lon],{color:compute(scaleLinear(item.temp)),radius:1,fillOpacity:1}).addTo(this.mymap);
           });
