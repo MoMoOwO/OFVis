@@ -15,6 +15,11 @@ Vue.config.productionTip = false
 // 引入leaflet样式
 import 'leaflet/dist/leaflet.css';
 
+// 导入axios
+import Axios from 'axios';
+import VueAxios from 'vue-axios';
+Vue.use(VueAxios, Axios);
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

@@ -14,9 +14,8 @@
             </el-col>
             <el-col :span="8">
               <div class="grid-contentHeight bg-purple">
-                <mapchart class="map"></mapchart>
-                
-                <mapchart class="map"></mapchart>
+                <mapchart class="map" style="margin-left:17px;"></mapchart>                  
+                <mapchart class="map" style="margin-left:320px;"></mapchart>               
               </div>
             </el-col>
             <el-col :span="8">
@@ -70,6 +69,7 @@ export default {
   width: 15%;
   position: absolute;
 }
+
 html,
 body,
 #app,
@@ -120,9 +120,6 @@ body,
   min-width: 100px;
 }
 .grid-contentHeight {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
   border-radius: 4px;
   min-height: 560px;
   min-width: 100px;

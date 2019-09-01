@@ -5,18 +5,20 @@
 <script>
 // 引入leaflet
 import * as L from "leaflet";
+// 引入D3
+import * as d3 from "d3";
 
 export default {
   data() {
     return {
-      map: ""
+      mymap: ""
     };
   },
   watch: {},
   methods: {
     createMap() {
       // 地图对象
-      var mymap = L.map(this.$el, {
+      this.mymap = L.map(this.$el, {
         center: [32, 125],
         zoom: 5,
         zoomControl: false,
@@ -31,7 +33,30 @@ export default {
         "https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA#5.0/33.031539/127.253861/0",
         //"http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         { attribution:'OSM' }
-      ).addTo(mymap); // 将图层加到地图上
+      ).addTo(this.mymap); // 将图层加到地图上
+      this.addPoint();
+    },
+    addPoint(){
+      this.axios.post('/data/source').then(result => {
+        if(result.data.status === 0){
+          let blue = d3.rgb(0, 0, 255); // 蓝色，红色
+          let red = d3.rgb(255, 0, 0);
+          let compute = d3.interpolate(blue, red); // 插值
+
+          // 线性比例尺
+          let scaleLinear = d3.scaleLinear().domain([result.data.message.mintemp, result.data.message.maxtemp]).range([0, 1]);
+
+          console.log(result.data.message.data);
+          result.data.message.data.forEach(item => {
+            L.circle([item.lat, item.lon],{color:compute(scaleLinear(item.temp)),radius:1,fillOpacity:1}).addTo(this.mymap);
+          });
+
+        }else{
+          console.log("请求数据失败！");
+          console.log(result.message.data);
+        }
+      })
+      //L.circle([32, 125],{color:'yellow',radius:1,fillOpacity:1}).addTo(this.mymap);
     }
   },
   created() {},
