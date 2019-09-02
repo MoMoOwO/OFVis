@@ -5,6 +5,8 @@
 <script>
 // 引入leaflet
 import * as L from "leaflet";
+// 引入leaflet样式
+import 'leaflet/dist/leaflet.css';
 // 引入D3
 import * as d3 from "d3";
 
@@ -19,7 +21,7 @@ export default {
     createMap() {
       // 地图对象
       this.mymap = L.map(this.$el, {
-        center: [32, 125],
+        center: [32, 124.5],
         zoom: 5,
         zoomControl: false,
         scrollWheelZoom: false,
@@ -34,7 +36,7 @@ export default {
         //"http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         { attribution:'OSM' }
       ).addTo(this.mymap); // 将图层加到地图上
-      this.addPoint();
+      //this.addPoint();
     },
     addPoint(){
       this.axios.post('/data/source').then(result => {

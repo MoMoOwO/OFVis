@@ -17,6 +17,7 @@
     "node-sass": "^4.12.0",
     "sass": "^1.22.10",
     "sass-loader": "^8.0.0",
+    "screenfull": "^4.2.1",
     "vue": "^2.5.2",
     "vue-axios": "^2.1.4",
     "vue-router": "^3.0.1",

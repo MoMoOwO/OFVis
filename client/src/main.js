@@ -10,10 +10,7 @@ Vue.use(ElementUI);
 // 引入ElementUI样式
 import 'element-ui/lib/theme-chalk/index.css';
 
-Vue.config.productionTip = false
-
-// 引入leaflet样式
-import 'leaflet/dist/leaflet.css';
+Vue.config.productionTip = false;
 
 // 导入axios
 import Axios from 'axios';

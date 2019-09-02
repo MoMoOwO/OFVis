@@ -2,7 +2,12 @@
   <div id="app">
     <el-container>
       <!-- 头部 -->
-      <el-header height="4%">XC吃屎！</el-header>
+      <el-header height="4%">
+        XC吃屎！
+        <el-tooltip :content="isFullscreen ? '取消全屏' : '全屏'" placement="bottom" effect="light">
+          <el-button icon="el-icon-full-screen" circle @click="handleFullScreen()"></el-button>
+        </el-tooltip>
+      </el-header>
       <!-- 主体 -->
      <el-main>
         <div style="height:100%;width:100%">
@@ -46,16 +51,56 @@
 </template>
 
 <script>
+// 引入全屏插件
+import screenfull from 'screenfull';
+
 import mapchart from '@/components/MapChart.vue';
 
 export default {
   data() {
-    return {};
+    return {
+      isFullscreen: false, // 标识是否全屏
+    };
   },
   watch: {},
-  methods: {},
+  methods: {
+    handleFullScreen(){ // 全屏和取消全屏
+      if(!screenfull.enabled){
+        this.$notify.error({
+          title: '提示',
+          message: '该浏览器不支持全屏！',
+          showClose: false
+        });
+      }else{
+        screenfull.toggle(); // 开启全屏
+
+        this.isFullscreen = true;
+        // this.$notify.success({
+        //   title: '提示',
+        //   message: '按ESC即可退出全屏',
+        //   showClose: false
+        // });
+      }
+    },
+    checkFull(){ // 全屏下按下ESC关闭全屏
+      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+      if(isFull === undefined){
+        isFull = false;
+      }
+      return isFull;
+    }
+
+  },
   created() {},
-  mounted() {},
+  mounted() {
+    // 在此时监控全屏下是否按下ESC键
+    window.onresize = () => {
+      if(!this.checkFull()){
+        // 全屏下按下ESC执行的操作
+        this.isFullscreen = false;
+      }
+    }
+  },
   components: {
     mapchart
   },

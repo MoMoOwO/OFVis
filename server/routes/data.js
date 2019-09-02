@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/source', (req, res, next) => {
-    let collectionName = '20151201';
+    let collectionName = '20151201_grad';
     let query = {};
 
     DB.find(collectionName, query, (err, docs) => {
