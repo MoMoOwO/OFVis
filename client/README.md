@@ -62,10 +62,26 @@ L.tileLayer(
 6. 接下来制作瓦片链接(tileLayer中的url链接)
 7. 点击右上角的Share...，如下图，复制Share中的链接即用来创建地图瓦片url
 ![Share](https://i.loli.net/2019/08/31/bSeJElDQjnTRMCr.jpg)
-8. 按如下模板修改url格式：
-https://api.mapbox.com/styles/v1/Your_Username/Your_Style_Id/tiles/256/{z}/{x}/{y}?access_token=Your_Access_Token
-
+8. 按如下模板修改url格式：https://api.mapbox.com/styles/v1/Your_Username/Your_Style_Id/tiles/256/{z}/{x}/{y}?access_token=Your_Access_Token
 9. 之后我们便可以使用这个url替换之前L.tileLayer中的url
-
 ![使用自制的瓦片](https://i.loli.net/2019/08/31/gLkYS65wfrPCXnh.jpg)
 
+## 实现跨域请求后端数据和点标记在地图上的绘制
+
+1. 跨域请求后端数据，在config目录下的index.js中按如下配置，将/data路由转到3000端口(服务端端口)
+
+  ``` code
+  proxyTable: {
+        '/data': { // 解决路由请求时的跨域问题
+          target: 'http://localhost:3000'
+        }
+      },
+  ```
+
+2. 在地图上添加点标记图层使用leaft的api-cicle，主要用到如下的参数设置：第一个参数为地理经纬度，color为点标记颜色，radius为半径大小，fillOpacity为透明度，最后不要忘记添加到地图容器中。
+
+  ``` code
+  L.circle([32, 125],{color:'yellow',radius:1,fillOpacity:1}).addTo(this.mymap);
+  ```
+
+3. 标量值到点标记颜色的映射，采用D3的线性比例尺完成渐变颜色设计， 目前效果不太好[参考](https://www.bbsmax.com/A/D854XNVY5E/)

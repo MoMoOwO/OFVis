@@ -9,3 +9,4 @@
 1. Node.js (express)
 2. Vue.js (全家桶??)
 
+# 主要过程请参考每个文件夹下的README
