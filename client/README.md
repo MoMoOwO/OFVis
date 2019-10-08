@@ -40,7 +40,7 @@
     8. ...
 4. 加载图层/切片(瓦片)，通过URL设置切片，执行完如下步骤，才算显示一张地图。[Leaflet地图框架使用手册——L.TileLayer](https://blog.csdn.net/black2Girl/article/details/85264597)
 
-``` bash
+``` JavaScript
 L.tileLayer(
         "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         { attribution:'OSM' }
@@ -70,18 +70,67 @@ L.tileLayer(
 
 1. 跨域请求后端数据，在config目录下的index.js中按如下配置，将/data路由转到3000端口(服务端端口)
 
-  ``` code
+  ``` JavaScript
   proxyTable: {
-        '/data': { // 解决路由请求时的跨域问题
-          target: 'http://localhost:3000'
-        }
-      },
+    '/data': { // 解决路由请求时的跨域问题
+      target: 'http://localhost:3000'
+    }
+  },
   ```
 
 2. 在地图上添加点标记图层使用leaft的api-cicle，主要用到如下的参数设置：第一个参数为地理经纬度，color为点标记颜色，radius为半径大小，fillOpacity为透明度，最后不要忘记添加到地图容器中。
 
-  ``` code
+  ``` JavaScript
   L.circle([32, 125],{color:'yellow',radius:1,fillOpacity:1}).addTo(this.mymap);
   ```
 
-3. 标量值到点标记颜色的映射，采用D3的线性比例尺完成渐变颜色设计， 目前效果不太好[参考](https://www.bbsmax.com/A/D854XNVY5E/)
+3. 标量值到点标记颜色的映射，采用D3的线性比例尺完成渐变颜色设计，目前效果不太好。[参考](https://www.bbsmax.com/A/D854XNVY5E/)采用颜色映射原理的方式，同样效果不太好，需要继续调整颜色映射参数。
+![leaflet绘制点图层](https://i.loli.net/2019/09/07/VAPuqD7SYJQa4vI.jpg)![采用颜色映射原理](https://i.loli.net/2019/09/07/vQ7hOW1RLVBKojS.jpg)
+
+## 实现ECharts calendar日历图组件化封装
+
+1. 下载ECharts
+
+  ``` JavaScript
+  npm i echarts
+  ```
+
+2. 在main.js中安装及配置ECharts，这样配置后若要使用echarts，则直接使用this.$echarts即可
+
+  ``` JavaScript
+  import Echarts from 'echarts';
+  Vue.prototype.$echarts = Echarts;
+  ```
+
+3. 组件使用,参数datequery为要查询的年份(2015,2016,2017)
+
+  ``` Vue
+  <template>
+    <div id="app">
+      <calendar :datequery='2015'></calendar>
+    </div>
+  </template>
+
+  <script>
+
+  import CalendarChart from '@/components/charts/Calendar.vue';
+
+  export default {
+    data() {
+      return {
+        datequery: '2016'
+      };
+    },
+    components: { calendar: CalendarChart },
+  };
+  </script>
+
+  <style>
+  #app {
+    width: 100%;
+    height: 100%;
+  }
+  </style>
+  ```
+
+4. 简单封装,后续根据需要进行完善
