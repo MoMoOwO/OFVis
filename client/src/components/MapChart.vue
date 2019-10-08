@@ -36,7 +36,8 @@ export default {
         //"http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         { attribution:'OSM' }
       ).addTo(this.mymap); // 将图层加到地图上
-      //this.addPoint();
+      this.addPoint();
+      //L.circle([32, 125],{color:this.getColor(0.5),radius:1,fillOpacity:1}).addTo(this.mymap);
     },
     addPoint(){
       this.axios.post('/data/source').then(result => {
@@ -48,9 +49,16 @@ export default {
           // 线性比例尺
           let scaleLinear = d3.scaleLinear().domain([result.data.message.mintemp, result.data.message.maxtemp]).range([0, 1]);
 
+          let maxTemp = result.data.message.maxtemp;
+          let minTemp = result.data.message.mintemp;
+
           //console.log(result.data.message.data);
           result.data.message.data.forEach(item => {
-            L.circle([item.lat, item.lon],{color:compute(scaleLinear(item.temp)),radius:1,fillOpacity:1}).addTo(this.mymap);
+            L.circle([item.lat, item.lon], 
+            {color:this.getColor((item.temp - minTemp) / (maxTemp - minTemp)),
+            radius:1,fillOpacity:1}).addTo(this.mymap);
+
+            //L.circle([item.lat, item.lon], {color:compute(scaleLinear(item.temp)), radius:1, fillOpacity:1}).addTo(this.mymap);
           });
 
         }else{
@@ -58,8 +66,30 @@ export default {
           console.log(result.message.data);
         }
       })
-      //L.circle([32, 125],{color:'yellow',radius:1,fillOpacity:1}).addTo(this.mymap);
+      //L.circle([32, 125],{color:"#3388ff",radius:1,fillOpacity:1}).addTo(this.mymap);
+    },
+
+    getColor(value){ // 根据标量值获取颜色的映射
+      var r, g, b;
+      if (value >= 0 & value <= 1 / 3) {
+        r = 0;
+        g = 0;
+        b = 3 * value;
+      } else if (value > 1 / 3 && value <= 2 / 3) {
+        r = 0;
+        g = 3 * (value - 1 / 3);
+        b = 0;
+      } else { // value >= 2/3 && value <= 1
+        r = 3 * (value - 2 / 3);
+        g = 0;
+        b = 0;
+      }
+      r = 255 * r;
+      g = 255 * g;
+      b = 255 * b;
+      return `rgb(${r},${g},${b})`;
     }
+
   },
   created() {},
   mounted() {

@@ -18,7 +18,7 @@
 1. npm i ejs --save
 2. app.js 中引入及配置
 
-    ``` bash
+    ``` JavaScript
     var ejs = require('ejs');
     app.engine('.html', ejs.__express);
     app.set('view engine', 'html');
