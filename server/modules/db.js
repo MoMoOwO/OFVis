@@ -19,7 +19,7 @@ function __connectDB(callback) {
 // 查找
 exports.find = (collectionName, json, callback) => {
     __connectDB((err, db) => {
-        db.db('OceanFront').collection(collectionName).find(json).toArray((error, docs) => {
+        db.db('NOAA').collection(collectionName).find(json).toArray((error, docs) => {
             if (error) {
                 console.log('查询' + collectionName + '失败！');
                 console.log(error);

@@ -5,7 +5,41 @@ var DB = require('../modules/db');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+    res.render('index', { title: 'Express' });
+});
+
+// 获取温度梯度数据，接收传递参数date为请求的日期
+router.post('/grid', (req, res, next) => {
+    //let collectionName = req.query.type; // 请求的时间分辨率，不同力度在不同的集合下
+    let collectionName = req.query.date; // 获取请求的日期
+    let query = { "sstg": {$ne: NaN} };
+
+    DB.find(collectionName, query, (err, docs) => {
+        let oceanInfo = [];
+        if (err) {
+            res.json({
+                status: 1,
+                data: err.message
+            });
+        } else {
+            for (let i = 0; i < docs.length; i++){
+                oceanInfo.push({
+                    'latitude': parseFloat(docs[i].latitude),
+                    'longitude': parseFloat(docs[i].longitude),
+                    'sstg': parseFloat(docs[i].sstg)
+                });
+            }
+
+            res.json({
+                status: 0,
+                message: {
+                    count: oceanInfo.length,                    
+                    data: oceanInfo,
+                    max: Math.max.apply(Math, oceanInfo.map(o => { return o.sstg; }))
+                }
+            });
+        }
+    });
 });
 
 router.post('/source', (req, res, next) => {
