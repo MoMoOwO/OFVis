@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>等值线的生成</title>
+    <link href="Script/leaflet/leaflet.css" rel="stylesheet" />
+    <style>
+        #map
+        {
+            height: 2000px;
+            width: 1500px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+    <script src="./leaflet.ChineseTmsProviders.js"></script>
+    <script src="./turf.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+    
+</body>
+    <script>
+        var normalm = L.tileLayer.chinaProvider('TianDiTu.Normal.Map', {
+            maxZoom: 18,
+            minZoom: 1
+        }),
+            normala = L.tileLayer.chinaProvider('TianDiTu.Normal.Annotion', {
+                maxZoom: 18,
+                minZoom: 1
+            }),
+            imgm = L.tileLayer.chinaProvider('TianDiTu.Satellite.Map', {
+                maxZoom: 18,
+                minZoom: 1
+            }),
+            imga = L.tileLayer.chinaProvider('TianDiTu.Satellite.Annotion', {
+                maxZoom: 18,
+                minZoom: 1
+            });
+ 
+        var normal = L.layerGroup([normalm, normala]);
+        image = L.layerGroup([imgm, imga]);
+ 
+        var baseLayers = {
+            "地图": normal,
+            "影像": image,
+        }
+ 
+        var overlayLayers = {
+            "图": normal,
+            "像": image,
+        }
+ 
+        var map = L.map("map", {
+            center: [30, 20],
+            zoom: 5,
+            layers: [normal],
+            zoomControl: false
+ 
+        });
+        // 创建等值线区域 minX、minY、maxX、maxY、maxY
+        var extent = [0, 30, 20, 50];
+        var cellWidth = 100; // 每个栅格点的间距
+        // 初始化栅格点GeoJson结构，参数：栅格点范围、栅格点间隔、间隔单位(degrees、radians、miles、kilometers)
+        var pointGrid = turf.pointGrid(extent, cellWidth, { units: 'miles' }); // 网格点范围，
+ 
+        for (var i = 0; i < pointGrid.features.length; i++) {
+            pointGrid.features[i].properties.temperature = Math.random() * 10;
+        }
+        console.log(pointGrid);
+
+        //等值线的级数
+        var breaks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+ 
+        var lines = turf.isolines(pointGrid, breaks, { zProperty: 'temperature' });
+        //设置颜色
+        var myStyle = {
+            "color": "black",
+            "weight": 1,
+            "opacity": 1
+        };
+        //进行平滑处理
+        var _lFeatures = lines.features;
+        for(var i=0;i<_lFeatures.length;i++){
+            var _coords = _lFeatures[i].geometry.coordinates;
+            var _lCoords = [];
+            for(var j=0;j<_coords.length;j++){
+                var _coord = _coords[j];
+                var line = turf.lineString(_coord);
+                var curved = turf.bezierSpline(line);
+                _lCoords.push(curved.geometry.coordinates);
+            }
+            _lFeatures[i].geometry.coordinates = _lCoords;
+        }
+        console.log(lines);
+        //geojson数据读取
+        L.geoJSON(lines, {
+            style: myStyle
+        }).bindPopup(function (layer) {
+            return layer.feature.properties.temperature;
+        }).addTo(map);
+    </script>
+</html>
