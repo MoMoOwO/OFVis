@@ -1,58 +1,148 @@
 <template>
-  <div id="app">
-    
-    <h3>{{data}}</h3>
-    <calendar :datequery='2015'></calendar>
+	<div id="mainContainer">
+		<header id="headerContainer">
+			<div id="logoContainer">
+				<div id="sysNameDiv">OF-Vis</div>
+			</div>
+		</header>
 
-    <!-- <router-link to="/calendar">
-      <input type="button" value="日历图" />
-    </router-link>
-
-    <transition mode="out-in">
-      <router-view></router-view>
-    </transition> -->
-
-  </div>
+		<article id="articleContainer">
+			<div class="art-container left-container">
+				<div id="calendar-chart"></div>
+				<div id="radar-chart"></div>
+				<div id="line-chart"></div>
+			</div>
+			<div class="art-container center-container">
+				<div id="map">
+					<mapchart></mapchart>
+				</div>
+			</div>
+			<div class="art-container right-container"></div>
+		</article>
+	</div>
 </template>
 
 <script>
-
-import CalendarChart from '@/components/charts/Calendar.vue';
+import mapchart from "@/components/MapChart.vue";
 
 export default {
-  data() {
-    return {
-      data: "你好",
-
-      datequery: '2016'
-    };
-  },
-  watch: {},
-  methods: {},
-  created() {},
-  mounted() {},
-  components: { calendar: CalendarChart },
-  props: {}
+	data() {
+		return {};
+	},
+	watch: {},
+	methods: {},
+	created() {},
+	mounted() {},
+	components: {
+		mapchart
+	},
+	props: {}
 };
 </script>
 
-<style>
-#app {
-  width: 100%;
-  height: 100%;
+<style scoped>
+#mainContainer {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	border: solid 2px #ccc;
+	border-radius: 4px;
+	height: 100%;
+	width: 100%;
+	padding: 36px 0 0;
 }
-/* routerview组件切换动画 */
-.v-enter {
-  opacity: 0;
-  transform: translateX(100%);
+
+#headerContainer {
+	width: 100%;
+	height: 36px;
+	margin: -36px 0 0;
+	box-sizing: border-box;
+	border-bottom: solid 2px #ccc;
 }
-.v-leave-to {
-  opacity: 0;
-  transform: translateX(-100%);
-  position: absolute;
+#logoContainer {
+	height: 36px;
+	width: 100px;
+	position: relative;
+	overflow: hidden;
 }
-.v-enter-active,
-.v-leave-active {
-  transition: all 0.5s ease;
+#logoContainer > #sysNameDiv {
+	font-size: 18px;
+	position: absolute;
+	left: 25%;
+	top: 50%;
+	transform: translate(-25%, -50%);
+	transition: all ease-out 1s;
+
+	/* 文本不可选中 */
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Chrome/Safari/Opera */
+	-khtml-user-select: none; /* Konqueror */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+}
+#logoContainer > #sysNameDiv:hover {
+	font-size: 20px;
+}
+#logoContainer::after {
+	content: "";
+	position: absolute;
+	left: 82px;
+	height: 60px;
+	width: 2px;
+	transform: translateY(-25%) rotate(45deg);
+	background-color: #ccc;
+}
+#logoContainer::before {
+	content: "";
+	position: absolute;
+	top: 34px;
+	height: 2px;
+	width: 64px;
+	background-color: #ccc;
+}
+
+#articleContainer {
+	height: 100%;
+	width: 100%;
+	display: flex;
+}
+
+.art-container {
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+	box-sizing: border-box;
+	margin: 4px;
+}
+.left-container {
+	flex: 1;
+	display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+.center-container {
+	width: 440px;
+}
+.right-container {
+	flex: 1;
+}
+
+#calendar-chart{
+    width: 30%;
+    height: 100%;
+}
+#radar-chart, #line-chart{
+    width: 70%;
+    height: 50%;
+}
+#radar-chart{
+    /* background-color: red; */
+}
+#line-chart{
+    background-color: yellow;
+}
+
+#map {
+	position: absolute;
+	width: 438px;
+	height: 800px;
 }
 </style>
