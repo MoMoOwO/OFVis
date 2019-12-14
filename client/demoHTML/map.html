@@ -141,6 +141,14 @@
             left: 5px;
             z-index: 99999;
         }
+        #optionDiv{
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+            position: absolute;
+            top: 270px;
+            left: 5px;
+            z-index: 99999;
+        }
         .legendDiv{
             height: 200px;
             width: 75px;
@@ -357,6 +365,9 @@
                 <div id="dateDiv">
                     Date: <br>
                     20150101
+                </div>
+                <div id="optionDiv">
+                    <input type="checkbox" name="areas" id="isShowAreas">海区划分
                 </div>
                 <div class="mapContainer"></div>
             </div>
@@ -896,8 +907,18 @@
         };
         //渲染方法
         var layerGeo = L.geoJSON(geoJson, {
-            style:myStyle
+            style:myStyle,
+            filter: function(feature, layer) {
+                return false; //true or false是否显示
+            }
         }).addTo(mymap);
+        document.querySelector("#isShowAreas").onclick = () => {
+            //console.log(document.querySelector("#isShowAreas").checked);
+            layerGeo.options.filter = (feature, layer) => {
+                return document.querySelector("#isShowAreas").checked;
+            }
+        };
+        console.log(layerGeo);
         //添加点击事件
         layerGeo.on('click',function(e){
             console.log(e.layer.feature.properties.note) //当前点击的物体的名称
@@ -912,7 +933,7 @@
         }
 
         for(let i = 0; i < sst.length; i++){
-            let react = getReact([sst[i][0], sst[i][1]]);
+            let react = getRect([sst[i][0], sst[i][1]]);
             L.polygon(react, {fillColor: legendColor(sst[i][2]), weight: 0, fillOpacity: 1}).addTo(mymap);
         }
 
