@@ -132,6 +132,9 @@
 			<br />
 			{{date}}
 		</div>
+		<div id="checkAreaDiv">
+			<el-checkbox v-model="isShowAreas" @change="showAreaChecked">Sea Areas</el-checkbox>
+		</div>
 		<div id="mapContainer"></div>
 	</div>
 </template>
@@ -147,9 +150,17 @@ import * as chroma from "chroma-js";
 export default {
 	data() {
 		return {
-			mymap: null,
+			// 地图图层
+			myMap: null,
+			// 海区分区组图层
+			areaLayers: null,
+			// 数据点组图层
+			dataLayers: null,
+			// 标记是否显示海区划分图层
+			isShowAreas: false,
 			// 用来显示当前现实的日期
 			date: 20150101,
+			// 最大值
 			maxData: 2,
 			// 温度区间五分位数
 			q0: 0.00,
@@ -160,7 +171,7 @@ export default {
 		};
 	},
 	watch: {
-		maxData:{
+		maxData:{  // 监听maxData的改变，当maxData改变，其他四个数也改变
 			handler(newVal, oldVal){
 				this.q1 = (0.25 * this.maxData).toFixed(2);
 				this.q2 = (0.5 * this.maxData).toFixed(2);
@@ -170,9 +181,10 @@ export default {
 		}
 	},
 	methods: {
+		// 初始化地图图层，只包含地图
 		createMap() {
 			// 地图对象
-			this.mymap = L.map("mapContainer", {
+			this.myMap = L.map("mapContainer", {
 				center: [32, 124],
 				zoomSnap: 0.5, // 开启小数(0.5)缩放级别
 				zoom: 5.5,
@@ -188,9 +200,49 @@ export default {
 				"https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA#5.0/33.031539/127.253861/0",
 				//"http://{s}.tile.osm.org/{z}/{x}/{y}.png",
 				{ attribution: "OSM" }
-			).addTo(this.mymap); // 将图层加到地图上
-			this.addPoint();
-			//L.circle([32, 125],{color:this.getColor(0.5),radius:1,fillOpacity:1}).addTo(this.mymap);
+			).addTo(this.myMap); // 将图层加到地图上
+		},
+		// 添加海区Geo和数据点Geo、填充不可见的
+		addGeoOnMap(){
+			// 请求海区Geo
+			this.axios.post("data/geo?type=zone").then(result => {
+				if(result.data.status === 0){
+					console.log(result.data.message.data[0]);
+					// 成功请求数据的回调
+					this.areaLayers = L.geoJSON(result.data.message.data, {
+						style: { weight: 1, opacity: 1 }
+					}); // 将geo数据初始化为图层组
+					this.areaLayers.bindPopup((e) => { // 绑定点击事件
+						return "Area_id: " + e.feature.properties.note; // 显示海区编号
+					});
+				}else{
+					// 失败请求数据的回调
+					this.$notify.error({
+						title: 'Error',
+						message: 'Failed get Geo-data!'
+					});
+				}
+			});
+			// 请求数据点Geo
+			this.axios.post("data/geo?type=dataPoly").then(result => {
+				if(result.data.status === 0){
+					console.log(result.data.message.data[0]);
+					// 成功请求数据的回调
+					this.dataLayers = L.geoJSON(result.data.message.data, {
+						style: { fillColor: "red", weight: 0, opacity: 1 }
+					}); // 将geo数据初始化为图层组
+					this.dataLayers.bindPopup((e) => { // 绑定点击事件
+						return "sstg: " + e.feature.properties.sstg; // 显示梯度值
+					});
+					this.myMap.addLayer(this.dataLayers); // 添加到地图
+				}else{
+					// 失败请求数据的回调
+					this.$notify.error({
+						title: 'Error',
+						message: 'Failed get Geo-data!'
+					});
+				}
+			});
 		},
 		addPoint() {
 			this.axios.post(`/data/grid?date=${this.date}`).then(result => {
@@ -210,25 +262,34 @@ export default {
 							color: legendColor(item.sstg),
 							radius: 1,
 							fillOpacity: 1
-            			}).addTo(this.mymap);
+            			}).addTo(this.myMap);
 
 						// let react = this.getReact([item.longitude, item.latitude]);
 						// L.polygon(react, {
 						// 	fil lColor: legendColor(item.sstg),
 						// 	weight: 0,
 						// 	fillOpacity: 1
-						// }).addTo(this.mymap);
+						// }).addTo(this.myMap);
 
-						//L.circle([item.lat, item.lon], {color:compute(scaleLinear(item.temp)), radius:1, fillOpacity:1}).addTo(this.mymap);
+						//L.circle([item.lat, item.lon], {color:compute(scaleLinear(item.temp)), radius:1, fillOpacity:1}).addTo(this.myMap);
 					});
 				} else {
-					console.log("请求数据失败！");
-					console.log(result.message.data);
+					this.$notify.error({
+						title: 'Error',
+						message: 'Failed get Grid-data!'
+					});
 				}
 			});
-			//L.circle([32, 125],{color:"#3388ff",radius:1,fillOpacity:1}).addTo(this.mymap);
+			//L.circle([32, 125],{color:"#3388ff",radius:1,fillOpacity:1}).addTo(this.myMap);
 		},
-
+		showAreaChecked(val){
+			// val:true/false是否选中
+			if(val){
+				this.myMap.addLayer(this.areaLayers);
+			}else{
+				this.myMap.removeLayer(this.areaLayers);
+			}
+		},
 		getReact(coords) {
 			return [
 				[coords[1] - 0.05, coords[0] - 0.05],
@@ -247,6 +308,7 @@ export default {
 		this.q4 = this.maxData.toFixed(2);
 		// 需要在此时调用绘制地图的函数，此时DOM组件已经初始化好
 		this.createMap();
+		this.addGeoOnMap();
 	},
 	components: {},
 	props: {}
@@ -254,6 +316,12 @@ export default {
 </script>
 
 <style scoped>
+#mapContainer {
+	width: 438px;
+	height: 730px;
+	margin: 1px auto;
+	position: absolute;
+}
 #dateDiv {
 	width: 80px;
 	height: 40px;
@@ -307,10 +375,13 @@ export default {
 .domain-q4 {
 	top: 10px;
 }
-#mapContainer {
-	width: 438px;
-	height: 730px;
-	margin: 1px auto;
-	position: absolute;
+#checkAreaDiv{
+	background-color: rgb(248, 248, 248);
+	border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+    position: absolute;
+    top: 270px;
+    left: 5px;
+    z-index: 99999;
 }
 </style>

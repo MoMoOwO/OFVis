@@ -8,9 +8,9 @@
 
 		<article id="articleContainer">
 			<div class="art-container left-container">
-				<div id="calendar-chart"></div>
 				<div id="radar-chart"></div>
 				<div id="line-chart"></div>
+				<div id="calendar-chart"></div>
 			</div>
 			<div class="art-container center-container">
 				<div id="map">
