@@ -230,9 +230,9 @@
         </header>
         <article id="articleContainer">
             <div class="container left-container">
-                <div id="calendar-chart"></div>
                 <div id="radar-chart"></div>
                 <div id="line-chart"></div>
+                <div id="calendar-chart"></div>
             </div>
             <div class="container center-container">
                 <div class="legendDiv">
@@ -553,6 +553,7 @@
             attributionControl: false
             //preferCanvas: true, // 启用canvas
         });
+
         // 通过给定URL模板和具有选项的对象来实例化一个切片图层
         L.tileLayer(
             "https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA#5.0/33.031539/127.253861/0",
@@ -900,29 +901,37 @@
         }];
 
         var myStyle = {
-            "color": "#00f",
-            "weight": 3,
-            "opacity": 0.5,
+            //"color": "#00f",
+            "weight": 1,
+            "opacity": 0.1,
 
         };
         //渲染方法
         var layerGeo = L.geoJSON(geoJson, {
-            style:myStyle,
-            filter: function(feature, layer) {
-                return false; //true or false是否显示
-            }
-        }).addTo(mymap);
+            style:myStyle
+        });
+        /* layerGeo.on("click", (e) => {
+            let content = "id: " + e.layer.feature.properties.note;
+            L.popup().setContent(content).openOn(mymap);
+        }); */
+        layerGeo.bindPopup((e) => {
+            return "Area_id: " + e.feature.properties.note;
+        });
         document.querySelector("#isShowAreas").onclick = () => {
             //console.log(document.querySelector("#isShowAreas").checked);
-            layerGeo.options.filter = (feature, layer) => {
-                return document.querySelector("#isShowAreas").checked;
+            //console.log(dataLayers);
+            for(item of dataLayers){
+                item.setStyle({fillColor: "red", weight: 0, fillOpacity: 1}); // 修改layer样式
+            }
+            mymap.removeLayer(dataPolys);
+            mymap.addLayer(dataPolys);
+            if(document.querySelector("#isShowAreas").checked){
+                mymap.addLayer(layerGeo);
+            }else{
+                mymap.removeLayer(layerGeo);
             }
         };
-        console.log(layerGeo);
-        //添加点击事件
-        layerGeo.on('click',function(e){
-            console.log(e.layer.feature.properties.note) //当前点击的物体的名称
-        });
+        //console.log(layerGeo);
 
         function getRect(coords){
             return [[coords[1] - 0.05, coords[0] - 0.05],
@@ -932,12 +941,19 @@
                     ]
         }
 
+        var dataLayers = [];
+
         for(let i = 0; i < sst.length; i++){
-            let react = getRect([sst[i][0], sst[i][1]]);
-            L.polygon(react, {fillColor: legendColor(sst[i][2]), weight: 0, fillOpacity: 1}).addTo(mymap);
+            let rect = getRect([sst[i][0], sst[i][1]]);
+            let rectPoly = L.polygon(rect, {fillColor: legendColor(sst[i][2]), weight: 0, fillOpacity: 1});
+            dataLayers.push(rectPoly);
         }
-
-
+        dataGeo = L.geoJSON(dataLayers);
+        dataGeo.bindPopup((e) => {
+            console.log(e);
+        });
+        let dataPolys = L.layerGroup(dataLayers);
+        mymap.addLayer(dataPolys);
     </script>
 </body>
 </html>
