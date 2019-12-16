@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
     integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
     crossorigin=""></script>
+    <script type="text/javascript"  src="https://unpkg.com/leaflet.vectorgrid@1.2.0"></script>
     <script src="../node_modules/chroma-js/chroma.js"></script>
     <script src="../node_modules/echarts/dist/echarts.js"></script>
     <style>
@@ -953,7 +954,29 @@
             console.log(e);
         });
         let dataPolys = L.layerGroup(dataLayers);
-        mymap.addLayer(dataPolys);
+        //mymap.addLayer(dataPolys);
+
+        let test = geoJson;
+        let geoDocs = {
+            type: "FeatureCollection",
+            features: test
+        }
+        let gridTile = L.vectorGrid.slicer(geoDocs, {
+            vectorTileLayerStyles:{
+                sliced:{
+                    weight: 1,
+                    color: 'yellow',
+                    fillColor: 'red',
+                    fillOpacity: 0.5
+                }
+                
+            },
+            interactive: true	// 开启VectorGrid触发mouse/pointer事件
+        });
+        gridTile.bindPopup((e) => {
+            console.log(e);
+        });
+        mymap.addLayer(gridTile);
     </script>
 </body>
 </html>
