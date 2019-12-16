@@ -146,6 +146,7 @@ import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 // 引入chroma.js
 import * as chroma from "chroma-js";
+import * as d3 from "d3";
 
 export default {
 	data() {
@@ -257,13 +258,12 @@ export default {
 					console.log(result);
 
 					//console.log(result.data.message.data);
-					result.data.message.data.forEach(item => {
+					/* result.data.message.data.forEach(item => {
 						L.circle([item.latitude, item.longitude], {
 							color: legendColor(item.sstg),
 							radius: 1,
 							fillOpacity: 1
-            			}).addTo(this.myMap);
-
+						}).addTo(this.myMap);
 						// let react = this.getReact([item.longitude, item.latitude]);
 						// L.polygon(react, {
 						// 	fil lColor: legendColor(item.sstg),
@@ -272,7 +272,35 @@ export default {
 						// }).addTo(this.myMap);
 
 						//L.circle([item.lat, item.lon], {color:compute(scaleLinear(item.temp)), radius:1, fillOpacity:1}).addTo(this.myMap);
+					}); */
+
+					myMap._initPathRoot();
+					let svg = d3.select("#mapContainer").select("svg");
+					let g = svg.append("g");
+					
+					result.data.message.data.forEach(item => {
+						item.LatLng = new L.LatLng(item.latitude, item.longitude);
 					});
+					let features =  g.selectAll("circle")
+						.data(result.data.message.data)
+						.enter().append("circle")
+						.style("opacity", 1) 
+						.style("fill", (d, i) => {
+							return legendColor(d.sstg)
+						})
+						.attr("r", 1); 
+					myMap.on("viewreset", update);
+					update();
+					function update() {
+						features.attr("transform", 
+						function(d) { 
+							return "translate("+ 
+								myMap.latLngToLayerPoint(d.LatLng).x +","+ 
+								myMap.latLngToLayerPoint(d.LatLng).y +")";
+							}
+						)
+					}
+
 				} else {
 					this.$notify.error({
 						title: 'Error',
@@ -309,6 +337,7 @@ export default {
 		// 需要在此时调用绘制地图的函数，此时DOM组件已经初始化好
 		this.createMap();
 		this.addGeoOnMap();
+		this.addPoint();
 	},
 	components: {},
 	props: {}
