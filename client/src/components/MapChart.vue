@@ -258,7 +258,7 @@ export default {
 					console.log(result);
 
 					//console.log(result.data.message.data);
-					/* result.data.message.data.forEach(item => {
+					result.data.message.data.forEach(item => {
 						L.circle([item.latitude, item.longitude], {
 							color: legendColor(item.sstg),
 							radius: 1,
@@ -272,9 +272,9 @@ export default {
 						// }).addTo(this.myMap);
 
 						//L.circle([item.lat, item.lon], {color:compute(scaleLinear(item.temp)), radius:1, fillOpacity:1}).addTo(this.myMap);
-					}); */
+					});
 
-					myMap._initPathRoot();
+					/* myMap._initPathRoot();
 					let svg = d3.select("#mapContainer").select("svg");
 					let g = svg.append("g");
 					
@@ -299,7 +299,7 @@ export default {
 								myMap.latLngToLayerPoint(d.LatLng).y +")";
 							}
 						)
-					}
+					} */
 
 				} else {
 					this.$notify.error({
