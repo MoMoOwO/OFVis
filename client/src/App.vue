@@ -8,13 +8,19 @@
 
 		<article id="articleContainer">
 			<div class="art-container left-container">
-				<div id="radar-chart"></div>
-				<div id="line-chart"></div>
-				<div id="calendar-chart"></div>
+				<div id="radar-chart">
+					<spiderweb-chart></spiderweb-chart>
+				</div>
+				<div id="line-chart">
+					<polar-chart></polar-chart>
+				</div>
+				<div id="calendar-chart">
+					<calendar-chart></calendar-chart>
+				</div>
 			</div>
 			<div class="art-container center-container">
 				<div id="map">
-					<mapchart></mapchart>
+					<map-chart></map-chart>
 				</div>
 			</div>
 			<div class="art-container right-container"></div>
@@ -24,6 +30,9 @@
 
 <script>
 import mapchart from "@/components/MapChart.vue";
+import spiderwebchart from "@/components/charts/Spiderweb.vue";
+import polarchart from "@/components/charts/Polar.vue";
+import calendarchart from "@/components/charts/Calendar.vue";
 
 export default {
 	data() {
@@ -34,7 +43,10 @@ export default {
 	created() {},
 	mounted() {},
 	components: {
-		mapchart
+		"map-chart": mapchart,
+		"spiderweb-chart": spiderwebchart,
+		"polar-chart": polarchart,
+		"calendar-chart": calendarchart
 	},
 	props: {}
 };
