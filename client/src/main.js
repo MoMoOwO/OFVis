@@ -5,8 +5,10 @@ import App from './App';
 import router from './router';
 
 // 安装配置ECharts
-import Echarts from 'echarts';
-Vue.prototype.$echarts = Echarts;
+// import Echarts from 'echarts';
+// Vue.prototype.$echarts = Echarts;
+// import ECharts from 'vue-echarts';
+// Vue.component('v-chart', ECharts)
 
 // 安装及配置Emement-UI
 import ElementUI from 'element-ui';
@@ -20,6 +22,11 @@ Vue.config.productionTip = false;
 import Axios from 'axios';
 import VueAxios from 'vue-axios';
 Vue.use(VueAxios, Axios);
+
+// 引入highcharts-vue
+import HighchartsVue from 'highcharts-vue';
+Vue.use(HighchartsVue);
+
 
 /* eslint-disable no-new */
 new Vue({
