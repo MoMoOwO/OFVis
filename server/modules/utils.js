@@ -19,5 +19,9 @@ utils.getDateSequence = function getDateSequence(year = 2015) {
 
 // let i = utils.getDateSequence(2016);
 // console.log(i.format2);
+// let num = 2.44667;
+// let a = +num.toFixed(2)
+// console.log(a, typeof a);
+
 
 module.exports = utils;

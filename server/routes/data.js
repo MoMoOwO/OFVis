@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var utils = require('../modules/utils')
+//var utils = require('../modules/utils');
 // 引入自定义数据库操作模块
 var DB = require('../modules/db');
 
@@ -46,7 +46,7 @@ router.post('/geo', (req, res, next) => {
 
 // 获取温度梯度数据，接收传递参数date为请求的日期，默认20150101
 router.post('/grid', (req, res, next) => {
-    let { date = '20150101' } = req.query.date; // 获取请求的日期
+    let date = req.query.date; // 获取请求的日期
     let query = { "sstg": {$ne: NaN} };
     // 请求数据库
     DB.find(date, query, (err, docs) => {
@@ -79,7 +79,8 @@ router.post('/grid', (req, res, next) => {
 
 // 日历数据请求，统计面积数据，year为请求的年份默认2015，areaid为请求的区域默认全区域
 router.post('/calendar', (req, res, next) => {
-    let { year = '2015', areaid = 'all' } = req.query;
+    let year = parseInt(req.query.year);
+    let areaid = req.query.areaid;
     //let totalArea = 2793935.0221; // 单位平方千米
     //let recordCount = 107061; // 记录总数，查找满足条件的记录数，按占比求面积
 
@@ -94,21 +95,41 @@ router.post('/calendar', (req, res, next) => {
             });
         } else {
             let calendarData = []; // 返回的数据数组
-            let max = 0;
+            let max = 0; // 面积最大值最小值
             let min = 0;
-            let areaArr = docs[0].areas;
+            let index = +areaid + 1; // 海域索引
+            let areaArr = docs[0].areas; // 面积数组
+            // 兼顾自打最小值赋值为第一个个面积值，保留两位小数
+            if (areaid === 'all') {
+                max = +areaArr[0][1].toFixed(2);
+                min = +areaArr[0][1].toFixed(2);
+            } else {
+                max = +areaArr[0][index].toFixed(2);
+                min = +areaArr[0][index].toFixed(2);
+            }
             for (let i = 0; i < areaArr.length; i++){ // 遍历文档的面积数组，组织数据结构
                 if (areaid === 'all') {
-                    calendarData.push([areaArr[i][0], areaArr[1]]); // [日期, 总面积]
-                    max = max > areaArr[1] ? max : areaArr[1];
-                    min = min < areaArr[1] ? min : areaArr[1];
+                    let area = +areaArr[i][1].toFixed(2); // 需要的面积，保留两位小数
+                    calendarData.push([areaArr[i][0], area]); // [日期, 总面积]
+                    max = max > area ? max : area;
+                    min = min < area ? min : area;
                 } else {
-                    let index = +areaid + 1;
-                    calendarData.push([areaArr[i][0], areaArr[index]]); // [日期, 区域面积]
-                    max = max > areaArr[1] ? max : areaArr[1];
+                    let area = +areaArr[i][index].toFixed(2);
+                    calendarData.push([areaArr[i][0], area]); // [日期, 区域面积]
+                    max = max > area ? max : area;
+                    min = min < area ? min : area;
                 }
-                
             }
+
+            res.json({  // 返回数据
+                status: 0,
+                message: {
+                    count: calendarData.length,                    
+                    data: calendarData,
+                    max,
+                    min
+                }
+            });
         }
     });
 
