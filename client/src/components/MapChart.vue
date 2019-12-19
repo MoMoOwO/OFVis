@@ -144,6 +144,7 @@
 import * as L from "leaflet";
 // 引入leaflet样式
 import "leaflet/dist/leaflet.css";
+import "leaflet.vectorgrid";
 // 引入chroma.js
 import * as chroma from "chroma-js";
 import * as d3 from "d3";
@@ -157,6 +158,7 @@ export default {
 			areaLayers: null,
 			// 数据点组图层
 			dataLayers: null,
+			dataTile: null,
 			// 标记是否显示海区划分图层
 			isShowAreas: false,
 			// 用来显示当前现实的日期
@@ -208,7 +210,6 @@ export default {
 			// 请求海区Geo
 			this.axios.post("data/geo?type=zone").then(result => {
 				if(result.data.status === 0){
-					console.log(result.data.message.data[0]);
 					// 成功请求数据的回调
 					this.areaLayers = L.geoJSON(result.data.message.data, {
 						style: { weight: 1, opacity: 1 }
@@ -227,15 +228,37 @@ export default {
 			// 请求数据点Geo
 			this.axios.post("data/geo?type=dataPoly").then(result => {
 				if(result.data.status === 0){
-					console.log(result.data.message.data[0]);
 					// 成功请求数据的回调
-					this.dataLayers = L.geoJSON(result.data.message.data, {
+					/* this.dataLayers = L.geoJSON(result.data.message.data, {
 						style: { fillColor: "red", weight: 0, opacity: 1 }
 					}); // 将geo数据初始化为图层组
 					this.dataLayers.bindPopup((e) => { // 绑定点击事件
 						return "sstg: " + e.feature.properties.sstg; // 显示梯度值
 					});
-					this.myMap.addLayer(this.dataLayers); // 添加到地图
+					this.myMap.addLayer(this.dataLayers); // 添加到地图 */
+					let geoDocs = {
+						type: "FeatureCollection",
+						features: result.data.message.data
+					};
+					this.dataTile = L.vectorGrid.slicer(geoDocs, {
+						rendererFactory: L.svg.tile,
+						vectorTileLayerStyles:{
+							sliced:{
+								fillColor: 'red',
+								fillOpacity: 1,
+								//stroke: true,
+								fill: true,
+								color: 'black',
+								//opacity: 0.2,
+								weight: 0,
+							}
+						},
+						interactive: true	// 开启VectorGrid触发mouse/pointer事件
+					}).addTo(this.myMap);
+					/* this.gridTile.bindPopup((e) => {
+						console.log(e);
+					}); */
+					// this.myMap.addLayer(this.gridTile);
 				}else{
 					// 失败请求数据的回调
 					this.$notify.error({
@@ -336,8 +359,8 @@ export default {
 		this.q4 = this.maxData.toFixed(2);
 		// 需要在此时调用绘制地图的函数，此时DOM组件已经初始化好
 		this.createMap();
-		this.addGeoOnMap();
-		this.addPoint();
+		//this.addGeoOnMap();
+		//this.addPoint();
 	},
 	components: {},
 	props: {}
