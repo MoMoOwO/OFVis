@@ -2,7 +2,14 @@
 	<!-- <div class="calendar">
     <div id="chart" @click="chartClick($event)"></div>
 	</div>-->
-	<v-chart :options="calendarOpt"></v-chart>
+	<!-- autoresize为根据容器缩放重新渲染 -->
+	<v-chart 
+		ref="calendar" 
+		:options="calendarOpt" 
+		autoresize  
+		@click="handleClick"
+		@dblclick="handledbClick">
+	</v-chart>
 </template>
 
 <script>
@@ -16,15 +23,16 @@ import "echarts/lib/component/visualMap";
 export default {
 	data() {
 		return {
-      datequery: "2017",
-
+			datequery: "2015",
+			//data: null,
 			calendarOpt: {
 				// title: {
 				//   text: "日历图"
 				// },
 				visualMap: {
 					min: 0,
-					max: 1000,
+					max: 0,
+					precision: 2, // 显示两位小数
 					//calculable: false,  // 可选范围
 					orient: "horizontal",
 					color: ["#F03B20", "#FEB24C", "#FFEDA0"],
@@ -47,11 +55,14 @@ export default {
 					},
 					height: "auto",
 					cellSize: "auto", // 单元格大小，[宽，高]数值，auto
-					range: this.datequery ? this.datequery : "2017" // 设置日历范围，格式：yyyy, yyyy-MM,字符串形式
+					range: "2015" // 设置日历范围，格式：yyyy, yyyy-MM,字符串形式
 				},
 				tooltip: {
 					position: "top",
-					formatter: "{c}"
+					formatter: (params) => {
+						return `Date: ${params.value[0]} <br />area: ${params.value[1].toFixed(2)}km²`;
+					},
+					triggerOn: 'none'
 				},
 				series: [
 					{
@@ -62,7 +73,7 @@ export default {
 						symbolSize: function(val) {
 							return val[1] / 60;
 						},
-						data: this.getVirtulData(this.datequery)
+						data: null
 					}
 				]
 			}
@@ -70,51 +81,57 @@ export default {
 	},
 	watch: {},
 	methods: {
-		// 格式化时间
-		getVirtulData(year) {
-      year = year || "2017"; // 默认
-      console.log(this.$store);
-			var date = +ECharts.number.parseDate(year + "-01-01"); // 起始
-			var end = +ECharts.number.parseDate(+year + 1 + "-01-01"); // 结束
-			var dayTime = 3600 * 24 * 1000; // 一天的时间，单位毫秒
-			var data = [];
-			// 以一天的毫秒数进行累加，遍历每一天，为每一天添加随机数据
-			for (var time = date; time < end; time += dayTime) {
-				data.push([
-					ECharts.format.formatTime("yyyy-MM-dd", time), // 日期
-					Math.floor(Math.random() * 1000) /// 向下取整
-				]);
-      }
-      console.log(data);
-			// 返回日历数据
-			return data;
+		// 根据年份和海域获取日历面积数据
+		getData(year = 2015, areaid = "all") {
+			this.axios
+				.post(`data/calendar?year=${year}&areaid=${areaid}`)
+				.then(result => {
+					if (result.data.status === 0) {						
+						// 更新数据
+						this.calendarOpt.visualMap.min = result.data.message.min;
+						this.calendarOpt.visualMap.max = result.data.message.max;
+						this.calendarOpt.calendar.range = year.toString();
+						this.calendarOpt.series[0].data = result.data.message.data;
+						// 隐藏缓冲条
+						this.$refs.calendar.hideLoading();
+					} else {
+						// 失败请求数据的回调
+						this.$notify.error({
+							title: "Error",
+							message: "Failed get Calendar-data!"
+						});
+					}
+				});
 		},
-
-		// 绘制日历图
-		/* drawCanlendar() {
-			// 初始化图表 renderer指定使用svg渲染
-			let canlendarChart = this.$echarts.init(
-				document.getElementById("chart"),
-				null,
-				{ renderer: "svg" }
-			);
-			canlendarChart.setOption(this.options);
-
-			// 散点点击
-			canlendarChart.on("click", params => {
-				console.log(params.value);
+		handleClick(e){
+			// 点击显示Tip，会一直显示用来保持上下文，双击之后取消显示
+			this.$refs.calendar.dispatchAction({
+				type: 'showTip',
+				seriesIndex: e.seriesIndex,
+				dataIndex: e.dataIndex,
+				name: e.name,
+				position: 'top'
 			});
 		},
-
-		// 其他标签的点击事件
-		chartClickcc(event) {
-			if (event.target.tagName === "tspan") {
-				console.log(event.target.textContent);
-			}
-		} */
+		handledbClick(e){
+			// 双击与鼠标移出公用一个handle，隐藏tip
+			// 隐藏Tip
+			this.$refs.calendar.dispatchAction({
+				type: 'hideTip'
+			});
+		}
 	},
 	created() {},
-	mounted() {},
+	mounted() {
+		// 显示缓冲条
+		this.$refs.calendar.showLoading({
+			text: 'Loading…',
+			color: '#F03B20',
+			maskColor: 'rgba(255, 255, 255, 0.4)'
+		});
+		// 获取数据
+		this.data = this.getData();
+	},
 	props: {},
 	components: {
 		"v-chart": ECharts
