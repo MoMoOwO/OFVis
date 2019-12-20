@@ -174,13 +174,21 @@ export default {
 		};
 	},
 	watch: {
-		maxData:{  // 监听maxData的改变，当maxData改变，其他四个数也改变
+		// 监听maxData的改变，当maxData改变，其他四个数也改变
+		maxData: {  
 			handler(newVal, oldVal){
 				this.q1 = (0.25 * this.maxData).toFixed(2);
 				this.q2 = (0.5 * this.maxData).toFixed(2);
 				this.q3 = (0.75 * this.maxData).toFixed(2);
 				this.q4 = this.maxData.toFixed(2);
 			}
+		},
+		// 监听父组件传值的变化
+		dateShowInMap: {
+			handler(newVal, oldVal){
+				this.date = this.dateShowInMap;
+			},
+			deep: true
 		}
 	},
 	methods: {
@@ -363,7 +371,7 @@ export default {
 		//this.addPoint();
 	},
 	components: {},
-	props: {}
+	props: ['dateShowInMap'] // 接收父组件传递过来的数据
 };
 </script>
 
