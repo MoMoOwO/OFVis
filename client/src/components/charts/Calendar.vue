@@ -112,6 +112,9 @@ export default {
 				name: e.name,
 				position: 'top'
 			});
+			let newDate = e.value[0].split('-');
+			// 通过调用父组件的方法给父组件传值(修改data中的值)
+			this.$emit('changeDateInMap', +(newDate[0] + newDate[1] + newDate[2]));
 		},
 		handledbClick(e){
 			// 双击与鼠标移出公用一个handle，隐藏tip
