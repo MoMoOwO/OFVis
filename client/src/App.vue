@@ -15,11 +15,12 @@
 					<polar-chart></polar-chart>
 				</div>
 				<div id="calendar-chart">
-					<calendar-chart></calendar-chart>
+					<calendar-chart @changeDateInMap="changeDateInMap"></calendar-chart>
 				</div>
 			</div>
 			<div class="art-container center-container">
 				<div id="map">
+					<!-- <map-chart :dateShowInMap="dateShowInMap"></map-chart> -->
 					<map-chart></map-chart>
 				</div>
 			</div>
@@ -33,17 +34,26 @@ import mapchart from "@/components/MapChart.vue";
 import spiderwebchart from "@/components/charts/Spiderweb.vue";
 import polarchart from "@/components/charts/Polar.vue";
 import calendarchart from "@/components/charts/Calendar.vue";
+import map from "@/components/VMap.vue";
 
 export default {
 	data() {
-		return {};
+		return {
+			// 在地图上显示的数据的日期
+			dateShowInMap: 20150101 
+		};
 	},
 	watch: {},
-	methods: {},
+	methods: {
+		changeDateInMap(newDate){
+			this.dateShowInMap = newDate;
+		}
+	},
 	created() {},
 	mounted() {},
 	components: {
-		"map-chart": mapchart,
+		//"map-chart": mapchart,
+		"map-chart": map,
 		"spiderweb-chart": spiderwebchart,
 		"polar-chart": polarchart,
 		"calendar-chart": calendarchart
