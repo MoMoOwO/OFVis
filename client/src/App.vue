@@ -12,7 +12,7 @@
 					<spiderweb-chart></spiderweb-chart>
 				</div>
 				<div id="line-chart">
-					<polar-chart></polar-chart>
+					<radar-chart></radar-chart>
 				</div>
 				<div id="calendar-chart">
 					<calendar-chart @changeDateInMap="changeDateInMap"></calendar-chart>
@@ -33,6 +33,7 @@
 import mapchart from "@/components/MapChart.vue";
 import spiderwebchart from "@/components/charts/Spiderweb.vue";
 import polarchart from "@/components/charts/Polar.vue";
+import radarchart from "@/components/charts/Radar.vue";
 import calendarchart from "@/components/charts/Calendar.vue";
 import map from "@/components/VMap.vue";
 
@@ -56,7 +57,8 @@ export default {
 		"map-chart": map,
 		"spiderweb-chart": spiderwebchart,
 		"polar-chart": polarchart,
-		"calendar-chart": calendarchart
+		"calendar-chart": calendarchart,
+		"radar-chart": radarchart
 	},
 	props: {}
 };
