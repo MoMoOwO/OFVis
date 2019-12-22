@@ -1,7 +1,4 @@
 <template>
-	<!-- <div class="calendar">
-    <div id="chart" @click="chartClick($event)"></div>
-	</div>-->
 	<!-- autoresize为根据容器缩放重新渲染 -->
 	<v-chart 
 		ref="calendar" 
@@ -60,7 +57,7 @@ export default {
 				tooltip: {
 					position: "top",
 					formatter: (params) => {
-						return `Date: ${params.value[0]} <br />area: ${params.value[1].toFixed(2)}km²`;
+						return `Date: ${params.value[0]} <br />area: ${params.value[1].toFixed(2)} km²`;
 					},
 					triggerOn: 'none'
 				},
@@ -133,7 +130,7 @@ export default {
 			maskColor: 'rgba(255, 255, 255, 0.4)'
 		});
 		// 获取数据
-		this.data = this.getData();
+		//this.data = this.getData();
 	},
 	props: {},
 	components: {
