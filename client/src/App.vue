@@ -9,10 +9,10 @@
 		<article id="articleContainer">
 			<div class="art-container left-container">
 				<div id="radar-chart">
-					<spiderweb-chart></spiderweb-chart>
+					<radar-chart @changeDateInMap="changeDateInMap"></radar-chart>
 				</div>
 				<div id="line-chart">
-					<radar-chart></radar-chart>
+					<polar-chart></polar-chart>
 				</div>
 				<div id="calendar-chart">
 					<calendar-chart @changeDateInMap="changeDateInMap"></calendar-chart>
@@ -20,8 +20,8 @@
 			</div>
 			<div class="art-container center-container">
 				<div id="map">
-					<!-- <map-chart :dateShowInMap="dateShowInMap"></map-chart> -->
-					<map-chart></map-chart>
+					<map-chart :dateShowInMap="dateShowInMap"></map-chart>
+					<!-- <map-chart></map-chart> -->
 				</div>
 			</div>
 			<div class="art-container right-container"></div>
@@ -53,8 +53,8 @@ export default {
 	created() {},
 	mounted() {},
 	components: {
-		//"map-chart": mapchart,
-		"map-chart": map,
+		"map-chart": mapchart,
+		//"map-chart": map,
 		"spiderweb-chart": spiderwebchart,
 		"polar-chart": polarchart,
 		"calendar-chart": calendarchart,
@@ -158,10 +158,8 @@ export default {
     height: 50%;
 }
 #radar-chart{
-    /* background-color: red; */
 }
 #line-chart{
-    background-color: yellow;
 }
 
 #map {
