@@ -1,3 +1,5 @@
+// 引入自定义数据库操作模块
+var DB = require('../modules/db');
 let sd = require("silly-datetime");
 
 let utils = {}; // 工具类
@@ -23,5 +25,26 @@ utils.getDateSequence = function getDateSequence(year = 2015) {
 // let a = +num.toFixed(2)
 // console.log(a, typeof a);
 
+// 获取面积
+utils.getAreas = function getAreas(date) {
+    let promise = new Promise((resolve, reject) => {
+        // 异步请求数据库
+        DB.find('Area', { 'date': date }, (err, docs) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(docs[0]);
+            }
+        });
+    });
+    return promise;
+}
+
+/* getAreas(2015).then((result) => {
+    console.log(result);
+}, (err) => {
+    console.log(err);
+});
+console.log("------"); */
 
 module.exports = utils;
