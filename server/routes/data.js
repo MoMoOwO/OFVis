@@ -99,7 +99,7 @@ router.post('/calendar', (req, res, next) => {
             let min = 0;
             let index = +areaid + 1; // 海域索引
             let areaArr = docs[0].areas; // 面积数组
-            // 兼顾自打最小值赋值为第一个个面积值，保留两位小数
+            // 先将最大最小值赋值为第一个个面积值，保留两位小数
             if (areaid === 'all') {
                 max = +areaArr[0][1].toFixed(2);
                 min = +areaArr[0][1].toFixed(2);
@@ -136,6 +136,33 @@ router.post('/calendar', (req, res, next) => {
 
 });
 
+// 雷达图数据请求，areaid为请求的区域默认全区域
+router.post('/radar', (req, res, next) => {
+    let areaid = req.query.areaid;
+
+    // 返回的数据
+    let resultArr = [{ name: '2015', value: [] }, { name: '2016', value: [] }, { name: '2017', value: [] }];
+    // 遍历数据库
+    /* for (let i = 0; i < resultArr.length; i++) {
+        let areasArr = null;
+        (function (date) {
+            DB.find('Area', { 'date': date }, (err, docs) => {
+                areasArr = docs[0].areas;
+            })
+        })(resultArr[i].name);
+    } */
+    let index = +areaid + 1; // 海域索引
+    resultArr.forEach(item => {
+        DB.find('Area', { 'date': parseInt(item.name) }, (err, docs) => {
+            let areasArr = docs[0].areas; // 某一年的全天的
+            let days, area;
+            // 先添加一月，后按十二月十一月一次添加
+
+        })
+    })
+})
+
+//
 router.post('/source', (req, res, next) => {
     let collectionName = '20151201_grad';
     let query = {};
