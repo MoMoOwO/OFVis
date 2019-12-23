@@ -58,7 +58,9 @@ export default {
                         { text: "Jan", max: 150,
                             axisLabel: {
                             show: true,
-                            formatter: '{value} km²',
+                            formatter: (params) => {
+                                return `${params.toFixed(2)} km²`;
+                            },
                             color: 'black'
                         }},
                         { text: "Dec", max: 150 },
@@ -88,26 +90,42 @@ export default {
                         }
                     },
                     // areaStyle: {normal: {}},
-                    data : [
-                        {
-                            name: '2015',
-                            value: [110, 100, 90, 80, 120, 130, 60, 80, 120, 130, 120, 70]
-                        },
-                        {
-                            name:'2016',
-                            value:[105, 96, 89, 110, 90, 95, 59, 50, 116, 73, 57, 89]
-                        },
-                        {
-                            name:'2017',
-                            value:[118, 93, 86, 128, 86, 120, 70, 59, 127, 80, 70, 97]
-                        }
-                    ]
+                    data : null
                 }]
             }
         };
 	},
 	watch: {},
 	methods: {
+        getData(areaid = 0){
+            this.axios
+                .post(`data/radar?areaid=${areaid}`)
+                .then(result => {
+                    if (result.data.status === 0) {
+                        let dataShow = result.data.message.data;
+                        let max = dataShow[0].value[0]; // 获取面积最大值
+                        for (let i = 0; i < dataShow.length; i++){
+                            for(let j = 0; j < dataShow[i].value.length; j++){
+                                max = max > dataShow[i].value[j] ? max : dataShow[i].value[j];
+                            }
+                        }
+                        // 更新指示器的最大值
+                        this.radarOpt.radar.indicator.forEach(item => {
+                            item.max = max;
+                        })
+						// 更新数据
+                        this.radarOpt.series[0].data = dataShow;
+						// 隐藏缓冲条
+						this.$refs.radar.hideLoading();
+					} else {
+						// 失败请求数据的回调
+						this.$notify.error({
+							title: "Error",
+							message: "Failed get Calendar-data!"
+						});
+					}
+                });
+        },
         handleClick(e){
             // 点击拐点的索引
             let index = e.event.target.__dimIdx;
@@ -115,7 +133,7 @@ export default {
             let info = this.radarOpt.radar.indicator[index].text + ': ';
             let dataArr = this.radarOpt.series[0].data;
             for (let i = 0; i < dataArr.length; i++){
-                info += `${dataArr[i].name}: ${dataArr[i].value[index]}  `;
+                info += `${dataArr[i].name}: ${dataArr[i].value[index].toFixed(2)} km²  `;
             }
             this.radarOpt.title.subtext = info;
 
@@ -167,7 +185,16 @@ export default {
         }
     },
 	created() {},
-    mounted() {},
+    mounted() {
+        // 显示缓冲条
+		this.$refs.radar.showLoading({
+			text: 'Loading…',
+			color: '#F03B20',
+			maskColor: 'rgba(255, 255, 255, 0.4)'
+		});
+		// 获取数据
+		this.getData();
+    },
     components:{
         'v-chart': ECharts
     },
