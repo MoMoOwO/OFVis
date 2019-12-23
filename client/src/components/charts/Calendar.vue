@@ -21,7 +21,6 @@ export default {
 	data() {
 		return {
 			datequery: "2015",
-			//data: null,
 			calendarOpt: {
 				// title: {
 				//   text: "日历图"
@@ -78,8 +77,8 @@ export default {
 	},
 	watch: {},
 	methods: {
-		// 根据年份和海域获取日历面积数据
-		getData(year = 2015, areaid = "all") {
+		// 根据年份和海域获取日历面积数据，year年份，areaid：0为全部，其余与海域id对应
+		getData(year = 2015, areaid = 0) {
 			this.axios
 				.post(`data/calendar?year=${year}&areaid=${areaid}`)
 				.then(result => {
@@ -130,7 +129,7 @@ export default {
 			maskColor: 'rgba(255, 255, 255, 0.4)'
 		});
 		// 获取数据
-		//this.data = this.getData();
+		this.getData();
 	},
 	props: {},
 	components: {
