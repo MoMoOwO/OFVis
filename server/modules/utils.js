@@ -12,7 +12,7 @@ utils.getDateSequence = function getDateSequence(year = 2015) {
     let dateArr2 = [];
     //console.log(start, end);
     let dayTime = 3600 * 24 * 1000;
-    for (let time = start; time < end; time += dayTime){
+    for (let time = start; time < end; time += dayTime) {
         dateArr1.push(sd.format(time, 'YYYY-MM-DD'));
         dateArr2.push(sd.format(time, 'YYYYMMDD'));
     }
@@ -33,7 +33,7 @@ utils.getAreas = function getAreas(date) {
             if (err) {
                 reject(err);
             } else {
-                resolve(docs[0]);
+                resolve(docs[0].areas);
             }
         });
     });
@@ -46,5 +46,24 @@ utils.getAreas = function getAreas(date) {
     console.log(err);
 });
 console.log("------"); */
+
+/* let areasArr = [1, 2, 3, 4];
+let days = 0, area = 0; // 记录某个月天数，用于计算平均面积area，最后添加到resultArr[idx].value数组中
+// 先添加一月，后按十二月十一月依次添加
+for (let i = 0; i < areasArr.length; i++) {
+    // areasArr[0].split("-")：[2015, 01, 01]
+    if (areasArr[i] % 2 === 0) {
+        days += 1; // 天数累加
+        area += areasArr[i]; // 累加对应海域的面积
+    }
+}
+console.log(days, area);
+ */
+
+/* let arr = [1, 2, 3];
+arr.push(4);
+console.log(arr); */
+let i = 1;
+console.log(i.toString().padStart(2, '0'));
 
 module.exports = utils;
