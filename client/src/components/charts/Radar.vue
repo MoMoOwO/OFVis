@@ -19,10 +19,18 @@ export default {
 	data() {
 		return {
             radarOpt: {
-                title: {
+                title: [{
                     text: 'Area',
-                    subtext: ''
                 },
+                {
+                    text: '',
+                    borderColor: '#999',
+                    borderWidth: 1,
+                    textStyle: {
+                        fontSize: 14
+                    },
+                    top: '90%'
+                }],
                 tooltip: {
                     //雷达图的tooltip不会超出div，也可以设置position属性，position定位的tooltip 不会随着鼠标移动而位置变化，不友好
                     confine: true,
@@ -135,7 +143,7 @@ export default {
             for (let i = 0; i < dataArr.length; i++){
                 info += `${dataArr[i].name}: ${dataArr[i].value[index].toFixed(2)} km²  `;
             }
-            this.radarOpt.title.subtext = info;
+            this.radarOpt.title[1].text = info;
 
             // 更新地图显示日期
             let month = this.radarOpt.radar.indicator[index].text;
