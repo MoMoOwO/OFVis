@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-// var utils = require('../modules/utils');
+var utils = require('../modules/utils');
 // 引入自定义数据库操作模块
 var DB = require('../modules/db');
 
@@ -196,7 +196,36 @@ router.post('/radar', (req, res, next) => {
             });
         }
     });
-})
+});
+
+// 箱线图数据请求，date为请求年份，areaid为请求的区域
+router.post('/box', (req, res, next) => {
+    let date = req.query.date;
+    //let areaid = req.query.areaid;
+
+    // 请求数据库
+    DB.find(date, {}, (err, docs) => {
+        if (err) { // 数据库查询失败回调
+            res.json({
+                status: 1,
+                data: err.message
+            });
+        } else { // 成功的回调
+            let gradData = [[], [], [], [], [], [], [], [], [], [], [], [], []]; // 海域海洋锋梯度数据
+            for (let i = 0; i < docs.length; i++) { // 遍历文档，组织数据结构
+                if (docs[i].zone_mask === 1 && docs[i].region_id !== -1) {
+                    gradData[docs[i].region_id - 1].push(docs[i].sstg);
+                }
+            }
+
+            let resData = utils.prepareBoxPlotData(gradData);
+            res.json({  // 返回数据
+                status: 0,
+                message: resData
+            });
+        }
+    });
+});
 
 //
 router.post('/source', (req, res, next) => {
