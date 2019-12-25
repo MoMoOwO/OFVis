@@ -118,7 +118,7 @@
             height: 100%;
         }
 
-        #radar-chart, #line-chart{
+        #radar-chart, #box-chart{
             width: 70%;
             height: 50%;
         }
@@ -232,7 +232,7 @@
         <article id="articleContainer">
             <div class="container left-container">
                 <div id="radar-chart"></div>
-                <div id="line-chart"></div>
+                <div id="box-chart"></div>
                 <div id="calendar-chart"></div>
             </div>
             <div class="container center-container">
@@ -375,7 +375,9 @@
             <div class="container right-container">
                 <div class="gradDiv">1
                     <div class="fatherDiv">2
-                        <div class="childDiv">3</div>
+                        <div class="childDiv">3
+                            <input type="submit" value="提交">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -535,6 +537,165 @@
             console.log(params);
         });
 
+        // 准备箱线图数据
+        /*
+            rawData: 数据集，二维数组
+            [
+                [12, 32, 43], // 第一个数据集(box)
+                [23, 43, 54, 56], // 第二个数据集(box)
+                ....
+            ],
+            opt: {boundIQR: 1.5} 界定界限离群值的参数，
+            默认为1.5，即Q1 - 1.5 * (Q3 - Q1)
+            如果为none/0则不适用界限
+        */
+        function quantile(arr, per){
+            let i = (arr.length - 1) * per + 1, n = Math.floor(i), a = +arr[n - 1], o = i - n;
+            return o ? a + o * (arr[n] - a) : a;
+        }
+        function prepareBoxPlotData(rawData, opt){
+            opt = opt || [];
+            let boxData = []; // 箱图中的数据
+            let outliers = []; // 离群值
+            let axisData = []; // 坐标轴的值
+            let boundIQR = opt.boundIQR; // 获取 boundIQR
+            let useExtreme = boundIQR === 'none' || boundIQR === 0; // 是否使用界限
+
+            for (let i = 0; i < rawData.length; i++) {
+                axisData.push(i + ''); // 坐标轴序号
+                let ascList = rawData[i].sort((a, b) => a - b ); // 获取升序序数组
+
+                // 下四分位数
+                let Q1 = quantile(ascList, 0.25);
+                // 中位数
+                let Q2 = quantile(ascList, 0.5);
+                // 上四分位数
+                let Q3 = quantile(ascList, 0.75); 
+                let min = ascList[0]; // 最小值
+                let max = ascList[ascList.length - 1]; // 最大值
+
+                let bound = (boundIQR == null ? 1.5 : boundIQR) * (Q3 - Q1); // 设定的边界范围差
+
+                // 下边缘
+                let low = useExtreme
+                    ? min
+                    : Math.max(min, Q1 - bound);
+                // 上边缘
+                let high = useExtreme
+                    ? max
+                    : Math.min(max, Q3 + bound);
+
+                boxData.push([low, Q1, Q2, Q3, high]); // 箱线图数据
+
+                // 异常值数据
+                for (let j = 0; j < ascList.length; j++) {
+                    let dataItem = ascList[j];
+                    if (dataItem < low || dataItem > high) {
+                        let outlier = [i, dataItem];
+                        opt.layout === 'vertical' && outlier.reverse();
+                        outliers.push(outlier);
+                    }
+                }
+            }
+            return {
+                boxData: boxData,
+                outliers: outliers,
+                axisData: axisData
+            };
+        }
+
+        var virtulBoxData = prepareBoxPlotData([
+            [850, 740, 900, 1070, 930, 850, 950, 980, 980, 880, 1000, 980, 930, 650, 760, 810, 1000, 1000, 960, 960],
+            [960, 940, 960, 940, 880, 800, 850, 880, 900, 840, 830, 790, 810, 880, 880, 830, 800, 790, 760, 800],
+            [880, 880, 880, 860, 720, 720, 620, 860, 970, 950, 880, 910, 850, 870, 840, 840, 850, 840, 840, 840],
+            [890, 810, 810, 820, 800, 770, 760, 740, 750, 760, 910, 920, 890, 860, 880, 720, 840, 850, 850, 780],
+            [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870]
+        ]);
+        console.log(virtulBoxData);
+
+        // 箱线图配置项
+        let boxOption = {
+            title: [
+                {
+                    text: 'Michelson-Morley Experiment',
+                    left: 'center',
+                },
+                {
+                    text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
+                    borderColor: '#999',
+                    borderWidth: 1,
+                    textStyle: {
+                        fontSize: 14
+                    },
+                    left: '10%',
+                    top: '90%'
+                }
+            ],
+            tooltip: {
+                trigger: 'item',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            grid: {
+                left: '10%',
+                right: '10%',
+                bottom: '15%'
+            },
+            xAxis: {
+                type: 'category',
+                data: virtulBoxData.axisData,
+                boundaryGap: true,
+                nameGap: 30,
+                splitArea: {
+                    show: false
+                },
+                axisLabel: {
+                    formatter: 'expr {value}'
+                },
+                splitLine: {
+                    show: false
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: 'km/s minus 299,000',
+                splitArea: {
+                    show: true
+                }
+            },
+            series: [
+                {
+                    name: 'boxplot',
+                    type: 'boxplot',
+                    data: virtulBoxData.boxData,
+                    tooltip: {
+                        formatter: function (param) {
+                            return [
+                                'Experiment ' + param.name + ': ',
+                                'upper: ' + param.data[5],
+                                'Q3: ' + param.data[4],
+                                'median: ' + param.data[3],
+                                'Q1: ' + param.data[2],
+                                'lower: ' + param.data[1]
+                            ].join('<br/>');
+                        }
+                    }
+                },
+                {
+                    name: 'outlier',
+                    type: 'scatter',
+                    data: virtulBoxData.outliers
+                }
+            ]
+        }
+
+        // 箱线图容器
+        let boxChart = echarts.init(
+            document.querySelector("#box-chart"),
+            null,
+            { renderer: "svg" });
+        boxChart.setOption(boxOption);
 
         // 地图
         let sst = [[117.025, 22.025, 0.0], [117.075, 22.025, 0.0017], [117.125, 22.025, 0.0042], [117.175, 22.025, 0.0042], [117.225, 22.025, 0.0034], [117.275, 22.025, 0.0037], [117.325, 22.025, 0.0037], [117.375, 22.025, 0.003], [117.425, 22.025, 0.0024], [117.475, 22.025, 0.0026], [117.525, 22.025, 0.0025], [117.575, 22.025, 0.0026], [117.625, 22.025, 0.0037], [117.675, 22.025, 0.0042], [117.725, 22.025, 0.0035], [117.775, 22.025, 0.003], [117.825, 22.025, 0.003], [117.875, 22.025, 0.0053], [117.925, 22.025, 0.0075], [117.975, 22.025, 0.0083], [118.025, 22.025, 0.0093], [118.075, 22.025, 0.009000000000000001], [118.125, 22.025, 0.0082], [118.175, 22.025, 0.0101], [118.225, 22.025, 0.0119], [118.275, 22.025, 0.0142], [118.325, 22.025, 0.0153], [118.375, 22.025, 0.0157], [118.425, 22.025, 0.0157], [118.475, 22.025, 0.0143], [118.525, 22.025, 0.0118], [118.575, 22.025, 0.0095], [118.625, 22.025, 0.0075], [118.675, 22.025, 0.0082], [118.725, 22.025, 0.0082], [118.775, 22.025, 0.0095], [118.825, 22.025, 0.013000000000000001], [118.875, 22.025, 0.0142], [118.925, 22.025, 0.0124], [118.975, 22.025, 0.0098], [119.025, 22.025, 0.0077], [119.075, 22.025, 0.0075], [119.125, 22.025, 0.0079], [119.175, 22.025, 0.0053], [119.225, 22.025, 0.0034], [119.275, 22.025, 0.0025], [119.325, 22.025, 0.0012], [119.375, 22.025, 0.0026], [119.425, 22.025, 0.0037], [119.475, 22.025, 0.003], [119.525, 22.025, 0.0035], [119.575, 22.025, 0.0035], [119.625, 22.025, 0.0035], [119.675, 22.025, 0.003], [119.725, 22.025, 0.003], [119.775, 22.025, 0.0034], [119.825, 22.025, 0.0042], [119.875, 22.025, 0.0058], [119.925, 22.025, 0.0067], [119.975, 22.025, 0.0061], [120.025, 22.025, 0.0061], [120.075, 22.025, 0.0063], [120.125, 22.025, 0.0049], [120.175, 22.025, 0.0045], [120.225, 22.025, 0.0042], [120.275, 22.025, 0.0035], [120.325, 22.025, 0.0042], [120.375, 22.025, 0.0037], [120.425, 22.025, 0.0034], [120.475, 22.025, 0.0026], [120.525, 22.025, 0.0026], [120.575, 22.025, 0.0026], [120.625, 22.025, 0.003], [120.925, 22.025, 0.0067], [120.975, 22.025, 0.0092], [121.025, 22.025, 0.0108], [121.075, 22.025, 0.0117], [121.125, 22.025, 0.0117], [121.175, 22.025, 0.0117], [121.225, 22.025, 0.0125], [121.275, 22.025, 0.0125]];
@@ -561,7 +722,7 @@
             { attribution: "OSM" }
         ).addTo(mymap); // 将图层加到地图上
 
-        var legend = L.Control.Legend = L.Control.extend({
+        let legend = L.Control.Legend = L.Control.extend({
             options: {
                 position: 'bottomleft' //初始位置
             },
