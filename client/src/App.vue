@@ -55,8 +55,8 @@ export default {
 		"map-chart": mapchart,
 		//"map-chart": map,
 		//"spiderweb-chart": spiderwebchart,
-		"radar-chart": radarchart,
 		'box-chart': boxchart,
+		"radar-chart": radarchart,
 		"calendar-chart": calendarchart
 	},
 	props: {}
