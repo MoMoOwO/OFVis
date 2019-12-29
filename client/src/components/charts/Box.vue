@@ -54,7 +54,9 @@ export default {
                         show: false
                     },
                     axisLabel: {
-                        formatter: 'expr {value}'
+                        interval: 0, // 间隔0，全部显示
+                        rotate: 45, // 旋转45°防止遮挡
+                        formatter: 'Area {value}'
                     },
                     splitLine: {
                         show: false
@@ -62,7 +64,7 @@ export default {
                 },
                 yAxis: {
                     type: 'value',
-                    name: 'km/s minus 299,000',
+                    name: '℃/km',
                     splitArea: {
                         show: true
                     }
