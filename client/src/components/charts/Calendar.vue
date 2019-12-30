@@ -21,6 +21,7 @@ export default {
 	data() {
 		return {
 			datequery: "2015",
+			clickDateIndex: null,
 			calendarOpt: {
 				// title: {
 				//   text: "日历图"
@@ -58,7 +59,7 @@ export default {
 					formatter: (params) => {
 						return `Date: ${params.value[0]} <br />area: ${params.value[1].toFixed(2)} km²`;
 					},
-					triggerOn: 'none'
+					//triggerOn: 'none'
 				},
 				series: [
 					{
@@ -101,12 +102,21 @@ export default {
 		},
 		handleClick(e){
 			// 点击显示Tip，会一直显示用来保持上下文，双击之后取消显示
-			this.$refs.calendar.dispatchAction({
+			/* this.$refs.calendar.dispatchAction({
 				type: 'showTip',
 				seriesIndex: e.seriesIndex,
 				dataIndex: e.dataIndex,
 				name: e.name,
 				position: 'top'
+			}); */
+			this.$refs.calendar.dispatchAction({
+				type: 'downplay',
+				dataIndex: this.clickDateIndex
+			});
+			this.clickDateIndex = e.dataIndex;
+			this.$refs.calendar.dispatchAction({
+				type: 'highlight',
+				dataIndex: e.dataIndex
 			});
 			let newDate = e.value[0].split('-');
 			// 通过调用父组件的方法给父组件传值(修改data中的值)
