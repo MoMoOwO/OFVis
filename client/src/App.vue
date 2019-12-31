@@ -52,8 +52,8 @@ export default {
 	created() {},
 	mounted() {},
 	components: {
-		"map-chart": mapchart,
-		//"map-chart": map,
+		//"map-chart": mapchart,
+		"map-chart": map,
 		//"spiderweb-chart": spiderwebchart,
 		'box-chart': boxchart,
 		"radar-chart": radarchart,
