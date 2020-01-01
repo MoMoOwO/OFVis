@@ -77,6 +77,37 @@ router.post('/grid', (req, res, next) => {
     });
 });
 
+router.post('/pointData', (req, res, next) => {
+    let date = req.query.date; // 获取请求的日期
+    let query = { "sstg": { $ne: NaN } };
+    // 请求数据库
+    DB.find(date, query, (err, docs) => {
+        if (err) { // 数据库查询失败回调
+            res.json({
+                status: 1,
+                data: err.message
+            });
+        } else { // 成功的回调
+            let oceanInfo = []; // 返回的数据数组
+            for (let i = 0; i < docs.length; i++) { // 遍历文档，组织数据结构
+                oceanInfo.push({
+                    regionid: +docs[i].region_id,
+                    center: `(${docs[i].longitude},${docs[i].latitude})`,
+                    sstg: parseFloat(docs[i].sstg)
+                });
+            }
+
+            res.json({  // 返回数据
+                status: 0,
+                message: {
+                    count: oceanInfo.length,
+                    data: oceanInfo
+                }
+            });
+        }
+    });
+});
+
 // 日历数据请求，统计面积数据，year为请求的年份默认2015，areaid为请求的区域默认全区域
 router.post('/calendar', (req, res, next) => {
     let year = parseInt(req.query.year);
