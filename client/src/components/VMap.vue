@@ -4,7 +4,7 @@
         <l-tile-layer :url="url">
         </l-tile-layer>
         <!-- 特征地图图层 -->
-        <l-choropleth-layer :data="areaData"
+        <!-- <l-choropleth-layer :data="areaData"
             titleKey="areaId" idKey="areaId"
             :value="value"
             geojsonIdKey="id" :geojson="areaGeojson" 
@@ -12,6 +12,19 @@
             strokeWidth=0 currentStrokeWidth=0>
             <template slot-scope="props">
                 <h3>{{props}}</h3>
+                <l-info-control :item="props.currentItem" :unit="props.unit" 
+                title="The gradient value" placeholder="Hover over a point"/>
+                <l-reference-chart title="Gradient value"
+                :colorScale="colorScale" :min="props.min" :max="props.max" position="topright"/>
+            </template>
+        </l-choropleth-layer> -->
+        <l-choropleth-layer :data="pointData"
+            titleKey="center" idKey="center"
+            :value="value"
+            geojsonIdKey="center" :geojson="pointGeojson" 
+            :colorScale="colorScale"
+            >
+            <template slot-scope="props">
                 <l-info-control :item="props.currentItem" :unit="props.unit" 
                 title="The gradient value" placeholder="Hover over a point"/>
                 <l-reference-chart title="Gradient value"
@@ -25,6 +38,7 @@
 import { LMap, LTileLayer, LGeoJson } from 'vue2-leaflet';
 import { InfoControl, ReferenceChart, ChoroplethLayer } from 'vue-choropleth';
 import areaGeojson from './data/zone.json'; // 海区数据
+import pointGeojson from './data/dataPoly.json'; // 数据地理信息
 import 'leaflet/dist/leaflet.css';
 
 export default {
@@ -41,12 +55,17 @@ export default {
                 dragging: true,
                 attributionControl: false,
             },
-            value:{
+            /* value:{
                 key: "number",
+                metric: "℃/km"
+            }, */
+            value:{
+                key: "sstg",
                 metric: "℃/km"
             },
             colorScale: ["2B83BA", "ABDDA4", "FDAE61", "D7191C"],
             areaGeojson,
+            pointGeojson,
             areaData: [
                 {
                     areaId: '1',
@@ -100,7 +119,9 @@ export default {
                     areaId: '13',
                     number: 130
                 }
-            ]
+            ],
+            pointData: [{"regionid":8,"center":"(117.025,22.025)","sstg":0}],
+            date: 20150101
         };
 	},
 	watch: {},
@@ -109,8 +130,19 @@ export default {
 
     },
 	mounted() {
-        console.log(this);
-        console.log(this.$slots.default);
+        this.axios.post("data/pointData?date=20150101").then(result => {
+				if(result.data.status === 0){
+					// 成功请求数据的回调
+					console.log(result);
+                    //this.pointData = result.data.message.data;
+				}else{
+					// 失败请求数据的回调
+					this.$notify.error({
+						title: 'Error',
+						message: 'Failed get Point-data!'
+					});
+				}
+			});
     },
     props: [],
     components: {
