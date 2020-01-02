@@ -1,8 +1,13 @@
 <template>
 	<l-map id="mapCom" :center="center" :options="mapOptions">
         <!-- 地图瓦片图层 -->
-        <l-tile-layer :url="url">
-        </l-tile-layer>
+        <!-- <l-tile-layer :url="url">
+        </l-tile-layer> -->
+        <l-image-overlay
+            :url="imgUrl"
+            :bounds="imgBounds">
+        </l-image-overlay>
+
         <!-- 特征地图图层 -->
         <!-- <l-choropleth-layer :data="areaData"
             titleKey="areaId" idKey="areaId"
@@ -18,7 +23,7 @@
                 :colorScale="colorScale" :min="props.min" :max="props.max" position="topright"/>
             </template>
         </l-choropleth-layer> -->
-        <l-choropleth-layer :data="pointData"
+        <!-- <l-choropleth-layer :data="pointData"
             titleKey="center" idKey="center"
             :value="value"
             geojsonIdKey="center" :geojson="pointGeojson" 
@@ -30,12 +35,12 @@
                 <l-reference-chart title="Gradient value"
                 :colorScale="colorScale" :min="props.min" :max="props.max" position="topright"/>
             </template>
-        </l-choropleth-layer>
+        </l-choropleth-layer> -->
     </l-map>
 </template>
 
 <script>
-import { LMap, LTileLayer, LGeoJson } from 'vue2-leaflet';
+import { LMap, LTileLayer, LGeoJson, LImageOverlay } from 'vue2-leaflet';
 import { InfoControl, ReferenceChart, ChoroplethLayer } from 'vue-choropleth';
 import areaGeojson from './data/zone.json'; // 海区数据
 import pointGeojson from './data/dataPoly.json'; // 数据地理信息
@@ -59,6 +64,8 @@ export default {
                 key: "number",
                 metric: "℃/km"
             }, */
+            imgUrl: require('./data/20160101-b.png'),
+            imgBounds: [[-85, -180], [85, 180]],//[[22, 117], [41, 131]], // 左下右上坐标
             value:{
                 key: "sstg",
                 metric: "℃/km"
@@ -130,25 +137,26 @@ export default {
 
     },
 	mounted() {
-        this.axios.post("data/pointData?date=20150101").then(result => {
-				if(result.data.status === 0){
-					// 成功请求数据的回调
-					console.log(result);
-                    //this.pointData = result.data.message.data;
-				}else{
-					// 失败请求数据的回调
-					this.$notify.error({
-						title: 'Error',
-						message: 'Failed get Point-data!'
-					});
-				}
-			});
+        // this.axios.post("data/pointData?date=20150101").then(result => {
+		// 		if(result.data.status === 0){
+		// 			// 成功请求数据的回调
+		// 			console.log(result);
+        //             this.pointData = result.data.message.data;
+		// 		}else{
+		// 			// 失败请求数据的回调
+		// 			this.$notify.error({
+		// 				title: 'Error',
+		// 				message: 'Failed get Point-data!'
+		// 			});
+		// 		}
+		// 	});
     },
     props: [],
     components: {
         'l-map': LMap,
         'l-tile-layer': LTileLayer,
         'l-geo-json': LGeoJson,
+        'l-image-overlay': LImageOverlay,
         'l-info-control': InfoControl, 
         'l-reference-chart': ReferenceChart, 
         'l-choropleth-layer': ChoroplethLayer 
