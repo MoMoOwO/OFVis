@@ -70,7 +70,7 @@ export default {
                 key: "sstg",
                 metric: "℃/km"
             },
-            colorScale: ["2B83BA", "ABDDA4", "FDAE61", "D7191C"],
+            colorScale: ["2B83BA", "ABDDA4", "FDAE6  1", "D7191C"],
             areaGeojson,
             pointGeojson,
             areaData: [
