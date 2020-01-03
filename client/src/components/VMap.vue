@@ -65,7 +65,7 @@ export default {
                 metric: "℃/km"
             }, */
             imgUrl: require('./data/20160101-b.png'),
-            imgBounds: [[-85, -180], [85, 180]],//[[22, 117], [41, 131]], // 左下右上坐标
+            imgBounds: [[-85, -180], [85, 180]],//  [[22, 117], [41, 131]], // 左下右上坐标
             value:{
                 key: "sstg",
                 metric: "℃/km"
