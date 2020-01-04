@@ -130,7 +130,7 @@
 		<div id="dateDiv">
 			Date
 			<br />
-			{{date}}
+			{{ $store.state.date }}
 		</div>
 		<div id="checkAreaDiv">
 			<el-checkbox v-model="isShowAreas" @change="showAreaChecked">Sea Areas</el-checkbox>
@@ -161,8 +161,6 @@ export default {
 			dataTile: null,
 			// 标记是否显示海区划分图层
 			isShowAreas: false,
-			// 用来显示当前现实的日期
-			date: 20150101,
 			// 最大值
 			maxData: 2,
 			// 温度区间五分位数
@@ -189,6 +187,13 @@ export default {
 				this.date = this.dateShowInMap;
 			},
 			deep: true
+		},
+		// 监听store中的date的变化
+		'this.$store.state.date':{
+			handler(newVal, oldVal){
+				//this.date = this.$store.state.date;
+				// 显示该日期的情况
+			}
 		}
 	},
 	methods: {

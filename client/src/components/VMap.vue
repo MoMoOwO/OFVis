@@ -1,8 +1,8 @@
 <template>
 	<l-map id="mapCom" :center="center" :options="mapOptions">
         <!-- 地图瓦片图层 -->
-        <!-- <l-tile-layer :url="url">
-        </l-tile-layer> -->
+        <l-tile-layer :url="url">
+        </l-tile-layer>
         <l-image-overlay
             :url="imgUrl"
             :bounds="imgBounds">
@@ -64,8 +64,8 @@ export default {
                 key: "number",
                 metric: "℃/km"
             }, */
-            imgUrl: require('./data/20160101-b.png'),
-            imgBounds: [[-85, -180], [85, 180]],//  [[22, 117], [41, 131]], // 左下右上坐标
+            imgUrl: require('./data/20160101.png'),
+            imgBounds: [[-85, -180], [85, 180]], // 左下右上坐标
             value:{
                 key: "sstg",
                 metric: "℃/km"
