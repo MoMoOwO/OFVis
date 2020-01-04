@@ -23,15 +23,30 @@ import Axios from 'axios';
 import VueAxios from 'vue-axios';
 Vue.use(VueAxios, Axios);
 
-// 引入highcharts-vue
-import HighchartsVue from 'highcharts-vue';
-Vue.use(HighchartsVue);
-
+// 导入Vuex，状态管理工具
+import Vuex from 'vuex';
+// 注册vuex到vue中
+Vue.use(Vuex);
+// 实例化一个vuex实例
+var store = new Vuex.Store({
+  state: {
+    // state可以理解为专门用来存储共享数据的
+    // 如果在组件中访问state中的属性，只能通过this.$store.state.***来访问
+    date: 20150101,
+  },
+  mutations: {
+    // 如果要操作store.state中的数据，只能通过调用mutatuions提供的方法才能操作对应的数据，不推荐直接操作state中的数据
+    changeDate(state, newDate) {
+      state.date = newDate;
+    }
+  }
+})
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
+  store,  // 挂载仓储
   components: { App },
   template: '<App/>'
 })
