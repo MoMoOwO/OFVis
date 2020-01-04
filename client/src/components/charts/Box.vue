@@ -103,7 +103,6 @@ export default {
                 .post(`data/box?date=${this.date}`)
                 .then( result => {
                     if (result.data.status === 0) {
-                        console.log(result);
                         let dataShow = result.data.message;
                         this.boxOpt.xAxis.data = dataShow.axisData;
                         this.boxOpt.series[0].data = dataShow.boxData;
