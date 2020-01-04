@@ -9,18 +9,18 @@
 		<article id="articleContainer">
 			<div class="art-container left-container">
 				<div id="radar-chart">
-					<radar-chart @changeDateInMap="changeDateInMap"></radar-chart>
+					<radar-chart></radar-chart>
 				</div>
 				<div id="line-chart">
 					<box-chart></box-chart>
 				</div>
 				<div id="calendar-chart">
-					<calendar-chart @changeDateInMap="changeDateInMap"></calendar-chart>
+					<calendar-chart></calendar-chart>
 				</div>
 			</div>
 			<div class="art-container center-container">
 				<div id="map">
-					<map-chart :dateShowInMap="dateShowInMap"></map-chart>
+					<map-chart></map-chart>
 					<!-- <map-chart></map-chart> -->
 				</div>
 			</div>
@@ -39,21 +39,16 @@ import map from "@/components/VMap.vue";
 export default {
 	data() {
 		return {
-			// 在地图上显示的数据的日期
-			dateShowInMap: 20150101 
 		};
 	},
 	watch: {},
 	methods: {
-		changeDateInMap(newDate){
-			this.dateShowInMap = newDate;
-		}
 	},
 	created() {},
 	mounted() {},
 	components: {
-		//"map-chart": mapchart,
-		"map-chart": map,
+		"map-chart": mapchart,
+		//"map-chart": map,
 		//"spiderweb-chart": spiderwebchart,
 		'box-chart': boxchart,
 		"radar-chart": radarchart,
