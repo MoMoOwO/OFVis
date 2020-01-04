@@ -119,8 +119,8 @@ export default {
 				dataIndex: e.dataIndex
 			});
 			let newDate = e.value[0].split('-');
-			// 通过调用父组件的方法给父组件传值(修改data中的值)
-			this.$emit('changeDateInMap', +(newDate[0] + newDate[1] + newDate[2]));
+			// 修改store仓储中的工共数据date
+			this.$store.commit('changeDate', +(newDate[0] + newDate[1] + newDate[2]));
 		},
 		handledbClick(e){
 			// 双击与鼠标移出公用一个handle，隐藏tip

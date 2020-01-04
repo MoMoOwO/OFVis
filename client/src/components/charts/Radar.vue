@@ -188,8 +188,8 @@ export default {
                     month = "01";
                     break;
             }
-            // 通过调用父组件的方法给父组件传值(修改data中的值)
-			this.$emit('changeDateInMap', +(e.name + month));
+            // 修改store中的date
+            this.$store.commit('changeDate', +(e.name + month));
         }
     },
 	created() {},
