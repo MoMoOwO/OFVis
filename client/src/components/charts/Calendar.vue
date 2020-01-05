@@ -36,9 +36,9 @@ export default {
 			datequery: "2015",
 			clickDateIndex: null,
 			calendarOpt: {
-				// title: {
-				//   text: "日历图"
-				// },
+				title: {
+				  	text: "日历图"
+				},
 				visualMap: {
 					min: 0,
 					max: 0,
