@@ -1,12 +1,25 @@
 <template>
-	<!-- autoresize为根据容器缩放重新渲染 -->
-	<v-chart 
-		ref="calendar" 
-		:options="calendarOpt" 
-		autoresize  
-		@click="handleClick"
-		@dblclick="handledbClick">
-	</v-chart>
+	<div class="cal-all">
+		<!-- autoresize为根据容器缩放重新渲染 -->
+		<v-chart
+			ref="calendar" 
+			:options="calendarOpt" 
+			autoresize  
+			@click="handleClick"
+			@dblclick="handledbClick">
+		</v-chart>
+
+		<el-dropdown class="cal-year">
+			<span class="el-dropdown-link">
+				选择年份<i class="el-icon-arrow-down el-icon--right"></i>
+			</span>
+			<el-dropdown-menu slot="dropdown">
+				<el-dropdown-item>2015</el-dropdown-item>
+				<el-dropdown-item>2016</el-dropdown-item>
+				<el-dropdown-item>2017</el-dropdown-item>
+			</el-dropdown-menu>
+		</el-dropdown>
+	</div>
 </template>
 
 <script>
@@ -69,6 +82,14 @@ export default {
 						// 设置散点大小
 						symbolSize: function(val) {
 							return val[1] / 60;
+						},
+						itemStyle:{
+							normal:{
+								//borderColor: 'red',
+							},
+						emphasis:{
+								borderColor: 'blue'
+							}
 						},
 						data: null
 					}
@@ -149,8 +170,25 @@ export default {
 </script>
 
 <style scoped>
+.cal-all {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.cal-year {
+	position: absolute;
+	top: 1px;
+	left: 1px;
+}
 .echarts {
 	width: 100%;
 	height: 100%;
+}
+.el-dropdown-link {
+    cursor: pointer;
+    color: #409EFF;
+}
+.el-icon-arrow-down {
+	font-size: 12px;
 }
 </style>
