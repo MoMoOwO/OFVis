@@ -189,9 +189,9 @@ export default {
 			deep: true
 		},
 		// 监听store中的date的变化
-		'this.$store.state.date':{
+		'this.$store.state.date': {
 			handler(newVal, oldVal){
-				//this.date = this.$store.state.date;
+				this.date = this.$store.state.date;
 				// 显示该日期的情况
 			}
 		}
