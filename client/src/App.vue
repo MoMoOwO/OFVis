@@ -4,18 +4,29 @@
 			<div id="logoContainer">
 				<div id="sysNameDiv">OF-Vis</div>
 			</div>
+			<span class="demonstration">Date Range：</span>
+			<el-date-picker
+				v-model="dateRangeValue"
+				value-model="yyyy-MM-dd" 
+				type="daterange"
+				range-separator="To"
+				start-placeholder="Start Date"
+				end-placeholder="End Date" 
+				:picker-options="pickerOpt"
+				size="small" align="center">
+			</el-date-picker>
 		</header>
 
 		<article id="articleContainer">
 			<div class="art-container left-container">
+				<div id="calendar-chart">
+					<calendar-chart></calendar-chart>
+				</div>
 				<div id="radar-chart">
 					<radar-chart></radar-chart>
 				</div>
 				<div id="line-chart">
 					<box-chart></box-chart>
-				</div>
-				<div id="calendar-chart">
-					<calendar-chart></calendar-chart>
 				</div>
 			</div>
 			<div class="art-container center-container">
@@ -39,9 +50,26 @@ import map from "@/components/VMap.vue";
 export default {
 	data() {
 		return {
+			dateRangeValue: this.$store.state.dateRange,
+			// DateRange配置项
+			pickerOpt: {
+				// 可选范围
+				disabledDate(time){
+					return !(time.getTime() >= new Date('2015-12-31') && time.getTime() <= new Date('2018-12-31'));
+				},
+				// 周首日
+				firstDayOfWeek: 1
+			}
 		};
 	},
-	watch: {},
+	watch: {
+		dateRangeValue: {
+			handler(newVal, oldVal){
+				console.log(this.dateRangeValue);
+				// 显示该日期的情况
+			}
+		}
+	},
 	methods: {
 	},
 	created() {},
@@ -74,8 +102,10 @@ export default {
 	width: 100%;
 	height: 36px;
 	margin: -36px 0 0;
+	align-items: center;
 	box-sizing: border-box;
 	border-bottom: solid 2px #ccc;
+	display: flex;
 }
 #logoContainer {
 	height: 36px;
