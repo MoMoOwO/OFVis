@@ -1,24 +1,19 @@
 <template>
-	<div class="cal-all">
+	<div class="area-chart">
 		<!-- autoresize为根据容器缩放重新渲染 -->
-		<v-chart
+		<v-chart class="calendar-chart"
 			ref="calendar" 
 			:options="calendarOpt" 
 			autoresize  
 			@click="handleClick"
 			@dblclick="handledbClick">
 		</v-chart>
+		<v-chart class="bar-chart"
+			ref="bar" 
+			:options="barOpt" 
+			autoresize>
 
-		<el-dropdown class="cal-year">
-			<span class="el-dropdown-link">
-				选择年份<i class="el-icon-arrow-down el-icon--right"></i>
-			</span>
-			<el-dropdown-menu slot="dropdown">
-				<el-dropdown-item>2015</el-dropdown-item>
-				<el-dropdown-item>2016</el-dropdown-item>
-				<el-dropdown-item>2017</el-dropdown-item>
-			</el-dropdown-menu>
-		</el-dropdown>
+		</v-chart>
 	</div>
 </template>
 
@@ -29,6 +24,7 @@ import "echarts/lib/component/calendar";
 import "echarts/lib/component/tooltip";
 import "echarts/lib/component/legend";
 import "echarts/lib/component/visualMap";
+import "echarts/lib/chart/bar";
 
 export default {
 	data() {
@@ -37,7 +33,8 @@ export default {
 			clickDateIndex: null,
 			calendarOpt: {
 				title: {
-				  	text: "日历图"
+					text: "Area by daily",
+					subtext: this.$store.state.dateRange[0] + ' to ' + this.$store.state.dateRange[1]
 				},
 				visualMap: {
 					min: 0,
@@ -52,11 +49,11 @@ export default {
 				calendar: {
 					orient: "vertical", // 排列方向，默认horizontal
 					left: 30,
-					right: 10,
+					right: 0,
 					bottom: 50,
-					// yearLabel: { // 年份标签边距
-					//   margin: 40
-					// },
+					yearLabel: { // 年份标签边距
+						show: false
+					},
 					// monthLabel: { // 月份标签边距
 					//   margin: 20
 					// },
@@ -94,10 +91,72 @@ export default {
 						data: null
 					}
 				]
+			},
+			barOpt: {
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+						type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+					}
+				},
+				legend: {
+					data: ['2015', '2016', '2017']
+				},
+				grid: {
+					left: 0
+				},
+				xAxis: {
+					type: 'value',
+					show: false
+				},
+				yAxis: {
+					type: 'category',
+					data: ['周一', '周二', '周三', '周四', '周五', '周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+					//show: false,
+					splitArea: {
+						show: true
+					}
+				},
+				series: [
+					{
+						name: '2015',
+						type: 'bar',
+						label: {
+							show: true,
+							position: 'insideRight'
+						},
+						data: [320, 302, 301, 334, 390, 330, 320, 320, 302, 301, 334, 390]
+					},
+					{
+						name: '2016',
+						type: 'bar',
+						label: {
+							show: true,
+							position: 'insideRight'
+						},
+						data: [120, 132, 101, 134, 90, 230, 210, 120, 132, 101, 134, 90,]
+					},
+					{
+						name: '2017',
+						type: 'bar',
+						label: {
+							show: true,
+							position: 'insideRight'
+						},
+						data: [220, 182, 191, 234, 290, 220, 182, 191, 234, 290, 330, 310]
+					}
+				]
 			}
 		};
 	},
-	watch: {},
+	watch: {
+		'this.$store.state.dateRange': {
+			handler(newVal, oldVal){
+				this.calendarOpt.title.subtext = this.$store.state.dateRange[0] + ' to ' + this.$store.state.dateRange[1];
+				// 显示该日期的情况
+			}
+		}
+	},
 	methods: {
 		// 根据年份和海域获取日历面积数据，year年份，areaid：0为全部，其余与海域id对应
 		getData(year = 2015, areaid = 0) {
@@ -170,25 +229,21 @@ export default {
 </script>
 
 <style scoped>
-.cal-all {
-	position: relative;
+.area-chart {
+	display: flex;
 	width: 100%;
 	height: 100%;
 }
-.cal-year {
-	position: absolute;
-	top: 1px;
-	left: 1px;
+.calendar-chart {
+	width: 80%;
+	height: 100%;
+}
+.bar-chart {
+	width: 20%;
+	height: 100%;
 }
 .echarts {
 	width: 100%;
 	height: 100%;
-}
-.el-dropdown-link {
-    cursor: pointer;
-    color: #409EFF;
-}
-.el-icon-arrow-down {
-	font-size: 12px;
 }
 </style>
