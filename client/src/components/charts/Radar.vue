@@ -197,7 +197,7 @@ export default {
         // 显示缓冲条
 		this.$refs.radar.showLoading({
 			text: 'Loading…',
-			color: '#F03B20',
+			color: '#409EFF',
 			maskColor: 'rgba(255, 255, 255, 0.4)'
 		});
 		// 获取数据

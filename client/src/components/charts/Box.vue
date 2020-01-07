@@ -178,7 +178,7 @@ export default {
         // 显示缓冲条
 		this.$refs.box.showLoading({
 			text: 'Loading…',
-			color: '#F03B20',
+			color: '#409EFF',
 			maskColor: 'rgba(255, 255, 255, 0.4)'
 		});
         this.getData();
