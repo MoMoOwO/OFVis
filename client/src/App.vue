@@ -19,8 +19,8 @@
 
 		<article id="articleContainer">
 			<div class="art-container left-container">
-				<div id="calendar-chart">
-					<calendar-chart></calendar-chart>
+				<div id="base-area-chart">
+					<base-area-chart></base-area-chart>
 				</div>
 				<div id="radar-chart">
 					<radar-chart></radar-chart>
@@ -44,7 +44,7 @@
 import mapchart from "@/components/MapChart.vue";
 import radarchart from "@/components/charts/Radar.vue";
 import boxchart from "@/components/charts/Box.vue";
-import calendarchart from "@/components/charts/Calendar.vue";
+import baseAreaChart from "@/components/charts/AreaChartBase.vue";
 import map from "@/components/VMap.vue";
 
 export default {
@@ -80,7 +80,7 @@ export default {
 		//"spiderweb-chart": spiderwebchart,
 		'box-chart': boxchart,
 		"radar-chart": radarchart,
-		"calendar-chart": calendarchart
+		"base-area-chart": baseAreaChart
 	},
 	props: {}
 };
@@ -173,7 +173,7 @@ export default {
 	flex: 1;
 }
 
-#calendar-chart{
+#base-area-chart{
     width: 30%;
     height: 100%;
 }
