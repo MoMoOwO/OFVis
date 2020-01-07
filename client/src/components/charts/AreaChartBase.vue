@@ -1,18 +1,12 @@
 <template>
-	<div class="area-chart">
+	<div class="area-chart-container">
 		<!-- autoresize为根据容器缩放重新渲染 -->
-		<v-chart class="calendar-chart"
-			ref="calendar" 
-			:options="calendarOpt" 
+		<v-chart class="area-chart"
+			ref="areaChart" 
+			:options="areaChartOpt" 
 			autoresize  
 			@click="handleClick"
 			@dblclick="handledbClick">
-		</v-chart>
-		<v-chart class="bar-chart"
-			ref="bar" 
-			:options="barOpt" 
-			autoresize>
-
 		</v-chart>
 	</div>
 </template>
@@ -20,21 +14,39 @@
 <script>
 import ECharts from "vue-echarts";
 import "echarts/lib/chart/heatmap";
+import "echarts/lib/chart/bar";
 import "echarts/lib/component/calendar";
+import "echarts/lib/component/brush";
+import "echarts/lib/component/toolbox";
 import "echarts/lib/component/tooltip";
 import "echarts/lib/component/legend";
 import "echarts/lib/component/visualMap";
-import "echarts/lib/chart/bar";
+import "echarts/lib/component/markLine";
 
 export default {
 	data() {
 		return {
 			datequery: "2015",
 			clickDateIndex: null,
-			calendarOpt: {
+			areaChartOpt: {
 				title: {
-					text: "Area by daily",
-					subtext: this.$store.state.dateRange[0] + ' to ' + this.$store.state.dateRange[1]
+					text: "Area of Ocean-Front",
+					//subtext: this.$store.state.dateRange[0] + ' to ' + this.$store.state.dateRange[1]
+				},
+				toolbox:{
+					top: 20,
+					feature: {
+						brush:{
+							// 此处配置，刷选的功能
+							top: 20,
+							type: ['lineY', 'clear']
+						}
+					}
+				},
+				brush:{
+					// 此处配置刷选的作用项
+					yAxisIndex: 0,
+					brushType: 'rect'
 				},
 				visualMap: {
 					min: 0,
@@ -43,20 +55,33 @@ export default {
 					//calculable: false,  // 可选范围
 					orient: "horizontal",
 					color: ["#F03B20", "#FEB24C", "#FFEDA0"],
-					left: "center",
-					bottom: "0"
+					left: 0,
+					bottom: "0",
+					itemHeight: "100%",
+					seriesIndex: 0
 				},
-				calendar: {
+				tooltip: {
+					position: "top",
+					formatter: (params) => {
+						if(params.componentSubType === 'heatmap'){ // 热力图悬浮
+							return `Date: ${params.value[0]} <br />area: ${params.value[1].toFixed(2)} km²`;
+						} else if(params.componentSubType === 'bar'){ // 条形图悬浮
+							return `Date: ${params.seriesName}-${params.name} <br />area: ${params.data.toFixed(2)} km²`
+						}
+					},
+					//triggerOn: 'none'
+				},
+				calendar: { // 热力图容器
 					orient: "vertical", // 排列方向，默认horizontal
-					left: 30,
-					right: 0,
+					left: 5,
+					right: "45%",
 					bottom: 50,
 					yearLabel: { // 年份标签边距
 						show: false
 					},
-					// monthLabel: { // 月份标签边距
-					//   margin: 20
-					// },
+					monthLabel: { // 月份标签边距
+						show: false
+					},
 					dayLabel: {
 						firstDay: 1 // 从周一开始
 					},
@@ -64,22 +89,40 @@ export default {
 					cellSize: "auto", // 单元格大小，[宽，高]数值，auto
 					range: "2015" // 设置日历范围，格式：yyyy, yyyy-MM,字符串形式
 				},
-				tooltip: {
-					position: "top",
-					formatter: (params) => {
-						return `Date: ${params.value[0]} <br />area: ${params.value[1].toFixed(2)} km²`;
+				grid: {
+					left: "72%",
+					right: 5
+				}, // 条形图容器
+				xAxis: {
+					type: 'value',
+					//show: false,
+					/* axisPointer: {
+						show: true
+					} */
+					splitLine: { 
+						show: true,
+						interval: 2
 					},
-					//triggerOn: 'none'
+					axisTick:{
+						show: false
+					},
+					axisLabel:{
+						show: false
+					}
+				},
+				yAxis: {
+					type: 'category',
+					data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+					inverse: true, //  顺序倒置
+					axisTick: {
+						alignWithLabel: true
+					}
 				},
 				series: [
-					{
+					{ // 热力图的series
 						coordinateSystem: "calendar",
 						type: "heatmap",
 						calendarIndex: 0, // 日历索引
-						// 设置散点大小
-						symbolSize: function(val) {
-							return val[1] / 60;
-						},
 						itemStyle:{
 							normal:{
 								//borderColor: 'red',
@@ -89,61 +132,27 @@ export default {
 							}
 						},
 						data: null
-					}
-				]
-			},
-			barOpt: {
-				tooltip: {
-					trigger: 'axis',
-					axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-						type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-					}
-				},
-				legend: {
-					data: ['2015', '2016', '2017']
-				},
-				grid: {
-					left: 0
-				},
-				xAxis: {
-					type: 'value',
-					show: false
-				},
-				yAxis: {
-					type: 'category',
-					data: ['周一', '周二', '周三', '周四', '周五', '周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-					//show: false,
-					splitArea: {
-						show: true
-					}
-				},
-				series: [
-					{
-						name: '2015',
-						type: 'bar',
-						label: {
-							show: true,
-							position: 'insideRight'
-						},
-						data: [320, 302, 301, 334, 390, 330, 320, 320, 302, 301, 334, 390]
 					},
-					{
-						name: '2016',
-						type: 'bar',
-						label: {
-							show: true,
-							position: 'insideRight'
-						},
-						data: [120, 132, 101, 134, 90, 230, 210, 120, 132, 101, 134, 90,]
-					},
-					{
+					{ // barchart的series
 						name: '2017',
 						type: 'bar',
+						barWidth: 10,
+						left: 200,
 						label: {
-							show: true,
+							show: false,
 							position: 'insideRight'
 						},
-						data: [220, 182, 191, 234, 290, 220, 182, 191, 234, 290, 330, 310]
+						color: '#3398DB',
+						data: [220, 182, 191, 234, 290, 220, 182, 191, 234, 290, 330, 310],
+						/* markLine: {
+							data: [
+								{ type: 'average', name: '平均值' }
+							],
+							lineStyle:{
+								color: "green",
+								width: 2,
+							}
+						} */
 					}
 				]
 			}
@@ -165,12 +174,12 @@ export default {
 				.then(result => {
 					if (result.data.status === 0) {						
 						// 更新数据
-						this.calendarOpt.visualMap.min = result.data.message.min;
-						this.calendarOpt.visualMap.max = result.data.message.max;
-						this.calendarOpt.calendar.range = year.toString();
-						this.calendarOpt.series[0].data = result.data.message.data;
+						this.areaChartOpt.visualMap.min = result.data.message.min;
+						this.areaChartOpt.visualMap.max = result.data.message.max;
+						this.areaChartOpt.calendar.range = year.toString();
+						this.areaChartOpt.series[0].data = result.data.message.data;
 						// 隐藏缓冲条
-						this.$refs.calendar.hideLoading();
+						this.$refs.areaChart.hideLoading();
 					} else {
 						// 失败请求数据的回调
 						this.$notify.error({
@@ -189,12 +198,12 @@ export default {
 				name: e.name,
 				position: 'top'
 			}); */
-			this.$refs.calendar.dispatchAction({
+			this.$refs.areaChart.dispatchAction({
 				type: 'downplay',
 				dataIndex: this.clickDateIndex
 			});
 			this.clickDateIndex = e.dataIndex;
-			this.$refs.calendar.dispatchAction({
+			this.$refs.areaChart.dispatchAction({
 				type: 'highlight',
 				dataIndex: e.dataIndex
 			});
@@ -205,7 +214,7 @@ export default {
 		handledbClick(e){
 			// 双击与鼠标移出公用一个handle，隐藏tip
 			// 隐藏Tip
-			this.$refs.calendar.dispatchAction({
+			this.$refs.areaChart.dispatchAction({
 				type: 'hideTip'
 			});
 		}
@@ -213,9 +222,9 @@ export default {
 	created() {},
 	mounted() {
 		// 显示缓冲条
-		this.$refs.calendar.showLoading({
+		this.$refs.areaChart.showLoading({
 			text: 'Loading…',
-			color: '#F03B20',
+			color: '#409EFF',
 			maskColor: 'rgba(255, 255, 255, 0.4)'
 		});
 		// 获取数据
@@ -229,17 +238,14 @@ export default {
 </script>
 
 <style scoped>
-.area-chart {
-	display: flex;
+.area-chart-container {
+	position: relative;
 	width: 100%;
 	height: 100%;
 }
-.calendar-chart {
-	width: 80%;
-	height: 100%;
-}
-.bar-chart {
-	width: 20%;
+.area-chart {
+	position: absolute;
+	width: 100%;
 	height: 100%;
 }
 .echarts {
