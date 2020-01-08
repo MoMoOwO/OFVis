@@ -28,6 +28,8 @@ export default {
 		return {
 			datequery: "2015",
 			clickDateIndex: null,
+			ctrlDown: false,
+			shiftDown: false,
 			areaChartOpt: {
 				title: {
 					text: "Area of Ocean-Front",
@@ -96,18 +98,15 @@ export default {
 				xAxis: {
 					type: 'value',
 					//show: false,
-					/* axisPointer: {
-						show: true
-					} */
-					splitLine: { 
+					splitLine: { // 分割线
 						show: true,
-						interval: 2
+						interval: 2 // 间隔几条显示一条
 					},
 					axisTick:{
-						show: false
+						show: false // 轴刻度
 					},
 					axisLabel:{
-						show: false
+						show: false // 轴刻度标签
 					}
 				},
 				yAxis: {
@@ -123,13 +122,15 @@ export default {
 						coordinateSystem: "calendar",
 						type: "heatmap",
 						calendarIndex: 0, // 日历索引
-						itemStyle:{
-							normal:{
-								//borderColor: 'red',
-							},
-						emphasis:{
-								borderColor: 'blue'
+						/* itemStyle: {
+							emphasis: {
+								borderColor: function(params){
+									console.log(params);
+								}
 							}
+						}, */
+						itemStyle: {
+							normal: {}
 						},
 						data: null
 					},
@@ -198,7 +199,9 @@ export default {
 				name: e.name,
 				position: 'top'
 			}); */
-			this.$refs.areaChart.dispatchAction({
+
+			// 高亮保持上下文
+			/* this.$refs.areaChart.dispatchAction({
 				type: 'downplay',
 				dataIndex: this.clickDateIndex
 			});
@@ -206,7 +209,15 @@ export default {
 			this.$refs.areaChart.dispatchAction({
 				type: 'highlight',
 				dataIndex: e.dataIndex
-			});
+			}); */
+
+			console.log(e);
+			console.log(this.areaChartOpt.series[0]);
+			console.log(this.areaChartOpt.series[0].setitemStyle)
+			// 修改点击的单元黑色边框
+			e.data.itemStyle.borderColor = "black";
+			
+
 			let newDate = e.value[0].split('-');
 			// 修改store仓储中的工共数据date
 			this.$store.commit('changeDate', +(newDate[0] + newDate[1] + newDate[2]));
@@ -214,9 +225,9 @@ export default {
 		handledbClick(e){
 			// 双击与鼠标移出公用一个handle，隐藏tip
 			// 隐藏Tip
-			this.$refs.areaChart.dispatchAction({
+			/* this.$refs.areaChart.dispatchAction({
 				type: 'hideTip'
-			});
+			}); */
 		}
 	},
 	created() {},
