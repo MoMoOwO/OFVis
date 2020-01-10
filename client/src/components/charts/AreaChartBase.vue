@@ -30,6 +30,8 @@ export default {
 			clickDateIndex: null,
 			ctrlDown: false,
 			shiftDown: false,
+			selectedDateIdx: [],
+			selectedDate: [],
 			areaChartOpt: {
 				title: {
 					text: "Area of Ocean-Front",
@@ -130,7 +132,11 @@ export default {
 							}
 						}, */
 						itemStyle: {
-							normal: {}
+							normal: {
+							},
+							emphasis: {
+								borderColor: "black"
+							}
 						},
 						data: null
 					},
@@ -199,28 +205,71 @@ export default {
 				name: e.name,
 				position: 'top'
 			}); */
+			if (e.componentSubType === 'heatmap') {
+				// ctrl键按下，可以隔项多选
+				if(this.ctrlDown){
+					// 强调该项
+					this.$refs.areaChart.dispatchAction({
+						type: 'highlight',
+						dataIndex: e.dataIndex
+					});
+					this.selectedDateIdx.push(e.dataIndex);
+				} else if (this.shiftDown){ // shift按下，可以选中任意起始范围
+					// 强调该项
+					this.$refs.areaChart.dispatchAction({
+						type: 'highlight',
+						dataIndex: e.dataIndex
+					});
+					this.selectedDateIdx.push(e.dataIndex);
+					// 修改终止日其索引
+					if (this.selectedDateIdx.length === 3){
+						if(this.selectedDateIdx[1] == this.selectedDateIdx[2]){
+							this.selectedDateIdx.pop();
+						} else {
+							this.selectedDateIdx = [this.selectedDateIdx[0], this.selectedDateIdx[2]];
+						}
+					}
+					if (this.selectedDateIdx.length === 2){
+							for(let i = this.selectedDateIdx[0]; i <= this.selectedDateIdx[1]; i++){
+								this.$refs.areaChart.dispatchAction({
+								type: 'highlight',
+								dataIndex: i
+							});
+						}
+					}
+				} else {
+					// 单纯单击只能选中一个
+					// 强调该项
+					this.$refs.areaChart.dispatchAction({
+						type: 'highlight',
+						dataIndex: e.dataIndex
+					});
+					if (this.selectedDateIdx.length === 2){
+						for(let i = this.selectedDateIdx[0]; i <= this.selectedDateIdx[1]; i++){
+							this.$refs.areaChart.dispatchAction({
+								type: 'downplay',
+								dataIndex: i
+							});
+						}
+					}else{
+						// 将所有的淡化
+						for(let i of this.selectedDateIdx ) {
+							// 淡化之前的选中项
+							this.$refs.areaChart.dispatchAction({
+								type: 'downplay',
+								dataIndex: i
+							});
+						}
+					}
+					this.selectedDateIdx = []; // 置空
+					this.selectedDateIdx.push(e.dataIndex);
+				}
 
-			// 高亮保持上下文
-			/* this.$refs.areaChart.dispatchAction({
-				type: 'downplay',
-				dataIndex: this.clickDateIndex
-			});
-			this.clickDateIndex = e.dataIndex;
-			this.$refs.areaChart.dispatchAction({
-				type: 'highlight',
-				dataIndex: e.dataIndex
-			}); */
-
-			console.log(e);
-			console.log(this.areaChartOpt.series[0]);
-			console.log(this.areaChartOpt.series[0].setitemStyle)
-			// 修改点击的单元黑色边框
-			e.data.itemStyle.borderColor = "black";
+				let newDate = e.value[0].split('-');
+				// 修改store仓储中的工共数据date
+				//this.$store.commit('changeDate', +(newDate[0] + newDate[1] + newDate[2]));
+			}
 			
-
-			let newDate = e.value[0].split('-');
-			// 修改store仓储中的工共数据date
-			this.$store.commit('changeDate', +(newDate[0] + newDate[1] + newDate[2]));
 		},
 		handledbClick(e){
 			// 双击与鼠标移出公用一个handle，隐藏tip
@@ -228,6 +277,28 @@ export default {
 			/* this.$refs.areaChart.dispatchAction({
 				type: 'hideTip'
 			}); */
+		},
+		handleKeydown(e){
+			e.preventDefault();
+			console.log(1);
+			// 组合键按下可以使用快捷键属性来判断(boolean)
+			if(e.ctrlKey){
+				this.ctrlDown = true;
+			} else if (e.shiftKey){
+				this.shiftDown = true;
+			}
+			// 移除事件，避免重复执行该事件响应
+			window.removeEventListener('keydown', this.handleKeydown);
+		},
+		handleKeyup(e){
+			// 快捷键谈起只能通过keyCode来判断
+			if(e.keyCode === 17 || this.ctrlDown){
+				this.ctrlDown = false;
+			} else if (e.keyCode === 16 || this.ctrlDown){
+				this.shiftDown = false;
+			}
+			// 重新添加事件监听
+			window.addEventListener('keydown', this.handleKeydown);
 		}
 	},
 	created() {},
@@ -240,6 +311,9 @@ export default {
 		});
 		// 获取数据
 		this.getData();
+		// 添加键盘事件监听
+		window.addEventListener('keydown', this.handleKeydown);
+		window.addEventListener('keyup', this.handleKeyup);
 	},
 	props: {},
 	components: {
