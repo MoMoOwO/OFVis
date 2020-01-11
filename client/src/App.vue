@@ -35,7 +35,11 @@
 					<!-- <map-chart></map-chart> -->
 				</div>
 			</div>
-			<div class="art-container right-container"></div>
+			<div class="art-container right-container">
+				<div id="space">
+					<space-gallery></space-gallery>
+				</div>
+			</div>
 		</article>
 	</div>
 </template>
@@ -46,6 +50,7 @@ import radarchart from "@/components/charts/Radar.vue";
 import boxchart from "@/components/charts/Box.vue";
 import baseAreaChart from "@/components/charts/AreaChartBase.vue";
 import map from "@/components/VMap.vue";
+import spacegallery from "@/components/SpaceGallery.vue";
 
 export default {
 	data() {
@@ -80,7 +85,8 @@ export default {
 		//"spiderweb-chart": spiderwebchart,
 		'box-chart': boxchart,
 		"radar-chart": radarchart,
-		"base-area-chart": baseAreaChart
+		"base-area-chart": baseAreaChart,
+		"space-gallery": spacegallery
 	},
 	props: {}
 };
@@ -184,6 +190,10 @@ export default {
 #radar-chart{
 }
 #line-chart{
+}
+#space{
+	width: 100%;
+	height: 20%;
 }
 
 #map {
