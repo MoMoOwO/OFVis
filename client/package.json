@@ -23,6 +23,7 @@
     "sass": "^1.22.10",
     "sass-loader": "^8.0.0",
     "screenfull": "^4.2.1",
+    "v-gallery": "^1.2.4",
     "vue": "^2.5.2",
     "vue-axios": "^2.1.4",
     "vue-choropleth": "^0.3.1",
