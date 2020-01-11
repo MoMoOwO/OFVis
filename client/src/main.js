@@ -25,6 +25,10 @@ import Axios from 'axios';
 import VueAxios from 'vue-axios';
 Vue.use(VueAxios, Axios);
 
+// 引入images画廊组件
+import vGallery from 'v-gallery';
+Vue.use(vGallery);
+
 // 导入Vuex，状态管理工具
 import Vuex from 'vuex';
 // 注册vuex到vue中
