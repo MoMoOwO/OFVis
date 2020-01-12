@@ -197,44 +197,58 @@ export default {
 				});
 		},
 		handleClick(e){
-			// 点击显示Tip，会一直显示用来保持上下文，双击之后取消显示
-			/* this.$refs.calendar.dispatchAction({
-				type: 'showTip',
-				seriesIndex: e.seriesIndex,
-				dataIndex: e.dataIndex,
-				name: e.name,
-				position: 'top'
-			}); */
+			console.log(this.areaChartOpt.series[0].data);
+			// 点击强调该项，双击之后取消显示
 			if (e.componentSubType === 'heatmap') {
 				// ctrl键按下，可以隔项多选
-				if(this.ctrlDown){
+				if (this.ctrlDown) {
+					// 强调该项
+					this.$refs.areaChart.dispatchAction({
+						type: 'highlight',
+						dataIndex: e.dataIndex
+					});
+					this.selectedDateIdx.push(e.dataIndex); // 记录点击的项索引
+					// 记录点击项的日期
+					let dateArr = this.areaChartOpt.series[0].data[e.dataIndex][0].split('-');
+					this.selectedDate.push(+(dateArr[0] + dateArr[1] + dateArr[2]));
+				} else if (this.shiftDown) { // shift按下，可以选中任意起始范围
+					// shift按下时，selsectedDateIdx数组中只保持日期的开始与结束索引
 					// 强调该项
 					this.$refs.areaChart.dispatchAction({
 						type: 'highlight',
 						dataIndex: e.dataIndex
 					});
 					this.selectedDateIdx.push(e.dataIndex);
-				} else if (this.shiftDown){ // shift按下，可以选中任意起始范围
-					// 强调该项
-					this.$refs.areaChart.dispatchAction({
-						type: 'highlight',
-						dataIndex: e.dataIndex
-					});
-					this.selectedDateIdx.push(e.dataIndex);
-					// 修改终止日其索引
+					// 判断是否又修改了终止日其索引
 					if (this.selectedDateIdx.length === 3){
+						// 终止未修改
 						if(this.selectedDateIdx[1] == this.selectedDateIdx[2]){
 							this.selectedDateIdx.pop();
-						} else {
+						} else { // 修改了结束日期
 							this.selectedDateIdx = [this.selectedDateIdx[0], this.selectedDateIdx[2]];
 						}
 					}
+					// 此时selectedDateIdx数组为二维，只保存了起始和终止日期的索引
 					if (this.selectedDateIdx.length === 2){
-							for(let i = this.selectedDateIdx[0]; i <= this.selectedDateIdx[1]; i++){
-								this.$refs.areaChart.dispatchAction({
+						// 从小的索引开始
+						let startIdx = this.selectedDateIdx[0];
+						let endIdx = this.selectedDateIdx[1];
+						if (this.selectedDateIdx[0] > this.selectedDateIdx[1]) {
+							startIdx = this.selectedDateIdx[1];
+							endIdx = this.selectedDateIdx[0];
+						} else {
+							startIdx = this.selectedDateIdx[0];
+							endIdx = this.selectedDateIdx[1];
+						}
+						// 强调范围内的项
+						for(let i = startIdx; i <= endIdx; i++){
+							this.$refs.areaChart.dispatchAction({
 								type: 'highlight',
 								dataIndex: i
 							});
+							// 记录点击项的日期
+							let dateArr = this.areaChartOpt.series[0].data[i][0].split('-');
+							this.selectedDate.push(+(dateArr[0] + dateArr[1] + dateArr[2]));
 						}
 					}
 				} else {
@@ -244,25 +258,11 @@ export default {
 						type: 'highlight',
 						dataIndex: e.dataIndex
 					});
-					if (this.selectedDateIdx.length === 2){
-						for(let i = this.selectedDateIdx[0]; i <= this.selectedDateIdx[1]; i++){
-							this.$refs.areaChart.dispatchAction({
-								type: 'downplay',
-								dataIndex: i
-							});
-						}
-					}else{
-						// 将所有的淡化
-						for(let i of this.selectedDateIdx ) {
-							// 淡化之前的选中项
-							this.$refs.areaChart.dispatchAction({
-								type: 'downplay',
-								dataIndex: i
-							});
-						}
-					}
-					this.selectedDateIdx = []; // 置空
+					this.handledbClick(e);
 					this.selectedDateIdx.push(e.dataIndex);
+					// 记录点击项的日期
+					let dateArr = this.areaChartOpt.series[0].data[e.dataIndex][0].split('-');
+					this.selectedDate.push(+(dateArr[0] + dateArr[1] + dateArr[2]));
 				}
 
 				let newDate = e.value[0].split('-');
@@ -272,12 +272,28 @@ export default {
 			
 		},
 		handledbClick(e){
-			// 双击与鼠标移出公用一个handle，隐藏tip
-			// 隐藏Tip
-			/* this.$refs.areaChart.dispatchAction({
-				type: 'hideTip'
-			}); */
+			// 双击取消所有强调项
+			if (this.selectedDateIdx.length === 2){
+				for(let i = this.selectedDateIdx[0]; i <= this.selectedDateIdx[1]; i++){
+					this.$refs.areaChart.dispatchAction({
+						type: 'downplay',
+						dataIndex: i
+					});
+				}
+			}else{
+				// 将所有的淡化
+				for(let i of this.selectedDateIdx ) {
+					// 淡化之前的选中项
+					this.$refs.areaChart.dispatchAction({
+						type: 'downplay',
+						dataIndex: i
+					});
+				}
+			}
+			this.selectedDateIdx = []; // 置空选中项索引数组
+			this.selectedDate = []; // 指控选中日期数组
 		},
+		// 监听键盘按下的事件处理函数
 		handleKeydown(e){
 			e.preventDefault();
 			console.log(1);
@@ -290,6 +306,7 @@ export default {
 			// 移除事件，避免重复执行该事件响应
 			window.removeEventListener('keydown', this.handleKeydown);
 		},
+		// 监听键盘弹起的事件处理函数
 		handleKeyup(e){
 			// 快捷键谈起只能通过keyCode来判断
 			if(e.keyCode === 17 || this.ctrlDown){
