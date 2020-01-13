@@ -197,7 +197,6 @@ export default {
 				});
 		},
 		handleClick(e){
-			console.log(this.areaChartOpt.series[0].data);
 			// 点击强调该项，双击之后取消显示
 			if (e.componentSubType === 'heatmap') {
 				// ctrl键按下，可以隔项多选
@@ -268,6 +267,7 @@ export default {
 				let newDate = e.value[0].split('-');
 				// 修改store仓储中的工共数据date
 				//this.$store.commit('changeDate', +(newDate[0] + newDate[1] + newDate[2]));
+				console.log(this.selectedDate);
 			}
 			
 		},
@@ -295,8 +295,7 @@ export default {
 		},
 		// 监听键盘按下的事件处理函数
 		handleKeydown(e){
-			e.preventDefault();
-			console.log(1);
+			e.preventDefault(); // 取消默认事件
 			// 组合键按下可以使用快捷键属性来判断(boolean)
 			if(e.ctrlKey){
 				this.ctrlDown = true;
