@@ -6,7 +6,8 @@
 			:options="areaChartOpt" 
 			autoresize  
 			@click="handleClick"
-			@dblclick="handledbClick">
+			@dblclick="handledbClick"
+			@brush="handleBrush">
 		</v-chart>
 	</div>
 </template>
@@ -66,13 +67,13 @@ export default {
 				},
 				tooltip: {
 					position: "top",
-					formatter: (params) => {
-						if(params.componentSubType === 'heatmap'){ // 热力图悬浮
-							return `Date: ${params.value[0]} <br />area: ${params.value[1].toFixed(2)} km²`;
-						} else if(params.componentSubType === 'bar'){ // 条形图悬浮
-							return `Date: ${params.seriesName}-${params.name} <br />area: ${params.data.toFixed(2)} km²`
+					formatter: (e) => {
+						if(e.componentSubType === 'heatmap'){ // 热力图悬浮
+							return `Date: ${e.value[0]} <br />area: ${e.value[1].toFixed(2)} km²`;
+						} else if(e.componentSubType === 'bar'){ // 条形图悬浮
+							return `Date: ${e.seriesName}-${(e.dataIndex + 1).toString().padStart(2, '0')} <br />area: ${e.data.toFixed(2)} km²`
 						}
-					},
+					}
 					//triggerOn: 'none'
 				},
 				calendar: { // 热力图容器
@@ -143,13 +144,15 @@ export default {
 					{ // barchart的series
 						name: '2017',
 						type: 'bar',
-						barWidth: 10,
-						left: 200,
-						label: {
-							show: false,
-							position: 'insideRight'
+						//barWidth: 10,
+						itemStyle: {
+							normal: {
+							},
+							emphasis: {
+								color: "#007AFF"
+							}
 						},
-						color: '#3398DB',
+						color: '#00A6FF',
 						data: [220, 182, 191, 234, 290, 220, 182, 191, 234, 290, 330, 310],
 						/* markLine: {
 							data: [
@@ -197,6 +200,7 @@ export default {
 				});
 		},
 		handleClick(e){
+			console.log(e)
 			// 点击强调该项，双击之后取消显示
 			if (e.componentSubType === 'heatmap') {
 				// ctrl键按下，可以隔项多选
@@ -292,6 +296,9 @@ export default {
 			}
 			this.selectedDateIdx = []; // 置空选中项索引数组
 			this.selectedDate = []; // 指控选中日期数组
+		},
+		handleBrush(e){
+			console.log(e);
 		},
 		// 监听键盘按下的事件处理函数
 		handleKeydown(e){
