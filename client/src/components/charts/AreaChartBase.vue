@@ -27,12 +27,14 @@ import "echarts/lib/component/markLine";
 export default {
 	data() {
 		return {
-			datequery: "2015",
-			clickDateIndex: null,
-			ctrlDown: false,
-			shiftDown: false,
-			selectedDateIdx: [],
-			selectedDate: [],
+			datequery: "2015", // 查询的年份，暂未用
+			clickDateIndex: null, // 点击的日其索引，已弃用
+			seriesIdx: 0, // 目标series索引，交互的series的索引，用于使用dispatchAction接口来将指定series中的指定项强调或者淡化
+			ctrlDown: false, // 标记ctrl键是否按下
+			shiftDown: false, // 标记shift键是否按下
+			selectedDateIdx: [], // 选中的目标项(日期)在series的data数组中的索引
+			selectedDate: [], // 选中的目标项(日期)
+			// 图表配置项
 			areaChartOpt: {
 				title: {
 					text: "Area of Ocean-Front",
@@ -48,11 +50,11 @@ export default {
 						}
 					}
 				},
-				brush:{
+				/* brush:{
 					// 此处配置刷选的作用项
 					yAxisIndex: 0,
 					brushType: 'rect'
-				},
+				}, */
 				visualMap: {
 					min: 0,
 					max: 0,
@@ -125,17 +127,10 @@ export default {
 						coordinateSystem: "calendar",
 						type: "heatmap",
 						calendarIndex: 0, // 日历索引
-						/* itemStyle: {
-							emphasis: {
-								borderColor: function(params){
-									console.log(params);
-								}
-							}
-						}, */
 						itemStyle: {
 							normal: {
 							},
-							emphasis: {
+							emphasis: { // 交互时的强调样式
 								borderColor: "black"
 							}
 						},
@@ -200,7 +195,8 @@ export default {
 				});
 		},
 		handleClick(e){
-			console.log(e)
+			//this.handledbClick(e);
+
 			// 点击强调该项，双击之后取消显示
 			if (e.componentSubType === 'heatmap') {
 				// ctrl键按下，可以隔项多选
@@ -208,6 +204,7 @@ export default {
 					// 强调该项
 					this.$refs.areaChart.dispatchAction({
 						type: 'highlight',
+						seriesIndex: 0,
 						dataIndex: e.dataIndex
 					});
 					this.selectedDateIdx.push(e.dataIndex); // 记录点击的项索引
@@ -219,6 +216,7 @@ export default {
 					// 强调该项
 					this.$refs.areaChart.dispatchAction({
 						type: 'highlight',
+						seriesIndex: 0,
 						dataIndex: e.dataIndex
 					});
 					this.selectedDateIdx.push(e.dataIndex);
@@ -247,6 +245,7 @@ export default {
 						for(let i = startIdx; i <= endIdx; i++){
 							this.$refs.areaChart.dispatchAction({
 								type: 'highlight',
+								seriesIndex: 0,
 								dataIndex: i
 							});
 							// 记录点击项的日期
@@ -259,6 +258,7 @@ export default {
 					// 强调该项
 					this.$refs.areaChart.dispatchAction({
 						type: 'highlight',
+						seriesIndex: 0,
 						dataIndex: e.dataIndex
 					});
 					this.handledbClick(e);
@@ -275,21 +275,40 @@ export default {
 			}
 			
 		},
+		// 双击操作处理函数，此函数用来淡化所有已经强调项(选中项)
+		// 在两个不同的series之间切换选中时，会将之前的series的强调项淡化
 		handledbClick(e){
+			// 先判断当前的e.seriesIndex与当前data中的seriesIdx是否相同，不相同则需要将之前的series的强调项淡化重新
+			let downplaySeriesIdx = 0;
+			this.seriesIdx === e.seriesIndex ? downplaySeriesIdx = e.seriesIndex : downplaySeriesIdx = this.seriesIdx;
+			this.seriesIndex = e.dataIndex;
+
 			// 双击取消所有强调项
 			if (this.selectedDateIdx.length === 2){
-				for(let i = this.selectedDateIdx[0]; i <= this.selectedDateIdx[1]; i++){
+				// 从小的索引开始
+				let startIdx = this.selectedDateIdx[0];
+				let endIdx = this.selectedDateIdx[1];
+				if (this.selectedDateIdx[0] > this.selectedDateIdx[1]) {
+					startIdx = this.selectedDateIdx[1];
+					endIdx = this.selectedDateIdx[0];
+				} else {
+					startIdx = this.selectedDateIdx[0];
+					endIdx = this.selectedDateIdx[1];
+				}
+				for(let i = startIdx; i <= endIdx; i++){
 					this.$refs.areaChart.dispatchAction({
 						type: 'downplay',
+						seriesIndex: downplaySeriesIdx,
 						dataIndex: i
 					});
 				}
-			}else{
+			} else {
 				// 将所有的淡化
-				for(let i of this.selectedDateIdx ) {
+				for (let i of this.selectedDateIdx ) {
 					// 淡化之前的选中项
 					this.$refs.areaChart.dispatchAction({
 						type: 'downplay',
+						seriesIndex: downplaySeriesIdx,
 						dataIndex: i
 					});
 				}
