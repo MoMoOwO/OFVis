@@ -7,7 +7,7 @@
 			autoresize  
 			@click="handleClick"
 			@dblclick="handledbClick"
-			@brush="handleBrush">
+			@brushselected="handleBrushSelected">
 		</v-chart>
 	</div>
 </template>
@@ -40,8 +40,8 @@ export default {
 					text: "Area of Ocean-Front",
 					//subtext: this.$store.state.dateRange[0] + ' to ' + this.$store.state.dateRange[1]
 				},
-				toolbox:{
-					top: 20,
+				toolbox:{ // 设置工具栏的配置项
+					bottom: "0",
 					feature: {
 						brush:{
 							// 此处配置，刷选的功能
@@ -50,11 +50,13 @@ export default {
 						}
 					}
 				},
-				/* brush:{
+				brush:{
 					// 此处配置刷选的作用项
 					yAxisIndex: 0,
-					brushType: 'rect'
-				}, */
+					brushType: "rect", // 只提供矩形选择
+					throttleType: "debounce", // 刷选框停止throttleDelay后才进行事件响应
+					throttleDelay: 1000
+				},
 				visualMap: {
 					min: 0,
 					max: 0,
@@ -140,13 +142,13 @@ export default {
 						name: '2017',
 						type: 'bar',
 						//barWidth: 10,
-						itemStyle: {
+						/* itemStyle: {
 							normal: {
 							},
 							emphasis: {
 								color: "#007AFF"
 							}
-						},
+						}, */
 						color: '#00A6FF',
 						data: [220, 182, 191, 234, 290, 220, 182, 191, 234, 290, 330, 310],
 						/* markLine: {
@@ -195,8 +197,6 @@ export default {
 				});
 		},
 		handleClick(e){
-			//this.handledbClick(e);
-
 			// 点击强调该项，双击之后取消显示
 			if (e.componentSubType === 'heatmap') {
 				// ctrl键按下，可以隔项多选
@@ -276,13 +276,8 @@ export default {
 			
 		},
 		// 双击操作处理函数，此函数用来淡化所有已经强调项(选中项)
-		// 在两个不同的series之间切换选中时，会将之前的series的强调项淡化
+		// 双击会包含单击-待处理！！
 		handledbClick(e){
-			// 先判断当前的e.seriesIndex与当前data中的seriesIdx是否相同，不相同则需要将之前的series的强调项淡化重新
-			let downplaySeriesIdx = 0;
-			this.seriesIdx === e.seriesIndex ? downplaySeriesIdx = e.seriesIndex : downplaySeriesIdx = this.seriesIdx;
-			this.seriesIndex = e.dataIndex;
-
 			// 双击取消所有强调项
 			if (this.selectedDateIdx.length === 2){
 				// 从小的索引开始
@@ -298,7 +293,7 @@ export default {
 				for(let i = startIdx; i <= endIdx; i++){
 					this.$refs.areaChart.dispatchAction({
 						type: 'downplay',
-						seriesIndex: downplaySeriesIdx,
+						seriesIndex: 0,
 						dataIndex: i
 					});
 				}
@@ -308,7 +303,7 @@ export default {
 					// 淡化之前的选中项
 					this.$refs.areaChart.dispatchAction({
 						type: 'downplay',
-						seriesIndex: downplaySeriesIdx,
+						seriesIndex: 0,
 						dataIndex: i
 					});
 				}
@@ -316,8 +311,19 @@ export default {
 			this.selectedDateIdx = []; // 置空选中项索引数组
 			this.selectedDate = []; // 指控选中日期数组
 		},
-		handleBrush(e){
-			console.log(e);
+		// 条形图刷选
+		handleBrushSelected(e){
+			this.selectedDate = []; // 清空数组
+			let comSelected = e.batch[0].selected[1]; // 刷选的纵坐标数组
+
+			if (comSelected.dataIndex.length === 0) {
+				this.selectedDate = []; // 清空数组
+			} else {
+				for (let i of comSelected.dataIndex){
+					this.selectedDate.push(+(comSelected.seriesName + (i + 1).toString().padStart(2, '0')));
+				}
+			}
+			console.log(this.selectedDate);
 		},
 		// 监听键盘按下的事件处理函数
 		handleKeydown(e){
