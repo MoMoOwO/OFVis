@@ -11,14 +11,16 @@
     vue ui
     ```
 
-2. 在 .eslintrc.js 文件的 rules 节点下添加如下规则，之后可根据个人编程习惯再做调整
+2. 在 client 目录下 .eslintrc.js 文件的 rules 节点下添加如下规则，之后可根据个人编程习惯再做调整
 
     ``` JavaScript
     'space-before-function-paren': 0,
-    'space-in-parens': 0
+    'space-in-parens': 0,
+    'no-tabs': 'off',
+    'indent': 'off'
     ```
 
-3. 新建 .prettierrc.json 文件，添加如下配置内容，之后也可以根据跟人编程习惯再做调整
+3. 在 client 目录下新建 .prettierrc.json 文件，添加如下配置内容，之后也可以根据跟人编程习惯再做调整
 
     ``` json
     {
@@ -27,12 +29,122 @@
     }
     ```
 
-## 本地客户端
+4. 运行项目，项目默认运行在 `8080` 端口上
 
-1. 本地客户端端口 localhost:8080
-2. 与本地服务端端口不同，会造成跨域请求，之后在前后端通讯的时候解决
+    ``` bash
+    cd client
+    npm run serve
+    ```
 
-## 借助 Element UI 设计主界面
+5. 清理项目
+
+    (1) 打开 client/src/App.vue，将 `template` 标签中的 `div` 里的内容清空，将 `script` 标签下内容清空，将 `style` 标签下的内容清空。
+
+    (2) 打开 client/src/router/index.js，将引入的 `Home` 组件删除，并清空 `routes` 路由数组。
+
+    (3) 删除 client/src/views 目录。
+
+    (4) 删除 client/src/components 目录下的 HelloWorld.vue 组件文件。
+
+## 前端界面开发
+
+1. 依赖库摘要：
+
+    (1) less_loader：`npm i less_loader -S -D`
+
+    (2) element-ui: `npm i element-ui -S`
+
+2. 主要结构介绍：....
+
+### 主页布局
+
+1. 添加全局样式：在 client/src/assets 目录下创建 css 文件夹，在该文件夹中创建 global.css 样式表文件，该文件中控制全局的样式，现阶段添加如下样式，让容器占满全屏幕。最后需要在 main.js 入口该文件中引入该样式：`import './assets/css/global.css'`
+
+    ``` css
+    /* 全局样式表 */
+    html, body, #app {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    ```
+
+2. 安装配置 Element-UI 组件库
+
+    (1) 添加 element-ui 依赖：`npm i element-ui -S`
+
+    (2) 之后采用按需导入的方式使用 element-ui 提供的组件
+
+    + 在 client/src 目录下创建 plugins 文件夹，在该文件夹下创建 element.js，暂时添加以下内容，来引入主页布局所需要的组件
+
+      ``` JavaScript
+      import Vue from 'vue'
+      // 按需引入 element-ui 组件
+      import {
+        Message,
+        Container,
+        Header,
+        Main
+      } from 'element-ui'
+      // 将组建添加到 Vue 实例中
+      Vue.use(Container)
+      Vue.use(Header)
+      Vue.use(Main)
+      ```
+
+    + 在 main.js 中引入 element-ui 的样式文件 `import 'element-ui/lib/theme-chalk/index.css'`，引入 element.js `import './plugins/element.js'`
+
+3. 创建首页组件并完成首页路由
+
+    (1) 首页布局
+
+    + 组件：element-ui 的组件 - `el-container`、`el-header`、`el-main`、`el-card`
+    + 主要页面结构
+
+      ``` HTML
+      <el-container class="home-container">
+        <!-- 头部区域 -->
+        <el-header>
+          <div>
+            <img src="../assets/logo.png" />
+            <span>OFViser</span>
+          </div>
+          <el-alert title="成功提示的文案" type="success" :closable="false"></el-alert>
+        </el-header>
+        <!-- 主体区域 - 圣杯布局 -->
+        <el-container class="main-container">
+          <!-- 右侧 -->
+          <el-main class="left-panel">
+            <el-card id="area-chart-card">面积图</el-card>
+            <el-card id="line-chart-card">雷达折线图</el-card>
+            <el-card id="box-chart-card">箱线图</el-card>
+          </el-main>
+          <!-- 中部 -->
+          <el-main class="mid-panel">
+            <el-card id="map-card">地图</el-card>
+            <el-card id="gallery-card">画廊</el-card>
+          </el-main>
+          <!-- 左侧 -->
+          <el-main class="right-panel">
+            <el-card id="card-placeholder1">占位1</el-card>
+            <el-card id="card-placeholder2">占位2</el-card>
+            <el-card id="card-placeholder3">占位3</el-card>
+          </el-main>
+        </el-container>
+      </el-container>
+      ```
+
+    + 最终效果
+    ![首页布局](https://i.loli.net/2020/05/28/gUS5dFvQe6ZyG2A.jpg)
+
+    (2) 首页路由导航和根路由的路由重定向，我们希望在进入页面时就导航到 `/home` 路径中，同时显示该路由下的首页界面，所以在 client/src/router/index.js 路由文件的路由规则中添加如下规则
+
+    ``` JavaScript
+    const routes = [
+      { path: '/', redirect: '/home' },
+      { path: '/home', component: Home }
+    ]
+    ```
 
 ## 使用 Element UI Container 容器创建 Header-Main-Footer 三段式布局
 
