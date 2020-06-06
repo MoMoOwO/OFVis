@@ -7,3 +7,10 @@ body,
   padding: 0;
   min-width: 1920px;
 }
+
+.el-card > .el-card__header {
+  padding: 5px;
+  border-bottom: 1px solid #ebeef5;
+  box-sizing: border-box;
+  /* background-color: rgb(230, 230, 230); */
+}

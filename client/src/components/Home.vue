@@ -3,7 +3,7 @@
     <!-- 头部区域 -->
     <el-header>
       <div>
-        <img src="../assets/logo.png" />
+        <img src="../assets/logo.jpg" />
         <span>OFViser</span>
       </div>
       <el-alert title="成功提示的文案" type="success" :closable="false"></el-alert>
@@ -12,35 +12,75 @@
     <el-container class="main-container">
       <!-- 右侧 -->
       <el-main class="left-panel">
-        <el-card id="area-chart-card">面积图</el-card>
-        <el-card id="line-chart-card">雷达折线图</el-card>
-        <el-card id="box-chart-card">箱线图</el-card>
+        <el-card id="area-chart-card" :body-style="{ padding: '0px' }">
+          <!-- 卡片头部区域 -->
+          <div slot="header">
+            <span>面积图</span>
+            <el-button style="float: right; padding: 5px" icon="el-icon-setting" type="text"></el-button>
+          </div>
+          <!-- 卡片内容区域，图表区域 -->
+          <area-chart></area-chart>
+        </el-card>
+        <el-card id="line-chart-card">
+          <div slot="header">
+            <span>雷达折线图</span>
+          </div>
+        </el-card>
+        <el-card id="box-chart-card">
+          <div slot="header">
+            <span>箱线图</span>
+          </div>
+        </el-card>
       </el-main>
       <!-- 中部 -->
       <el-main class="mid-panel">
-        <el-card id="map-card">地图</el-card>
-        <el-card id="gallery-card">画廊</el-card>
+        <el-card id="map-card">
+          <div slot="header">
+            <span>地图</span>
+          </div>
+        </el-card>
+        <el-card id="gallery-card">
+          <div slot="header">
+            <span>画廊</span>
+          </div>
+        </el-card>
       </el-main>
       <!-- 左侧 -->
       <el-main class="right-panel">
-        <el-card id="card-placeholder1">占位1</el-card>
-        <el-card id="card-placeholder2">占位2</el-card>
-        <el-card id="card-placeholder3">占位3</el-card>
+        <el-card id="card-placeholder1">
+          <div slot="header">
+            <span>占位1</span>
+          </div>
+        </el-card>
+        <el-card id="card-placeholder2">
+          <div slot="header">
+            <span>占位2</span>
+          </div>
+        </el-card>
+        <el-card id="card-placeholder3">
+          <div slot="header">
+            <span>占位3</span>
+          </div>
+        </el-card>
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
+// 引入 chart 组件
+import AreaChart from './charts/AreaChart.vue'
+
 export default {
 	data() {
 		return {}
 	},
-	watch: {},
 	methods: {},
 	created() {},
 	mounted() {},
-	props: {}
+	components: {
+		'area-chart': AreaChart
+	}
 }
 </script>
 
@@ -113,7 +153,7 @@ export default {
 			margin-bottom: 5px;
 		}
 		#card-placeholder2,
-		#card-placehoder3 {
+		#card-placeholder3 {
 			height: 48.6%;
 			width: 49.3%;
 		}
@@ -124,5 +164,8 @@ export default {
 }
 .el-main {
 	padding: 5px;
+}
+.el-card > .el-card__header {
+	background-color: yellowgreen;
 }
 </style>
