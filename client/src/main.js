@@ -7,6 +7,11 @@ import './assets/css/global.css'
 // 导入 element-ui 组件相关样式
 import 'element-ui/lib/theme-chalk/index.css'
 
+// 导入 VueAwesomeSwiper 滑动组件并应用
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import 'swiper/css/swiper.css'
+Vue.use(VueAwesomeSwiper)
+
 Vue.config.productionTip = false
 
 new Vue({
