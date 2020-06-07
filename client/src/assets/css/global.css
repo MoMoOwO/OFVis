@@ -12,5 +12,15 @@ body,
   padding: 5px;
   border-bottom: 1px solid #ebeef5;
   box-sizing: border-box;
+  align-items: center;
   /* background-color: rgb(230, 230, 230); */
+}
+.car-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.echarts {
+  width: 100%;
+  height: 100%;
 }
