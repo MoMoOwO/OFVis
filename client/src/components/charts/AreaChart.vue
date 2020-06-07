@@ -1,7 +1,7 @@
 <template>
-  <div id="areaContainer">
-    <v-chart id="calendarContainer" :options="calendar" theme="infographic"></v-chart>
-    <v-chart id="barContainer" :options="bar"></v-chart>
+  <div class="areaContainer">
+    <v-chart class="calendarContainer" :options="calendarOpt" theme="infographic"></v-chart>
+    <v-chart class="barContainer" :options="barOpt" theme="infographic"></v-chart>
   </div>
 </template>
 
@@ -401,7 +401,7 @@ export default {
 			'Dec'
 		]
 		return {
-			calendar: {
+			calendarOpt: {
 				title: {
 					text: this.title,
 					left: 'center'
@@ -414,7 +414,8 @@ export default {
 					// calculable: false,  // 可选范围
 					orient: 'horizontal',
 					color: ['#F03B20', '#FEB24C', '#FFEDA0'],
-					left: 'center'
+					left: 'center',
+					itemHeight: '100%'
 					/* bottom: "0",
 					itemHeight: "100%",
 					seriesIndex: 0 */
@@ -422,8 +423,8 @@ export default {
 				calendar: {
 					// 热力图容器
 					orient: 'vertical', // 排列方向，默认horizontal
-					left: 5,
-					right: 5,
+					left: 'center',
+					// right: 5,
 					bottom: 50,
 					yearLabel: {
 						// 年份标签边距
@@ -437,7 +438,7 @@ export default {
 						firstDay: 1 // 从周一开始
 					},
 					height: 'auto',
-					cellSize: [10, 10], // 单元格大小，[宽，高]数值，auto
+					cellSize: 15, // 单元格大小，[宽，高]数值，auto
 					range: '2016' // 设置日历范围，格式：yyyy, yyyy-MM,字符串形式
 				},
 				series: [
@@ -450,7 +451,10 @@ export default {
 					}
 				]
 			},
-			bar: {
+			barOpt: {
+				grid: {
+					left: 20
+				},
 				xAxis: {
 					type: 'value',
 					// show: false,
@@ -516,21 +520,17 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
-.echarts {
+<style lang="less" scoped>
+.areaContainer {
 	width: 100%;
 	height: 815px;
-}
-#areaContainer {
-	width: 100%;
-	height: 100%;
 	display: flex;
 	flex-wrap: wrap;
-	#calendarContainer {
-		width: 60%;
+	.calendarContainer {
+		width: 45%;
 	}
-	#barContainer {
-		width: 40%;
+	.barContainer {
+		width: 55%;
 	}
 }
 </style>

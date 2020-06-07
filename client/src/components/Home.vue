@@ -12,34 +12,44 @@
     <el-container class="main-container">
       <!-- 右侧 -->
       <el-main class="left-panel">
-        <el-card id="area-chart-card" :body-style="{ padding: '0px' }">
+        <el-card class="area-chart-card" :body-style="{ padding: '0px' }">
           <!-- 卡片头部区域 -->
-          <div slot="header">
+          <div class="card-header" slot="header">
             <span>面积图</span>
-            <el-button style="float: right; padding: 5px" icon="el-icon-setting" type="text"></el-button>
+            <el-button icon="el-icon-setting" type="text"></el-button>
           </div>
           <!-- 卡片内容区域，图表区域 -->
           <area-chart></area-chart>
         </el-card>
-        <el-card id="line-chart-card">
+        <el-card class="line-chart-card">
           <div slot="header">
-            <span>雷达折线图</span>
+            <span>折线图</span>
+            <el-select size="mini" v-model="lineTypeChoosed" placeholder="choose">
+              <el-option
+                v-for="item in lineType"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
           </div>
+          <line-chart></line-chart>
         </el-card>
-        <el-card id="box-chart-card">
+        <el-card class="box-chart-card">
           <div slot="header">
             <span>箱线图</span>
           </div>
+          <box-plot></box-plot>
         </el-card>
       </el-main>
       <!-- 中部 -->
       <el-main class="mid-panel">
-        <el-card id="map-card">
+        <el-card class="map-card">
           <div slot="header">
             <span>地图</span>
           </div>
         </el-card>
-        <el-card id="gallery-card">
+        <el-card class="gallery-card">
           <div slot="header">
             <span>画廊</span>
           </div>
@@ -47,17 +57,17 @@
       </el-main>
       <!-- 左侧 -->
       <el-main class="right-panel">
-        <el-card id="card-placeholder1">
+        <el-card class="card-placeholder1">
           <div slot="header">
             <span>占位1</span>
           </div>
         </el-card>
-        <el-card id="card-placeholder2">
+        <el-card class="card-placeholder2">
           <div slot="header">
             <span>占位2</span>
           </div>
         </el-card>
-        <el-card id="card-placeholder3">
+        <el-card class="card-placeholder3">
           <div slot="header">
             <span>占位3</span>
           </div>
@@ -70,16 +80,28 @@
 <script>
 // 引入 chart 组件
 import AreaChart from './charts/AreaChart.vue'
+import BoxPlot from './charts/Boxplot.vue'
+import LineChart from './charts/LineChart.vue'
 
 export default {
 	data() {
-		return {}
+		return {
+			// 折线图类型选项数组
+			lineType: [
+				{ value: 'Cartesian', label: 'Cartesian' },
+				{ value: 'Polar', label: 'Polar' }
+			],
+			// 选中的折线图类型
+			lineTypeChoosed: ''
+		}
 	},
 	methods: {},
 	created() {},
 	mounted() {},
 	components: {
-		'area-chart': AreaChart
+		'area-chart': AreaChart,
+		'box-plot': BoxPlot,
+		'line-chart': LineChart
 	}
 }
 </script>
@@ -108,6 +130,8 @@ export default {
 	}
 }
 .main-container {
+	width: 100%;
+	height: 850px;
 	background-color: #eaedf1;
 	.left-panel {
 		flex: 1;
@@ -115,18 +139,18 @@ export default {
 		flex-direction: column;
 		flex-wrap: wrap;
 		padding-right: 2.5px;
-		#area-chart-card {
+		.area-chart-card {
 			width: 40%;
 			height: 100%;
 			margin-right: 5px;
 		}
-		#line-chart-card,
-		#box-chart-card {
+		.line-chart-card,
+		.box-chart-card {
 			width: 58.5%;
 			height: 49.42%;
 			margin-right: 2.5px;
 		}
-		#line-chart-card {
+		.line-chart-card {
 			margin-bottom: 5px;
 		}
 	}
@@ -134,10 +158,10 @@ export default {
 		flex: none;
 		width: 440px;
 		padding: 5px 2.5px;
-		#map-card {
+		.map-card {
 			height: 70%;
 		}
-		#gallery-card {
+		.gallery-card {
 			margin-top: 5px;
 			height: 28.7%;
 		}
@@ -147,25 +171,22 @@ export default {
 		padding-left: 2.5px;
 		display: flex;
 		flex-wrap: wrap;
-		#card-placeholder1 {
+		.card-placeholder1 {
 			height: 50%;
 			width: 100%;
 			margin-bottom: 5px;
 		}
-		#card-placeholder2,
-		#card-placeholder3 {
+		.card-placeholder2,
+		.card-placeholder3 {
 			height: 48.6%;
 			width: 49.3%;
 		}
-		#card-placeholder2 {
+		.card-placeholder2 {
 			margin-right: 5px;
 		}
 	}
 }
 .el-main {
 	padding: 5px;
-}
-.el-card > .el-card__header {
-	background-color: yellowgreen;
 }
 </style>
