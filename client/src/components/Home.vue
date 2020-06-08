@@ -16,15 +16,20 @@
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
             <span>面积图</span>
-            <el-button icon="el-icon-setting" type="text"></el-button>
+            <el-button style="padding: 0;" icon="el-icon-setting" type="text"></el-button>
           </div>
           <!-- 卡片内容区域，图表区域 -->
           <area-chart></area-chart>
         </el-card>
-        <el-card class="line-chart-card">
-          <div slot="header">
+        <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
+          <div class="card-header" slot="header">
             <span>折线图</span>
-            <el-select size="mini" v-model="lineTypeChoosed" placeholder="choose">
+            <el-select
+              style="width: 120px;"
+              size="mini"
+              v-model="lineTypeChoosed"
+              placeholder="choose"
+            >
               <el-option
                 v-for="item in lineType"
                 :key="item.value"
@@ -33,9 +38,9 @@
               ></el-option>
             </el-select>
           </div>
-          <line-chart></line-chart>
+          <line-chart :type="lineTypeChoosed"></line-chart>
         </el-card>
-        <el-card class="box-chart-card">
+        <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>箱线图</span>
           </div>
@@ -44,12 +49,12 @@
       </el-main>
       <!-- 中部 -->
       <el-main class="mid-panel">
-        <el-card class="map-card">
+        <el-card class="map-card" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>地图</span>
           </div>
         </el-card>
-        <el-card class="gallery-card">
+        <el-card class="gallery-card" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>画廊</span>
           </div>
@@ -57,17 +62,17 @@
       </el-main>
       <!-- 左侧 -->
       <el-main class="right-panel">
-        <el-card class="card-placeholder1">
+        <el-card class="card-placeholder1" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>占位1</span>
           </div>
         </el-card>
-        <el-card class="card-placeholder2">
+        <el-card class="card-placeholder2" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>占位2</span>
           </div>
         </el-card>
-        <el-card class="card-placeholder3">
+        <el-card class="card-placeholder3" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>占位3</span>
           </div>
@@ -88,11 +93,11 @@ export default {
 		return {
 			// 折线图类型选项数组
 			lineType: [
-				{ value: 'Cartesian', label: 'Cartesian' },
-				{ value: 'Polar', label: 'Polar' }
+				{ value: 'polarOpt', label: 'Polar' },
+				{ value: 'lineOpt', label: 'Cartesian' }
 			],
 			// 选中的折线图类型
-			lineTypeChoosed: ''
+			lineTypeChoosed: 'polarOpt'
 		}
 	},
 	methods: {},
