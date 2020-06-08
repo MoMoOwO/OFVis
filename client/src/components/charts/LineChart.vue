@@ -1,6 +1,9 @@
 <template>
   <div class="line-chart">
-    <v-chart :options="polarOpt" theme="infographic" />
+    <v-chart
+      :options="this.type === 'polarOpt' ? this.polarOpt : this.lineOpt"
+      theme="infographic"
+    />
   </div>
 </template>
 
@@ -23,11 +26,13 @@ export default {
 		const data = [
 			{
 				name: '个人积分',
-				value: [28, 36, 12, 68, 232, 336, 458, 569, 165, 146, 87, 35]
+				type: 'line',
+				data: [28, 36, 12, 68, 232, 336, 458, 569, 165, 146, 87, 35]
 			},
 			{
 				name: '全国均值',
-				value: [289, 356, 12, 16, 23, 36, 58, 69, 126, 246, 355, 466]
+				type: 'line',
+				data: [289, 356, 12, 16, 23, 36, 58, 69, 126, 246, 355, 466]
 			}
 		]
 		const indicatorData = [
@@ -46,12 +51,16 @@ export default {
 		]
 		const legendData = []
 		const seriesData = []
+		const xAxisData = []
 		for (var i = 0; i < data.length; i++) {
 			legendData.push(data[i].name)
 			seriesData.push({
-				value: data[i].value,
+				value: data[i].data,
 				name: data[i].name
 			})
+		}
+		for (var item of indicatorData) {
+			xAxisData.push(item.name)
 		}
 		return {
 			polarOpt: {
@@ -60,6 +69,12 @@ export default {
 					data: legendData,
 					itemWidth: 8,
 					itemHeight: 8
+				},
+				grid: {
+					left: 0,
+					right: 0,
+					bottom: 10,
+					containLabel: true
 				},
 				radar: {
 					indicator: indicatorData
@@ -72,13 +87,35 @@ export default {
 						data: seriesData
 					}
 				]
+			},
+			lineOpt: {
+				tooltip: {
+					trigger: 'axis'
+				},
+				legend: {
+					data: legendData
+				},
+				grid: {
+					left: 0,
+					right: 0,
+					bottom: 10,
+					containLabel: true
+				},
+				xAxis: {
+					type: 'category',
+					data: xAxisData
+				},
+				yAxis: {
+					type: 'value'
+				},
+				series: data
 			}
 		}
 	},
 	methods: {},
 	created() {},
 	mounted() {},
-	props: {}
+	props: ['type']
 }
 </script>
 
