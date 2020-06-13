@@ -42,7 +42,7 @@ export default {
 		return {
 			boxOpt: {
 				title: [
-					{
+					/* {
 						text: 'Michelson-Morley Experiment',
 						left: 'center'
 					},
@@ -55,7 +55,7 @@ export default {
 						},
 						left: '10%',
 						top: '90%'
-					}
+					} */
 				],
 				legend: {
 					data: ['line', 'line2', 'line3']
@@ -67,9 +67,10 @@ export default {
 					}
 				},
 				grid: {
-					left: '10%',
-					right: '10%',
-					bottom: '15%'
+					left: 0,
+					right: 0,
+					bottom: 10,
+					containLabel: true
 				},
 				xAxis: {
 					type: 'category',
