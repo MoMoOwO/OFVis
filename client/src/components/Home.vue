@@ -15,7 +15,7 @@
         <el-card class="area-chart-card" :body-style="{ padding: '0px' }">
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
-            <span>面积图</span>
+            <span>基础面积图</span>
             <el-button style="padding: 0;" icon="el-icon-setting" type="text"></el-button>
           </div>
           <!-- 卡片内容区域，图表区域 -->
@@ -23,7 +23,7 @@
         </el-card>
         <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>折线图</span>
+            <span>面积周期变化</span>
             <el-select
               style="width: 120px;"
               size="mini"
@@ -42,7 +42,7 @@
         </el-card>
         <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div slot="header">
-            <span>箱线图</span>
+            <span>梯度分布图</span>
           </div>
           <box-plot></box-plot>
         </el-card>
@@ -53,6 +53,7 @@
           <div slot="header">
             <span>地图</span>
           </div>
+          <map-view></map-view>
         </el-card>
         <el-card class="gallery-card" :body-style="{ padding: '0px' }">
           <div slot="header">
@@ -87,6 +88,7 @@
 import AreaChart from './charts/AreaChart.vue'
 import BoxPlot from './charts/Boxplot.vue'
 import LineChart from './charts/LineChart.vue'
+import MapView from './charts/MapView.vue'
 
 export default {
 	data() {
@@ -106,7 +108,8 @@ export default {
 	components: {
 		'area-chart': AreaChart,
 		'box-plot': BoxPlot,
-		'line-chart': LineChart
+		'line-chart': LineChart,
+		'map-view': MapView
 	}
 }
 </script>
@@ -193,5 +196,9 @@ export default {
 }
 .el-main {
 	padding: 5px;
+}
+.card-header {
+	display: flex;
+	justify-content: space-between;
 }
 </style>
