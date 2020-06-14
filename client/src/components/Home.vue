@@ -67,6 +67,7 @@
           <div slot="header">
             <span>占位1</span>
           </div>
+          <som-view></som-view>
         </el-card>
         <el-card class="card-placeholder2" :body-style="{ padding: '0px' }">
           <div slot="header">
@@ -89,6 +90,7 @@ import AreaChart from './charts/AreaChart.vue'
 import BoxPlot from './charts/Boxplot.vue'
 import LineChart from './charts/LineChart.vue'
 import MapView from './charts/MapView.vue'
+import SOMView from './charts/SOMView.vue'
 
 export default {
 	data() {
@@ -109,7 +111,8 @@ export default {
 		'area-chart': AreaChart,
 		'box-plot': BoxPlot,
 		'line-chart': LineChart,
-		'map-view': MapView
+		'map-view': MapView,
+		'som-view': SOMView
 	}
 }
 </script>
