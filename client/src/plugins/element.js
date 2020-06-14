@@ -1,6 +1,6 @@
 import Vue from 'vue'
 // 按需引入 element-ui 组件
-import { Button, Message, Container, Header, Main, Alert, Card, Select, Option } from 'element-ui'
+import { Button, Message, Container, Header, Main, Alert, Card, Select, Option, Table, TableColumn } from 'element-ui'
 // 将组建添加到 Vue 实例中
 Vue.use(Container)
 Vue.use(Header)
@@ -10,5 +10,7 @@ Vue.use(Card)
 Vue.use(Button)
 Vue.use(Select)
 Vue.use(Option)
+Vue.use(Table)
+Vue.use(TableColumn)
 // 全局挂载 message 组件
 Vue.prototype.$message = Message
