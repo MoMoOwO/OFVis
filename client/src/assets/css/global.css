@@ -24,6 +24,10 @@ body,
 }
 
 /* el-table 表格样式 */
+.el-table td,
+.el-table th {
+  padding: 5px 0 !important;
+}
 .el-table .cluster-a-row {
   background-color: rgb(215, 25, 28);
 }

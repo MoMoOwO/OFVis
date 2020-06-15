@@ -6,19 +6,33 @@
       height="385"
       border
       :row-class-name="tableRowClassName"
-      :header-row-style="{
-      'background-color': 'red'
-    }"
+      :header-cell-style="{
+          'background-color': '#ccc',
+          'color': 'black',
+          'font-size': '9px'
+      }"
     >
-      <el-table-column prop="id" label="ID"></el-table-column>
-      <el-table-column prop="MI" label="Moran's I"></el-table-column>
-      <el-table-column prop="Mo" label="Mode"></el-table-column>
-      <el-table-column prop="Qd" label="Qd"></el-table-column>
-      <el-table-column prop="Sk" label="Skewness"></el-table-column>
-      <el-table-column prop="EK" label="Ex_Kurtosis"></el-table-column>
-      <el-table-column prop="ClusterId" label="ClusterId"></el-table-column>
+      <el-table-column prop="id" label="ID" width="40"></el-table-column>
+      <el-table-column prop="MI" label="Moran's I" width="85"></el-table-column>
+      <el-table-column prop="Mo" label="Mode" width="60"></el-table-column>
+      <el-table-column prop="Qd" label="Qd" width="60"></el-table-column>
+      <el-table-column prop="Sk" label="Skewness" width="88"></el-table-column>
+      <el-table-column prop="EK" label="Ex_Kurtosis" width="97"></el-table-column>
+      <el-table-column prop="ClusterId" label="ClusterId" width="90"></el-table-column>
     </el-table>
   </div>
+  <!-- <split-pane
+    class="som-container"
+    v-on:resize="resize"
+    :min-percent="20"
+    :default-percent="50"
+    split="vertical"
+  >
+    <template slot="paneL">
+      <v-chart :options="matrixOpt"></v-chart>
+    </template>
+    <template slot="paneR">B</template>
+  </split-pane>-->
 </template>
 
 <script>
@@ -28,6 +42,8 @@ import ECharts from 'vue-echarts'
 import 'echarts/lib/chart/heatmap'
 import 'echarts/lib/component/tooltip'
 import 'echarts/lib/component/legend'
+// splitpane 组件
+// import splitPane from 'vue-splitpane'
 
 export default {
 	data() {
@@ -777,6 +793,9 @@ export default {
 		}
 	},
 	methods: {
+		resize() {
+			console.log('resize')
+		},
 		// 获取表格数据
 		getTableData() {
 			this.resData.forEach(item => {
@@ -812,6 +831,7 @@ export default {
 	},
 	components: {
 		'v-chart': ECharts
+		// 'split-pane': splitPane
 	},
 	props: {}
 }
