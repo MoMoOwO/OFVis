@@ -12,6 +12,7 @@
     <el-container class="main-container">
       <!-- 右侧 -->
       <el-main class="left-panel">
+        <!-- 基础面积图 -->
         <el-card class="area-chart-card" :body-style="{ padding: '0px' }">
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
@@ -21,6 +22,7 @@
           <!-- 卡片内容区域，图表区域 -->
           <area-chart></area-chart>
         </el-card>
+        <!-- 面积周期比较折线图容器 -->
         <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>面积周期变化</span>
@@ -40,6 +42,7 @@
           </div>
           <line-chart :type="lineTypeChoosed"></line-chart>
         </el-card>
+        <!-- 梯度分布图容器 -->
         <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>梯度分布图</span>
@@ -49,12 +52,14 @@
       </el-main>
       <!-- 中部 -->
       <el-main class="mid-panel">
+        <!-- 地图容器 -->
         <el-card class="map-card" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>地图</span>
           </div>
           <map-view></map-view>
         </el-card>
+        <!-- 画廊容器 -->
         <el-card class="gallery-card" :body-style="{ padding: '0px' }">
           <div slot="header">
             <span>画廊</span>
@@ -63,9 +68,38 @@
       </el-main>
       <!-- 左侧 -->
       <el-main class="right-panel">
-        <el-card class="card-placeholder1" :body-style="{ padding: '0px' }">
-          <div slot="header">
-            <span>占位1</span>
+        <!-- 聚类容器 -->
+        <el-card class="clustering-card" :body-style="{ padding: '0px' }">
+          <div class="card-header" slot="header">
+            <span>SOMClusterView</span>
+            <!-- Cluster 设置弹出框 -->
+            <el-popover
+              placement="left-start"
+              width="230"
+              title="Clustering Setting"
+              v-model="isClusteringSettingPopverVisible"
+            >
+              <el-divider content-position="center">Train Set</el-divider>
+              <el-radio-group v-model="SOMCluOpt.trainSetType">
+                <el-radio :label="1">Random Data</el-radio>
+                <el-radio :label="2">70% Data</el-radio>
+              </el-radio-group>
+              <el-divider content-position="center">Clustering Features</el-divider>Moran's-I
+              <el-input v-model="SOMCluOpt.MI" size="mini" type="number" placeholder="请输入内容"></el-input>Mode
+              <el-input v-model="SOMCluOpt.Mo" size="mini" type="number" placeholder="请输入内容"></el-input>Qd
+              <el-input v-model="SOMCluOpt.Qd" size="mini" type="number" placeholder="请输入内容"></el-input>Skewness
+              <el-input v-model="SOMCluOpt.Sk" size="mini" type="number" placeholder="请输入内容"></el-input>Ex_Kurtosis
+              <el-input v-model="SOMCluOpt.EK" size="mini" type="number" placeholder="请输入内容"></el-input>
+              <div style="text-align: right; margin: 0">
+                <el-button
+                  size="mini"
+                  type="text"
+                  @click="isClusteringSettingPopverVisible = false"
+                >取消</el-button>
+                <el-button type="primary" size="mini" @click="submitClusteringSetting">确定</el-button>
+              </div>
+              <el-button style="padding: 0;" slot="reference" icon="el-icon-setting" type="text"></el-button>
+            </el-popover>
           </div>
           <som-view></som-view>
         </el-card>
@@ -101,10 +135,27 @@ export default {
 				{ value: 'lineOpt', label: 'Cartesian' }
 			],
 			// 选中的折线图类型
-			lineTypeChoosed: 'polarOpt'
+			lineTypeChoosed: 'polarOpt',
+			// SOM 聚类设置弹出框是否可见
+			isClusteringSettingPopverVisible: false,
+			// SOM 训练集配置项
+			SOMCluOpt: {
+				trainSetType: 1,
+				MI: 0,
+				Mo: 0,
+				Qd: 0,
+				SK: 0,
+				EK: 0
+			}
 		}
 	},
-	methods: {},
+	methods: {
+		submitClusteringSetting() {
+			console.log('提交了 Cluster 的修改')
+			console.log(this.SOMCluOpt)
+			this.isClusteringSettingPopverVisible = false
+		}
+	},
 	created() {},
 	mounted() {},
 	components: {
@@ -182,7 +233,7 @@ export default {
 		padding-left: 2.5px;
 		display: flex;
 		flex-wrap: wrap;
-		.card-placeholder1 {
+		.card-clustering-card {
 			height: 50%;
 			width: 100%;
 			margin-bottom: 5px;
