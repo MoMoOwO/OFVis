@@ -3,7 +3,7 @@ const mongoose = require('./db.js');
 
 // 定义文档 StatData 的 Schema
 const StatDataSchema = mongoose.Schema({
-  date: Number,
+  date: String,
   StatisticsData: [
     {
       regionId: Number,
