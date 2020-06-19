@@ -521,7 +521,7 @@ export default {
 	},
 	methods: {
 		async getAreaData() {
-			const data = this.axios.get('areadata', { params: this.queryInfo })
+			const data = await this.axios.get('areadata', { params: this.queryInfo })
 			console.log(data)
 		}
 	},
