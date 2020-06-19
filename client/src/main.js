@@ -13,6 +13,15 @@ import 'leaflet/dist/leaflet.css'
 // 导入 VueAwesomeSwiper 滑动组件并应用
 import VueAwesomeSwiper from 'vue-awesome-swiper'
 import 'swiper/css/swiper.css'
+
+// 导入axios
+import Axios from 'axios'
+import VueAxios from 'vue-axios'
+// 配置请求根路径
+Axios.defaults.baseURL = '/api/'
+// 配置 axios
+Vue.use(VueAxios, Axios)
+
 Vue.use(VueAwesomeSwiper)
 
 Vue.config.productionTip = false
