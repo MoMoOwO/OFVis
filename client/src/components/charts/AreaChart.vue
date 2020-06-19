@@ -401,10 +401,15 @@ export default {
 			'Dec'
 		]
 		return {
+			queryInfo: {
+				type: '1', // 请求基础面积统计图数据
+				regionId: 'all', // 默认初始请求所有海区数据
+				year: this.yearChoosed
+			},
 			calendarOpt: {
 				title: {
-					text: this.title,
-					left: 'center'
+					text: this.yearChoosed,
+					right: 0
 				},
 				tooltip: {},
 				visualMap: {
@@ -510,13 +515,18 @@ export default {
 			}
 		}
 	},
+	props: ['yearChoosed'],
 	components: {
 		'v-chart': ECharts
 	},
-	methods: {},
+	methods: {
+		async getAreaData() {
+			const data = await this.axios.get('areadata', { params: this.queryInfo })
+			console.log(data)
+		}
+	},
 	created() {},
-	mounted() {},
-	props: {}
+	mounted() {}
 }
 </script>
 

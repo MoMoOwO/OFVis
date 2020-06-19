@@ -20,7 +20,20 @@
             <el-button style="padding: 0;" icon="el-icon-setting" type="text"></el-button>
           </div>
           <!-- 卡片内容区域，图表区域 -->
-          <area-chart></area-chart>
+          <!-- <area-chart></area-chart> -->
+          <!-- 面积图区域，可滑动切换年份 -->
+          <swiper ref="mySwiper" :options="areaChartSwiperOptions">
+            <swiper-slide>
+              <area-chart yearChoosed="2015"></area-chart>
+            </swiper-slide>
+            <swiper-slide>
+              <area-chart yearChoosed="2016"></area-chart>
+            </swiper-slide>
+            <swiper-slide>
+              <area-chart yearChoosed="2017"></area-chart>
+            </swiper-slide>
+            <div class="swiper-pagination" slot="pagination"></div>
+          </swiper>
         </el-card>
         <!-- 面积周期比较折线图容器 -->
         <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
@@ -129,6 +142,17 @@ import SOMView from './charts/SOMView.vue'
 export default {
 	data() {
 		return {
+			// 日历柱状面积图 swiper 配置项
+			areaChartSwiperOptions: {
+				direction: 'vertical', // 垂直方向移动
+				autoHeight: true,
+				height: 815,
+				pagination: {
+					// 分页
+					el: '.swiper-pagination',
+					clickable: true
+				}
+			},
 			// 折线图类型选项数组
 			lineType: [
 				{ value: 'polarOpt', label: 'Polar' },
