@@ -133,9 +133,7 @@ router.get('/boxdata', (req, res, next) => {
         let statData = docs[0].StatisticsData;
         // 遍历海域添加各海域箱线图数据
         for (let obj of statData) {
-          if (obj.Outliers.constructor == Array) { // 存在箱线图数据
-            console.log(obj.regionId);
-            console.log(typeof (obj.Outliers));
+          if (!isNaN(obj.Upper)) { // 存在箱线图数据
             axisData.push(obj.regionId);
             boxData.push([obj.Lower, obj.Q1, obj.Median, obj.Q3, obj.Upper]);
             for (let i = 0; i < obj.Outliers.length; i++) {
@@ -150,7 +148,7 @@ router.get('/boxdata', (req, res, next) => {
       }
     });
   } else if (type == '2') {
-    StatDataModel.find({ date: new RegExp('^' + date + '\d{2}$') }, (err, docs) => {
+    StatDataModel.find({ date: new RegExp('^' + date + '\\d{2}$') }, (err, docs) => {
       if (err) {
         console.log('/boxdata err' + err);
         res.status(200).json({ data: '查询箱线图数据出错！' });
@@ -158,7 +156,7 @@ router.get('/boxdata', (req, res, next) => {
         for (let doc of docs) {
           let index = +regionId - 1;
           let statData = doc.StatisticsData[index];
-          if (statData.Outliers.constructor == Array) { // 存在箱线图数据
+          if (!isNaN(statData.Upper)) { // 存在箱线图数据
             axisData.push(doc.date);
             boxData.push([statData.Lower, statData.Q1, statData.Median, statData.Q3, statData.Upper]);
             for (let i = 0; i < statData.Outliers.length; i++) {
