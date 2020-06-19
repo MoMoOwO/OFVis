@@ -28,7 +28,7 @@ router.get('/areadata', (req, res, next) => {
     StatDataModel.find({ date: new RegExp('^' + year) }, (err, docs) => {
       if (err) { // 获取数据库出错
         console.log('/areadata err:' + err);
-        res.status(400).json({ data: '获取面积数据失败！' });
+        res.status(400).json({ meta: { msg: '获取面积数据失败！', status: 400 } });
       } else { // 正常返回数据
         let barData = new Array(12); // 柱状图 12 个月份面积数据
         let calendarData = []; // 日历图面积数组 ['2015-01-01', 2222]
@@ -51,7 +51,7 @@ router.get('/areadata', (req, res, next) => {
             calendarData.push([formateDate, area]);
           }
         }
-        res.status(200).json({ barData, calendarData });
+        res.status(200).json({ data: { barData, calendarData }, meta: { msg: '获取面积数据成功！', status: 200 } });
       }
     });
   } else if (type == '2') { // 请求三年的月份的面积数据，用于折线图
@@ -59,7 +59,7 @@ router.get('/areadata', (req, res, next) => {
     StatDataModel.find({ date: /^(2016|2015|2017)\d{2}$/ }, (err, docs) => {
       if (err) {
         console.log('/areadata err:' + err);
-        res.status(400).json({ data: '获取面积数据失败！' });
+        res.status(400).json({ meta: { msg: '获取面积数据失败！', status: 400 } });
       } else {
         let lineData = [
           {
@@ -98,11 +98,11 @@ router.get('/areadata', (req, res, next) => {
             console.log('竟然还有意外！');
           }
         }
-        res.status(200).json({ lineData });
+        res.status(200).json({ data: { lineData }, meta: { msg: '获取面积数据成功！', status: 200 } });
       }
     });
   } else {
-    res.status(400).json({ data: 'type 参数有误！' });
+    res.status(400).json({ meta: { msg: 'type 参数有误！', status: 400 } });
   }
 });
 
@@ -128,7 +128,7 @@ router.get('/boxdata', (req, res, next) => {
     StatDataModel.find({ date: date }, (err, docs) => {
       if (err) {
         console.log('/boxdata err' + err);
-        res.status(200).json({ data: '查询箱线图数据出错！' });
+        res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
       } else {
         let statData = docs[0].StatisticsData;
         // 遍历海域添加各海域箱线图数据
@@ -144,14 +144,14 @@ router.get('/boxdata', (req, res, next) => {
             }
           }
         }
-        res.status(200).json({ axisData, boxData, outliers });
+        res.status(200).json({ data: { axisData, boxData, outliers }, meta: { msg: '获取箱线图数据成功！', status: 200 } });
       }
     });
   } else if (type == '2') {
     StatDataModel.find({ date: new RegExp('^' + date + '\\d{2}$') }, (err, docs) => {
       if (err) {
         console.log('/boxdata err' + err);
-        res.status(200).json({ data: '查询箱线图数据出错！' });
+        res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
       } else {
         for (let doc of docs) {
           let index = +regionId - 1;
@@ -166,11 +166,11 @@ router.get('/boxdata', (req, res, next) => {
             }
           }
         }
-        res.status(200).json({ axisData, boxData, outliers });
+        res.status(200).json({ data: { axisData, boxData, outliers }, meta: { msg: '获取箱线图数据成功！', status: 200 } });
       }
     });
   } else {
-    res.status(400).json({ data: 'type 参数有误！' });
+    res.status(400).json({ meta: { msg: 'type 参数有误！', status: 400 } });
   }
 });
 
