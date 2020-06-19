@@ -64,7 +64,9 @@ export default {
 		}
 		return {
 			polarOpt: {
-				tooltip: {},
+				tooltip: {
+					confine: true
+				},
 				legend: {
 					data: legendData,
 					itemWidth: 8,
