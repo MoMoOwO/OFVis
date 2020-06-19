@@ -519,14 +519,15 @@ export default {
 	components: {
 		'v-chart': ECharts
 	},
+	created() {
+		this.getAreaData()
+	},
 	methods: {
 		async getAreaData() {
 			const data = await this.axios.get('areadata', { params: this.queryInfo })
 			console.log(data)
 		}
-	},
-	created() {},
-	mounted() {}
+	}
 }
 </script>
 
