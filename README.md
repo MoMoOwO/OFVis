@@ -11,8 +11,8 @@
 
 ## 主要过程请参考每个文件夹下的 README
 
-1. [server README]
-2. [client README]
+1. [server README](https://github.com/MoMoOwO/OFVis/blob/master/server/README.md)
+2. [client README](https://github.com/MoMoOwO/OFVis/blob/master/client/README.md)
 
 ## License
 
