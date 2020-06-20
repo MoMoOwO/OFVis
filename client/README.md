@@ -50,9 +50,45 @@
 
 1. 依赖库摘要：
 
-    (1) less_loader：`npm i less_loader -S -D`
+    (1) less_loader
 
-    (2) element-ui: `npm i element-ui -S`
+    + 安装：`npm i less_loader -S -D`
+    + 作用：用于编译 less 样式
+    + [官网](https://github.com/webpack-contrib/less-loader)
+
+    (2) element-ui
+
+    + 安装：`npm i element-ui -S`
+    + 作用：前端组件库，用于前端整体界面开发与特定组件使用，如表单组件
+    + [官网](https://element.eleme.cn/#/zh-CN/)
+
+    (3) vue-echarts
+
+    + 安装：`npm i echarts vue-echarts -S`
+    + 作用：用于前端图表开发
+    + [官网](https://github.com/ecomfe/vue-echarts)
+    + [Echarts 官网](https://echarts.apache.org/zh/index.html)
+
+    (4) vue-awesome-swiper
+
+    + 安装：`npm i swiper vue-awesome-swiper -S`
+    + 作用：左右、上下切换显示内容的组件。
+    + [官网](https://github.com/surmon-china/vue-awesome-swiper)
+    + [swiper 官网](https://www.swiper.com.cn)
+
+    (5) vue2-leaflet
+
+    + 安装：`npm i vue2-leaflet leaflet -S`
+    + 作用：用于进行地图开发
+    + [官网](https://github.com/vue-leaflet/Vue2Leaflet)
+    + [leaflet 官网](https://leafletjs.com)
+
+    (6) vue-axios
+
+    + 安装：`npm i axios vue-axios -S`
+    + 作用：用于向后端发起异步请求，并得到返回的数据。
+    + [官网](https://github.com/imcvampire/vue-axios)
+    + [axios 官网](https://github.com/axios/axios)
 
 2. 主要结构介绍：....
 
@@ -145,6 +181,84 @@
       { path: '/home', component: Home }
     ]
     ```
+
+### 基础面积图开发 - AreaChart
+
+1. 设计上主要使用了 Echarts 的热力图和柱状图，[热力图 Demo](https://echarts.apache.org/examples/zh/index.html#chart-type-heatmap)、[柱状图 Demo](https://echarts.apache.org/examples/zh/index.html#chart-type-bar)，热力图采用了日历坐标系，统计每一天的海洋锋的锋面面积，而柱状图则统计了每个月份平均的锋面面积信息，两种图表通过并指排列而保持对应关系。
+2. 另外需要借助 tooltip 组件而设计鼠标悬浮操作，需要按需引入 tooltip 组件；热力图、日历图组件也需要单独引入；而柱状图是基础组件不需要另外引入；热力图的颜色映射可以通过可视化的 visualMap 组件来展示，需要按需引入；另外也可以引入预定义的主题样式。
+3. AreaChart.vue 中 template 整体布局情况大致如下：
+
+    ``` HTML
+    <div class="areaContainer">
+      <v-chart class="calendarContainer" ref="calendarChart"
+      :options="calendarOpt" theme="infographic" ></v-chart>
+      <v-chart class="barContainer" ref="barChart" :options="barOpt" theme="infographic"></v-chart>
+    </div>
+    ```
+
+4. AreaChart.vue 中 script 下的主要内容为：
+
+    ``` JavaScript
+    import 'echarts/theme/infographic.js'
+    import ECharts from 'vue-echarts'
+    import 'echarts/lib/chart/heatmap'
+    import 'echarts/lib/component/calendar'
+    import 'echarts/lib/component/tooltip'
+    import 'echarts/lib/component/visualMap'
+
+    export default {
+      data() {
+        return {
+          calendarOpt: {
+            // ...
+          },
+          barOpt: {
+            // ...
+          }
+        }
+      },
+      components: {
+        'v-chart': ECharts
+      }
+    }
+    ```
+
+5. 图表配置项介绍
+
+    (1) 这里图表基本使用配置项不做介绍，只介绍官方 Demo 中没有介绍的但是设计中使用到的配置项。
+
+    (2) tooltip 是 Echarts 提供的鼠标悬浮提示框组件，使用它很方便的实现鼠标悬浮提示详细信息，但是在实际使用中可能因为图表在靠近窗口边缘或父容器限制等原因导致 tooltip 会被截取而显示不全，这时候需要可以通过 `tooltip.confine` 来进行设置，接收一个布尔值，对应的效果则是是否强制将 tooltip 局限在 Echarts 图表容器中。
+
+    (3) 我们设计中日历图是从上往下排列，而柱状图的竖轴则应该也是从上往下排列，这就需要设置倒置的坐标轴，这是 Echarts 3.x 引入的新特性，需要通过设置 `yAxis.inverse` 属性来进行配置，接收的也是一个布尔值，对应效果则是是否倒置排列。
+
+    (4) 坐标轴标签旋转，可以通过 `yAxis.axisLabel.rotate` 来设置，接收一个角度值，纯数字的话默认单位为度。
+
+6. 通过接口实现适时显示与隐藏 Loading 效果，由于数据是向后台请求来的，所以需要时间，另外更新数据也需要时间，所以需要一个 Loading 界面来缓和用户的等待。要点是要获取的 Echarts 容器组件的引用然后适时调用接口即可，具体函数实现如下，通过传递一个布尔值来决定是否显示 Loading。
+
+    ``` JavaScript
+    methods:{
+      isShowLoadding(b) {
+        if (b) {
+          this.$refs.calendarChart.showLoading({
+            text: 'Loading…',
+            color: '#409EFF',
+            maskColor: 'rgba(255, 255, 255, 0.4)'
+          })
+          this.$refs.barChart.showLoading({
+            text: 'Loading…',
+            color: '#409EFF',
+            maskColor: 'rgba(255, 255, 255, 0.4)'
+          })
+        } else {
+          this.$refs.calendarChart.hideLoading()
+          this.$refs.barChart.hideLoading()
+        }
+      }
+    }
+    ```
+
+7. 面积图最终效果
+![面积图效果](https://i.loli.net/2020/06/20/xKl7iRbq1SeMI6C.jpg)
 
 ## 使用 Element UI Container 容器创建 Header-Main-Footer 三段式布局
 
