@@ -146,7 +146,7 @@ export default {
 			areaChartSwiperOptions: {
 				direction: 'vertical', // 垂直方向移动
 				autoHeight: true,
-				height: 815,
+				height: 837,
 				pagination: {
 					// 分页
 					el: '.swiper-pagination',
@@ -257,7 +257,7 @@ export default {
 		padding-left: 2.5px;
 		display: flex;
 		flex-wrap: wrap;
-		.card-clustering-card {
+		.clustering-card {
 			height: 50%;
 			width: 100%;
 			margin-bottom: 5px;

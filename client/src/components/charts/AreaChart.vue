@@ -17,7 +17,6 @@ import ECharts from 'vue-echarts'
 import 'echarts/lib/chart/heatmap'
 import 'echarts/lib/component/calendar'
 import 'echarts/lib/component/tooltip'
-import 'echarts/lib/component/legend'
 import 'echarts/lib/component/visualMap'
 
 export default {
@@ -203,7 +202,7 @@ export default {
 <style lang="less" scoped>
 .areaContainer {
 	width: 100%;
-	height: 815px;
+	height: 837px;
 	display: flex;
 	flex-wrap: wrap;
 	.calendarContainer {
