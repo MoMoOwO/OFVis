@@ -1,6 +1,7 @@
 <template>
   <div class="line-chart">
     <v-chart
+      ref="lineChart"
       :options="this.type === 'polarOpt' ? this.polarOpt : this.lineOpt"
       theme="infographic"
     />
@@ -19,9 +20,6 @@ import 'echarts/lib/component/title'
 import 'echarts/lib/component/tooltip'
 
 export default {
-	components: {
-		'v-chart': ECharts
-	},
 	data() {
 		const data = [
 			{
@@ -63,6 +61,11 @@ export default {
 			xAxisData.push(item.name)
 		}
 		return {
+			queryInfo: {
+				type: '2', // 请求面积折线图统计图数据
+				regionId: 'all', // 默认初始请求所有海区数据
+				year: null // 不使用该参数
+			},
 			polarOpt: {
 				tooltip: {
 					confine: true
@@ -114,10 +117,50 @@ export default {
 			}
 		}
 	},
-	methods: {},
-	created() {},
-	mounted() {},
-	props: ['type']
+	components: {
+		'v-chart': ECharts
+	},
+	props: ['type'],
+	mounted() {
+		this.getAreaData()
+	},
+	methods: {
+		// 是否显示缓冲条
+		isShowLoadding(b) {
+			if (b) {
+				this.$refs.lineChart.showLoading({
+					text: 'Loading…',
+					color: '#409EFF',
+					maskColor: 'rgba(255, 255, 255, 0.4)'
+				})
+			} else {
+				this.$refs.lineChart.hideLoading()
+			}
+		},
+		async getAreaData() {
+			// this.showLoading(true)
+			const { data: res } = await this.axios.get('areadata', {
+				params: this.queryInfo
+			})
+			if (res.meta.status !== 200) {
+				this.$message.error('Failed to get area data!')
+			} else {
+				// 组织径向雷达图数据和普通折线图数据
+				const yearArr = [] // 年份标签数组，用于 legend 显示
+				const data = [] // 三年所有数据
+				for (const obj of res.data.lineData) {
+					yearArr.push(obj.year)
+					data.push(obj.data)
+				}
+				let max = data[0][0] // 求最大值
+				for (let i = 0; i < data.length; i++) {
+					for (let j = 0; j < data[i].length; j++) {
+						if (max < data[i][j]) max = data[i][j]
+					}
+				}
+			}
+		}
+	}
 }
 </script>
 
