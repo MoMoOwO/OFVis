@@ -31,12 +31,25 @@
 
 ## 本地服务器
 
-> 默认端口 localhost:3000  
-> 之后前端使用 localhost：8080，此时会出现跨域请求，此问题我们在前端解决
+1. 默认端口 localhost:3000  
+2. 之后前端使用 localhost：8080，此时会出现跨域请求，此问题我们在前端解决
 
-## 完成请求后代数据测试 api
+## 封装数据库类
 
-1. 添加 modules 文件夹，下面的 db.js 封装了对数据库的链接查询等基本操作
-2. 创建 data.js 来处理/data 路由，下面的/source 子路由为请求原始数据
-3. 设计为 post 请求，后期添加前端 post 传值的接收等处理
-4. 链接查询数据库操作主要有封装的 db.js 完成，后续的数据处理传送的等操作在路由文件中处理 data.js
+1. 添加 mongoose 依赖，运行 `npm i mongoose -S`
+2. 在项目根目录添加 modules 文件夹，新建 db.js 主要用于暴漏连接到数据库的 mongoose 对象。
+3. 创建各个数据库文档对应的 js 操作文件，其中主要内容为定义对应文档的 Schema，然后暴漏可以操作对应数据库的 Model 对象。
+
+## 后台 api 设计
+
+1. 数据请求全部走 `/data` 路由，在 routes 目录下创建 data.js 路由文件。
+2. 在 data.js 文件中引入操作数据库的 Model 类。
+3. 在 app.js 中引入 data 路由文件并应用。
+
+    ``` JavaScript
+    var dataRouter = require('./routes/data');
+    // ...
+    app.use('/data', dataRouter);
+    ```
+
+4. data.js 路由请求文件开发。
