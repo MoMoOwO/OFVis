@@ -102,7 +102,6 @@ export default {
 					],
 					axisLabel: {
 						interval: 0
-						// rotate:40
 					}
 				},
 				yAxis: {

@@ -51,18 +51,17 @@ export default {
 						show: false
 					},
 					axisLabel: {
+						interval: 0,
+						rotate: 90,
 						formatter: 'region {value}'
 					}
-					/* splitLine: {
-						show: false
-					} */
 				},
 				yAxis: {
 					type: 'value',
-					name: 'km/s'
-					/* splitArea: {
+					name: 'km/s',
+					splitArea: {
 						show: true
-					} */
+					}
 				},
 				series: [
 					{
