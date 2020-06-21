@@ -40,26 +40,18 @@ export default {
 			asixData: [0, 1, 2, 3, 4]
 		}
 		return {
+			queryInfo: {
+				type: '1', // 请求类型，1 为所有海区
+				regionId: 'all', // 默认初始请求所有海区数据
+				year: null // 不使用该参数
+			},
 			boxOpt: {
 				title: [
 					/* {
 						text: 'Michelson-Morley Experiment',
 						left: 'center'
-					},
-					{
-						text: 'upper: Q3 + 1.5 * IRQ \nlower: Q1 - 1.5 * IRQ',
-						borderColor: '#999',
-						borderWidth: 1,
-						textStyle: {
-							fontSize: 14
-						},
-						left: '10%',
-						top: '90%'
 					} */
 				],
-				legend: {
-					data: ['line', 'line2', 'line3']
-				},
 				tooltip: {
 					trigger: 'item',
 					axisPointer: {
@@ -67,9 +59,9 @@ export default {
 					}
 				},
 				grid: {
-					left: 0,
-					right: 0,
-					bottom: 10,
+					left: 10,
+					right: 10,
+					bottom: 15,
 					containLabel: true
 				},
 				xAxis: {
