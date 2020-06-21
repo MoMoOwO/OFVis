@@ -21,20 +21,6 @@ import 'echarts/lib/component/visualMap'
 
 export default {
 	data() {
-		const monthsData = [
-			'Jan',
-			'Feb',
-			'Mar',
-			'Apr',
-			'May',
-			'Jun',
-			'Jul',
-			'Aug',
-			'Sep',
-			'Oct',
-			'Nov',
-			'Dec'
-		]
 		return {
 			queryInfo: {
 				type: '1', // 请求基础面积统计图数据
@@ -42,10 +28,6 @@ export default {
 				year: this.yearChoosed
 			},
 			calendarOpt: {
-				title: {
-					text: this.yearChoosed,
-					right: 0
-				},
 				tooltip: {
 					confine: true, // 将 tooltip 框定在容器内
 					formatter: p => p.data[0] + ':<br/>' + p.data[1].toFixed(2) + 'km²'
@@ -90,6 +72,14 @@ export default {
 				}
 			},
 			barOpt: {
+				title: {
+					text: this.yearChoosed + ' RegionID：' + this.regionChoosed,
+					right: 0,
+					top: 10,
+					textStyle: {
+						fontSize: 17
+					}
+				},
 				grid: {
 					left: 20,
 					right: 20
@@ -109,7 +99,20 @@ export default {
 				},
 				yAxis: {
 					type: 'category',
-					data: monthsData,
+					data: [
+						'Jan',
+						'Feb',
+						'Mar',
+						'Apr',
+						'May',
+						'Jun',
+						'Jul',
+						'Aug',
+						'Sep',
+						'Oct',
+						'Nov',
+						'Dec'
+					],
 					inverse: true, //  顺序倒置
 					axisTick: {
 						alignWithLabel: true
@@ -144,7 +147,7 @@ export default {
 			}
 		}
 	},
-	props: ['yearChoosed'],
+	props: ['yearChoosed', 'regionChoosed'],
 	components: {
 		'v-chart': ECharts
 	},
@@ -202,7 +205,7 @@ export default {
 <style lang="less" scoped>
 .areaContainer {
 	width: 100%;
-	height: 837px;
+	height: 825px;
 	display: flex;
 	flex-wrap: wrap;
 	.calendarContainer {
