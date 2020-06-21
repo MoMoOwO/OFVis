@@ -60,7 +60,7 @@
           <div class="card-header" slot="header">
             <span>梯度分布图</span>
           </div>
-          <box-plot></box-plot>
+          <box-plot dateChoosed="201501"></box-plot>
         </el-card>
       </el-main>
       <!-- 中部 -->
