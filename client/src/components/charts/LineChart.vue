@@ -21,45 +21,6 @@ import 'echarts/lib/component/tooltip'
 
 export default {
 	data() {
-		const data = [
-			{
-				name: '个人积分',
-				type: 'line',
-				data: [28, 36, 12, 68, 232, 336, 458, 569, 165, 146, 87, 35]
-			},
-			{
-				name: '全国均值',
-				type: 'line',
-				data: [289, 356, 12, 16, 23, 36, 58, 69, 126, 246, 355, 466]
-			}
-		]
-		const indicatorData = [
-			{ name: '1月', max: 600 },
-			{ name: '2月', max: 600 },
-			{ name: '3月', max: 600 },
-			{ name: '4月', max: 600 },
-			{ name: '5月', max: 600 },
-			{ name: '6月', max: 600 },
-			{ name: '7月', max: 600 },
-			{ name: '8月', max: 600 },
-			{ name: '9月', max: 600 },
-			{ name: '10月', max: 600 },
-			{ name: '11月', max: 600 },
-			{ name: '12月', max: 600 }
-		]
-		const legendData = []
-		const seriesData = []
-		const xAxisData = []
-		for (var i = 0; i < data.length; i++) {
-			legendData.push(data[i].name)
-			seriesData.push({
-				value: data[i].data,
-				name: data[i].name
-			})
-		}
-		for (var item of indicatorData) {
-			xAxisData.push(item.name)
-		}
 		return {
 			queryInfo: {
 				type: '2', // 请求面积折线图统计图数据
@@ -67,13 +28,16 @@ export default {
 				year: null // 不使用该参数
 			},
 			polarOpt: {
+				title: {
+					text: 'RegionID：' + this.regionChoosed,
+					right: 0,
+					top: 13
+				},
 				tooltip: {
 					confine: true
 				},
 				legend: {
-					data: legendData,
-					itemWidth: 8,
-					itemHeight: 8
+					data: null
 				},
 				grid: {
 					left: 0,
@@ -82,45 +46,83 @@ export default {
 					containLabel: true
 				},
 				radar: {
-					indicator: indicatorData
+					indicator: [
+						{ name: 'Jan', max: 600 },
+						{ name: 'Feb', max: 600 },
+						{ name: 'Mar', max: 600 },
+						{ name: 'Apr', max: 600 },
+						{ name: 'May', max: 600 },
+						{ name: 'Jun', max: 600 },
+						{ name: 'Jul', max: 600 },
+						{ name: 'Aug', max: 600 },
+						{ name: 'Sep', max: 600 },
+						{ name: 'Oct', max: 600 },
+						{ name: 'Nov', max: 600 },
+						{ name: 'Dec', max: 600 }
+					]
 				},
-				series: [
-					{
-						name: '预算 vs 开销（Budget vs spending）',
-						type: 'radar',
-						itemStyle: { normal: { areaStyle: { type: 'default' } } },
-						data: seriesData
-					}
-				]
+				series: {
+					type: 'radar',
+					data: null
+				}
 			},
 			lineOpt: {
+				title: {
+					text: 'RegionID：' + this.regionChoosed,
+					right: 0,
+					top: 10
+				},
 				tooltip: {
 					trigger: 'axis'
 				},
 				legend: {
-					data: legendData
+					data: null
 				},
 				grid: {
-					left: 0,
-					right: 0,
-					bottom: 10,
+					left: 10,
+					right: 10,
+					bottom: 15,
 					containLabel: true
 				},
 				xAxis: {
 					type: 'category',
-					data: xAxisData
+					data: [
+						'Jan',
+						'Feb',
+						'Mar',
+						'Apr',
+						'May',
+						'Jun',
+						'Jul',
+						'Aug',
+						'Sep',
+						'Oct',
+						'Nov',
+						'Dec'
+					],
+					axisLabel: {
+						interval: 0
+						// rotate:40
+					}
 				},
 				yAxis: {
-					type: 'value'
+					type: 'value',
+					name: '',
+					nameTextStyle: {
+						padding: [0, 0, 0, 55]
+					},
+					axisLabel: {
+						formatter: value => value.toString()[0]
+					}
 				},
-				series: data
+				series: null
 			}
 		}
 	},
 	components: {
 		'v-chart': ECharts
 	},
-	props: ['type'],
+	props: ['type', 'regionChoosed'],
 	mounted() {
 		this.getAreaData()
 	},
@@ -137,8 +139,24 @@ export default {
 				this.$refs.lineChart.hideLoading()
 			}
 		},
+		/*
+		将数字取整为10的倍数
+		@param {Number} num 需要取整的值
+		@param {Boolean} ceil 是否向上取整
+		@param {Number} prec 需要用0占位的数量
+		*/
+
+		formatInt(num, prec, ceil = true) {
+			const len = String(num).length
+			if (len <= prec) {
+				return num
+			}
+			const mult = Math.pow(10, prec)
+			return ceil ? Math.ceil(num / mult) * mult : Math.floor(num / mult) * mult
+		},
+		// 获取折线图数据
 		async getAreaData() {
-			// this.showLoading(true)
+			this.isShowLoadding(true)
 			const { data: res } = await this.axios.get('areadata', {
 				params: this.queryInfo
 			})
@@ -158,7 +176,33 @@ export default {
 						if (max < data[i][j]) max = data[i][j]
 					}
 				}
+				// 向上取十倍数整数
+				max = this.formatInt(max, parseInt(max).toString().length - 2, true)
+				// 修改雷达图的 indicator
+				for (let i = 0; i < this.polarOpt.radar.indicator.length; i++) {
+					this.polarOpt.radar.indicator[i].max = max
+				}
+				// 修改雷达图和折线图数据
+				const lineData = []
+				const polarData = []
+				for (let i = 0; i < yearArr.length; i++) {
+					lineData.push({
+						name: yearArr[i],
+						type: 'line',
+						data: data[i]
+					})
+					polarData.push({
+						name: yearArr[i],
+						value: data[i]
+					})
+				}
+				this.polarOpt.series.data = polarData
+				this.polarOpt.legend.data = yearArr
+				this.lineOpt.series = lineData
+				this.lineOpt.yAxis.name = `× 10^${max.toString().length - 1} km²`
+				this.lineOpt.legend.data = yearArr
 			}
+			this.isShowLoadding(false)
 		}
 	}
 }

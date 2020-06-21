@@ -24,13 +24,13 @@
           <!-- 面积图区域，可滑动切换年份 -->
           <swiper ref="mySwiper" :options="areaChartSwiperOptions">
             <swiper-slide>
-              <area-chart yearChoosed="2015"></area-chart>
+              <area-chart yearChoosed="2015" regionChoosed="all"></area-chart>
             </swiper-slide>
             <swiper-slide>
-              <area-chart yearChoosed="2016"></area-chart>
+              <area-chart yearChoosed="2016" regionChoosed="all"></area-chart>
             </swiper-slide>
             <swiper-slide>
-              <area-chart yearChoosed="2017"></area-chart>
+              <area-chart yearChoosed="2017" regionChoosed="all"></area-chart>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
           </swiper>
@@ -53,11 +53,11 @@
               ></el-option>
             </el-select>
           </div>
-          <line-chart :type="lineTypeChoosed"></line-chart>
+          <line-chart :type="lineTypeChoosed" regionChoosed="all"></line-chart>
         </el-card>
         <!-- 梯度分布图容器 -->
         <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
-          <div slot="header">
+          <div class="card-header" slot="header">
             <span>梯度分布图</span>
           </div>
           <box-plot></box-plot>
@@ -67,14 +67,14 @@
       <el-main class="mid-panel">
         <!-- 地图容器 -->
         <el-card class="map-card" :body-style="{ padding: '0px' }">
-          <div slot="header">
+          <div class="card-header" slot="header">
             <span>地图</span>
           </div>
           <map-view></map-view>
         </el-card>
         <!-- 画廊容器 -->
         <el-card class="gallery-card" :body-style="{ padding: '0px' }">
-          <div slot="header">
+          <div class="card-header" slot="header">
             <span>画廊</span>
           </div>
         </el-card>
@@ -117,12 +117,12 @@
           <som-view></som-view>
         </el-card>
         <el-card class="card-placeholder2" :body-style="{ padding: '0px' }">
-          <div slot="header">
+          <div class="card-header" slot="header">
             <span>占位2</span>
           </div>
         </el-card>
         <el-card class="card-placeholder3" :body-style="{ padding: '0px' }">
-          <div slot="header">
+          <div class="card-header" slot="header">
             <span>占位3</span>
           </div>
         </el-card>
@@ -146,7 +146,7 @@ export default {
 			areaChartSwiperOptions: {
 				direction: 'vertical', // 垂直方向移动
 				autoHeight: true,
-				height: 837,
+				height: 825,
 				pagination: {
 					// 分页
 					el: '.swiper-pagination',
@@ -278,5 +278,6 @@ export default {
 .card-header {
 	display: flex;
 	justify-content: space-between;
+	line-height: 28px;
 }
 </style>
