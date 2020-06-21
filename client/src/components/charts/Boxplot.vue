@@ -1,6 +1,6 @@
 <template>
   <div class="box-plot">
-    <v-chart :options="boxOpt" theme="infographic" />
+    <v-chart ref="boxPlot" :options="boxOpt" theme="infographic" />
   </div>
 </template>
 
@@ -16,34 +16,12 @@ import 'echarts/lib/component/legend'
 import 'echarts/lib/component/tooltip'
 
 export default {
-	name: '',
-	components: {
-		'v-chart': ECharts
-	},
 	data() {
-		const data = {
-			boxData: [
-				[655, 850, 940, 980, 1070],
-				[760, 800, 845, 885, 960],
-				[780, 840, 855, 880, 940],
-				[720, 767.5, 815, 865, 920],
-				[740, 807.5, 810, 870, 950]
-			],
-			outliers: [
-				[0, 650],
-				[2, 620],
-				[2, 720],
-				[2, 720],
-				[2, 950],
-				[2, 970]
-			],
-			asixData: [0, 1, 2, 3, 4]
-		}
 		return {
 			queryInfo: {
-				type: '1', // 请求类型，1 为所有海区
+				type: '1', // 请求类型，1 为所有海区，2 为请求某海域所有月份数据
 				regionId: 'all', // 默认初始请求所有海区数据
-				year: null // 不使用该参数
+				date: this.dateChoosed // 不使用该参数
 			},
 			boxOpt: {
 				title: [
@@ -66,31 +44,29 @@ export default {
 				},
 				xAxis: {
 					type: 'category',
-					data: data.axisData,
+					data: null,
 					boundaryGap: true,
 					nameGap: 30,
 					splitArea: {
 						show: false
 					},
 					axisLabel: {
-						formatter: 'expr {value}'
-					},
-					splitLine: {
-						show: false
+						interval: 0,
+						rotate: 90,
+						formatter: 'region {value}'
 					}
 				},
 				yAxis: {
 					type: 'value',
-					name: 'km/s minus 299,000',
+					name: 'km/s',
 					splitArea: {
 						show: true
 					}
 				},
 				series: [
 					{
-						name: 'boxplot',
 						type: 'boxplot',
-						data: data.boxData,
+						data: null,
 						tooltip: {
 							formatter: function(param) {
 								return [
@@ -107,20 +83,48 @@ export default {
 					{
 						name: 'outlier',
 						type: 'scatter',
-						data: data.outliers
+						data: null
 					}
 				]
 			}
 		}
 	},
-
-	computed: {},
-
-	watch: {},
-
-	mounted() {},
-
-	methods: {}
+	components: {
+		'v-chart': ECharts
+	},
+	props: ['dateChoosed'],
+	mounted() {
+		this.getBoxplotData()
+	},
+	methods: {
+		// 是否显示缓冲条
+		isShowLoadding(b) {
+			if (b) {
+				this.$refs.boxPlot.showLoading({
+					text: 'Loading…',
+					color: '#409EFF',
+					maskColor: 'rgba(255, 255, 255, 0.4)'
+				})
+			} else {
+				this.$refs.boxPlot.hideLoading()
+			}
+		},
+		async getBoxplotData() {
+			this.isShowLoadding(true)
+			const { data: res } = await this.axios.get('boxdata', {
+				params: this.queryInfo
+			})
+			if (res.meta.status !== 200) {
+				this.$message.error('Failed to get boxplot data!')
+			} else {
+				// 为图表数据赋值
+				this.boxOpt.xAxis.data = res.data.axisData
+				this.boxOpt.series[0].data = res.data.boxData
+				this.boxOpt.series[1].data = res.data.outliers
+				this.isShowLoadding(false)
+			}
+		}
+	}
 }
 </script>
 
