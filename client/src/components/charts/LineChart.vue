@@ -201,8 +201,8 @@ export default {
 				this.lineOpt.series = lineData
 				this.lineOpt.yAxis.name = `× 10^${max.toString().length - 1} km²`
 				this.lineOpt.legend.data = yearArr
+				this.isShowLoadding(false)
 			}
-			this.isShowLoadding(false)
 		}
 	}
 }
