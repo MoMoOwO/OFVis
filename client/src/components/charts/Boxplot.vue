@@ -1,6 +1,12 @@
 <template>
   <div class="box-plot">
-    <v-chart ref="boxPlot" :options="boxOpt" theme="infographic" />
+    <v-chart
+      ref="boxPlot"
+      :options="boxOpt"
+      @click="boxPlotItemClicked"
+      @restore="boxPlotItemsRestore"
+      theme="infographic"
+    />
   </div>
 </template>
 
@@ -23,18 +29,34 @@ export default {
 				regionId: 'all', // 默认初始请求所有海区数据
 				date: this.dateChoosed // 不使用该参数
 			},
+			historyData: {
+				axisData: [],
+				boxData: [],
+				outliers: []
+			},
 			boxOpt: {
 				title: [
-					/* {
-						text: 'Michelson-Morley Experiment',
-						left: 'center'
-					} */
+					{
+						text: this.dateChoosed + ' RegionID: all',
+						right: 0,
+						top: 13
+					}
 				],
 				tooltip: {
 					trigger: 'item',
 					axisPointer: {
 						type: 'shadow'
 					}
+				},
+				toolbox: {
+					show: false,
+					feature: {
+						restore: {
+							title: 'restore'
+						}
+					},
+					left: 70,
+					top: 0
 				},
 				grid: {
 					left: 10,
@@ -51,14 +73,12 @@ export default {
 						show: false
 					},
 					axisLabel: {
-						interval: 0,
-						rotate: 90,
-						formatter: 'region {value}'
+						interval: 0
 					}
 				},
 				yAxis: {
 					type: 'value',
-					name: 'km/s',
+					name: '℃/km',
 					splitArea: {
 						show: true
 					}
@@ -69,8 +89,12 @@ export default {
 						data: null,
 						tooltip: {
 							formatter: function(param) {
+								let name = ''
+								param.name.length === 1
+									? (name = 'RegionID: ')
+									: (name = 'Date: ')
 								return [
-									'Experiment ' + param.name + ': ',
+									name + param.name + ': ',
 									'upper: ' + param.data[4],
 									'Q3: ' + param.data[3],
 									'median: ' + param.data[2],
@@ -109,6 +133,7 @@ export default {
 				this.$refs.boxPlot.hideLoading()
 			}
 		},
+		// 获取箱线图数据
 		async getBoxplotData() {
 			this.isShowLoadding(true)
 			const { data: res } = await this.axios.get('boxdata', {
@@ -123,6 +148,42 @@ export default {
 				this.boxOpt.series[1].data = res.data.outliers
 				this.isShowLoadding(false)
 			}
+		},
+		// 点击箱线图数据项
+		boxPlotItemClicked(e) {
+			if (e.name.length === 1 && e.seriesType === 'boxplot') {
+				// 点击一层箱体
+				// 记录历史数据
+				this.historyData.axisData = this.boxOpt.xAxis.data
+				this.historyData.boxData = this.boxOpt.series[0].data
+				this.historyData.outliers = this.boxOpt.series[1].data
+				// 修改查询条件
+				this.queryInfo.type = '2'
+				this.queryInfo.regionId = e.name
+				this.queryInfo.date = this.queryInfo.date.slice(0, 4)
+				// 请求新数据
+				this.getBoxplotData()
+				// 显示 restore 按钮
+				this.boxOpt.toolbox.show = true
+			} else if (e.name.length === 1 && e.seriesType === 'scatter') {
+				// 点击一层散点
+				// 点击散点在地图上添加标注
+				console.log(`点击了点，日期${this.queryInfo.date}，数据${e.data}`)
+			} else if (e.name.length === 6 && e.seriesType === 'scatter') {
+				// 点击二层散点
+				console.log(`点击了点，日期${e.name}，数据${e.data}`)
+			} else {
+				// 其他情况
+				return 0
+			}
+		},
+		// 还原箱线图数据
+		boxPlotItemsRestore() {
+			// 隐藏 restore 按钮
+			this.boxOpt.toolbox.show = false
+			this.boxOpt.xAxis.data = this.historyData.axisData
+			this.boxOpt.series[0].data = this.historyData.boxData
+			this.boxOpt.series[1].data = this.historyData.outliers
 		}
 	}
 }
