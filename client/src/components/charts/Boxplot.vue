@@ -1,6 +1,12 @@
 <template>
   <div class="box-plot">
-    <v-chart ref="boxPlot" :options="boxOpt" @click="boxPlotItemClicked" theme="infographic" />
+    <v-chart
+      ref="boxPlot"
+      :options="boxOpt"
+      @click="boxPlotItemClicked"
+      @restore="boxPlotItemsRestore"
+      theme="infographic"
+    />
   </div>
 </template>
 
@@ -83,9 +89,12 @@ export default {
 						data: null,
 						tooltip: {
 							formatter: function(param) {
-								console.log(param)
+								let name = ''
+								param.name.length === 1
+									? (name = 'RegionID: ')
+									: (name = 'Date: ')
 								return [
-									'Region ' + param.name + ': ',
+									name + param.name + ': ',
 									'upper: ' + param.data[4],
 									'Q3: ' + param.data[3],
 									'median: ' + param.data[2],
@@ -140,16 +149,14 @@ export default {
 				this.isShowLoadding(false)
 			}
 		},
-		// 点击箱线图数据项，只用于一层
+		// 点击箱线图数据项
 		boxPlotItemClicked(e) {
-			if (e.seriesType === 'boxplot') {
-				// 点击箱体查询
-				console.log(e)
+			if (e.name.length === 1 && e.seriesType === 'boxplot') {
+				// 点击一层箱体
 				// 记录历史数据
 				this.historyData.axisData = this.boxOpt.xAxis.data
-				this.historyData.boxData.data = this.boxOpt.series[0].data
-				this.historyData.boxData.data = this.boxOpt.series[1].data
-
+				this.historyData.boxData = this.boxOpt.series[0].data
+				this.historyData.outliers = this.boxOpt.series[1].data
 				// 修改查询条件
 				this.queryInfo.type = '2'
 				this.queryInfo.regionId = e.name
@@ -158,10 +165,25 @@ export default {
 				this.getBoxplotData()
 				// 显示 restore 按钮
 				this.boxOpt.toolbox.show = true
-			} else if (e.seriesType === 'scatter') {
+			} else if (e.name.length === 1 && e.seriesType === 'scatter') {
+				// 点击一层散点
 				// 点击散点在地图上添加标注
 				console.log(`点击了点，日期${this.queryInfo.date}，数据${e.data}`)
+			} else if (e.name.length === 6 && e.seriesType === 'scatter') {
+				// 点击二层散点
+				console.log(`点击了点，日期${e.name}，数据${e.data}`)
+			} else {
+				// 其他情况
+				return 0
 			}
+		},
+		// 还原箱线图数据
+		boxPlotItemsRestore() {
+			// 隐藏 restore 按钮
+			this.boxOpt.toolbox.show = false
+			this.boxOpt.xAxis.data = this.historyData.axisData
+			this.boxOpt.series[0].data = this.historyData.boxData
+			this.boxOpt.series[1].data = this.historyData.outliers
 		}
 	}
 }
