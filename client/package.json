@@ -10,17 +10,18 @@
   "dependencies": {
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
+    "echarts": "^4.8.0",
     "element-ui": "^2.13.2",
     "leaflet": "^1.6.0",
     "swiper": "^5.4.5",
     "vue": "^2.6.11",
-    "echarts": "^4.8.0",
     "vue-awesome-swiper": "^4.1.1",
     "vue-axios": "^2.1.5",
+    "vue-echarts": "^5.0.0-beta.0",
     "vue-router": "^3.2.0",
     "vue-splitpane": "^1.0.6",
     "vue2-leaflet": "^2.5.2",
-    "vue-echarts": "^5.0.0-beta.0"
+    "vuex": "^3.4.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.0",
