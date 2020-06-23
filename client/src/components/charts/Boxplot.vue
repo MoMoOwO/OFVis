@@ -123,10 +123,10 @@ export default {
 	},
 	watch: {
 		'$store.state.boxRegionChoosed': {
-			handler: newVal => {
+			handler: function(newVal) {
 				console.log(newVal)
 				console.log(this)
-				consle.log(this.queryInfo)
+				console.log(this.queryInfo)
 				this.queryInfo.regionId = newVal
 			},
 			deep: true
