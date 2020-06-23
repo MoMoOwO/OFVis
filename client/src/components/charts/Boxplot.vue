@@ -121,6 +121,14 @@ export default {
 	mounted() {
 		this.getBoxplotData()
 	},
+	watch: {
+		'$store.state.boxRegionChoosed': {
+			handler: newVal => {
+				this.queryInfo.regionId = newVal
+			},
+			deep: true
+		}
+	},
 	methods: {
 		// 是否显示缓冲条
 		isShowLoadding(b) {
