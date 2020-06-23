@@ -24,13 +24,13 @@ export default {
 		return {
 			queryInfo: {
 				type: '1', // 请求基础面积统计图数据
-				regionId: 'all', // 默认初始请求所有海区数据
+				regionId: this.$store.state.boxRegionChoosed, // 默认初始请求所有海区数据
 				year: this.yearChoosed
 			},
 			calendarOpt: {
 				tooltip: {
 					confine: true, // 将 tooltip 框定在容器内
-					formatter: p => p.data[0] + ':<br/>' + p.data[1].toFixed(2) + 'km²'
+					formatter: p => `${p.data[0]}<br/>${p.data[1].toFixed(2)}km²`
 				},
 				visualMap: {
 					min: 0,
@@ -73,9 +73,9 @@ export default {
 			},
 			barOpt: {
 				title: {
-					text: this.yearChoosed + ' RegionID：' + this.regionChoosed,
+					text: this.yearChoosed + ' ' + this.$store.getters.getRegionIDLabel,
 					right: 0,
-					top: 10,
+					top: 15,
 					textStyle: {
 						fontSize: 17
 					}
@@ -86,7 +86,7 @@ export default {
 				},
 				tooltip: {
 					confine: true, // 将 tooltip 框定在容器内
-					formatter: p => p.data.toFixed(2) + 'km²'
+					formatter: p => `${p.name}<br/>${p.data.toFixed(2)}km²`
 				},
 				xAxis: {
 					type: 'value',
@@ -147,12 +147,20 @@ export default {
 			}
 		}
 	},
-	props: ['yearChoosed', 'regionChoosed'],
+	props: ['yearChoosed'],
 	components: {
 		'v-chart': ECharts
 	},
 	mounted() {
 		this.getAreaData()
+	},
+	watch: {
+		queryInfo: {
+			handler(query) {
+				console.log(query)
+			},
+			deep: true // 深度监听可以监听到对象、数组的变化
+		}
 	},
 	methods: {
 		// 是否显示缓冲条

@@ -24,14 +24,14 @@ export default {
 		return {
 			queryInfo: {
 				type: '2', // 请求面积折线图统计图数据
-				regionId: 'all', // 默认初始请求所有海区数据
+				regionId: this.$store.state.boxRegionChoosed, // 默认初始请求所有海区数据
 				year: null // 不使用该参数
 			},
 			polarOpt: {
 				title: {
-					text: 'RegionID：' + this.regionChoosed,
+					text: this.$store.getters.getRegionIDLabel,
 					right: 0,
-					top: 13
+					top: 15
 				},
 				tooltip: {
 					confine: true
@@ -68,7 +68,7 @@ export default {
 			},
 			lineOpt: {
 				title: {
-					text: 'RegionID：' + this.regionChoosed,
+					text: this.$store.getters.getRegionIDLabel,
 					right: 0,
 					top: 10
 				},
@@ -108,7 +108,7 @@ export default {
 					type: 'value',
 					name: '',
 					nameTextStyle: {
-						padding: [0, 0, 0, 55]
+						padding: [0, 0, 0, 60]
 					},
 					axisLabel: {
 						formatter: value => value.toString()[0]
@@ -123,6 +123,7 @@ export default {
 	},
 	props: ['type', 'regionChoosed'],
 	mounted() {
+		console.log(this.queryInfo)
 		this.getAreaData()
 	},
 	methods: {
@@ -195,11 +196,14 @@ export default {
 						value: data[i]
 					})
 				}
+
 				this.polarOpt.series.data = polarData
 				this.polarOpt.legend.data = yearArr
+
 				this.lineOpt.series = lineData
 				this.lineOpt.yAxis.name = `× 10^${max.toString().length - 1} km²`
 				this.lineOpt.legend.data = yearArr
+
 				this.isShowLoadding(false)
 			}
 		}

@@ -26,20 +26,18 @@ export default {
 		return {
 			queryInfo: {
 				type: '1', // 请求类型，1 为所有海区，2 为请求某海域所有月份数据
-				regionId: 'all', // 默认初始请求所有海区数据
-				date: this.dateChoosed // 不使用该参数
-			},
-			historyData: {
-				axisData: [],
-				boxData: [],
-				outliers: []
+				regionId: this.$store.state.boxRegionChoosed, // 默认初始请求所有海区数据
+				date: this.$store.state.barDateChoosed
 			},
 			boxOpt: {
 				title: [
 					{
-						text: this.dateChoosed + ' RegionID: all',
+						text:
+							this.$store.state.barDateChoosed +
+							' ' +
+							this.$store.getters.getRegionIDLabel,
 						right: 0,
-						top: 13
+						top: 15
 					}
 				],
 				tooltip: {
@@ -79,8 +77,11 @@ export default {
 				yAxis: {
 					type: 'value',
 					name: '℃/km',
-					splitArea: {
+					/* splitArea: {
 						show: true
+					} */
+					nameTextStyle: {
+						padding: [0, 0, 0, 20]
 					}
 				},
 				series: [
@@ -153,13 +154,10 @@ export default {
 		boxPlotItemClicked(e) {
 			if (e.name.length === 1 && e.seriesType === 'boxplot') {
 				// 点击一层箱体
-				// 记录历史数据
-				this.historyData.axisData = this.boxOpt.xAxis.data
-				this.historyData.boxData = this.boxOpt.series[0].data
-				this.historyData.outliers = this.boxOpt.series[1].data
 				// 修改查询条件
 				this.queryInfo.type = '2'
-				this.queryInfo.regionId = e.name
+				this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持其他图表联动更新
+				console.log(this.$store.state.boxRegionChoosed)
 				this.queryInfo.date = this.queryInfo.date.slice(0, 4)
 				// 请求新数据
 				this.getBoxplotData()
@@ -181,9 +179,12 @@ export default {
 		boxPlotItemsRestore() {
 			// 隐藏 restore 按钮
 			this.boxOpt.toolbox.show = false
-			this.boxOpt.xAxis.data = this.historyData.axisData
-			this.boxOpt.series[0].data = this.historyData.boxData
-			this.boxOpt.series[1].data = this.historyData.outliers
+			this.queryInfo.type = '1'
+			// 改变选择区域的
+			this.$store.commit('selectedRegionIDOnBox', 'all') // 修改状态管理器中的数据，保持其他图表联动更新
+			this.queryInfo.date = this.$store.state.barDateChoosed // 还原为之前选择的日期
+			// 重新获取数据
+			this.getBoxplotData()
 		}
 	}
 }
