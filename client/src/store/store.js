@@ -14,6 +14,9 @@ const store = new Vuex.Store({
     }
   },
   getters: { // 对外提供获取 state 中数据的接口，可以在获取时对 state 中数据进行包装，否则也可以直接从 state 中获取数据
+    getBoxRegionChoosed: (state) => {
+      return state.boxRegionChoosed
+    },
     getRegionIDLabel: (state) => {
       return 'RegionID: ' + state.boxRegionChoosed
     }

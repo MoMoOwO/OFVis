@@ -26,7 +26,7 @@ export default {
 		return {
 			queryInfo: {
 				type: '1', // 请求类型，1 为所有海区，2 为请求某海域所有月份数据
-				regionId: this.$store.state.boxRegionChoosed, // 默认初始请求所有海区数据
+				regionId: this.$store.getters.getBoxRegionChoosed, // 默认初始请求所有海区数据
 				date: this.$store.state.barDateChoosed
 			},
 			boxOpt: {
@@ -122,13 +122,13 @@ export default {
 		this.getBoxplotData()
 	},
 	watch: {
-		'$store.state.boxRegionChoosed': {
+		/* '$store.state.boxRegionChoosed': {
 			handler: newVal => {
 				console.log(newVal)
 				this.queryInfo.regionId = newVal
 			},
 			deep: true
-		}
+		} */
 	},
 	methods: {
 		// 是否显示缓冲条
@@ -167,6 +167,7 @@ export default {
 				this.queryInfo.type = '2'
 				this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持其他图表联动更新
 				this.queryInfo.date = this.queryInfo.date.slice(0, 4)
+				console.log(this.queryInfo)
 				// 请求新数据
 				this.getBoxplotData()
 				// 显示 restore 按钮
