@@ -158,6 +158,7 @@ export default {
 				this.queryInfo.type = '2'
 				this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持其他图表联动更新
 				console.log(this.$store.state.boxRegionChoosed)
+				console.log(this.queryInfo)
 				this.queryInfo.date = this.queryInfo.date.slice(0, 4)
 				// 请求新数据
 				this.getBoxplotData()
