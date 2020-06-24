@@ -25,16 +25,16 @@ import L from 'leaflet'
 // 配置 marker 图标
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
-	iconRetinaUrl: require('../../../static/marker/marker-icon-2x.png'),
-	iconUrl: require('../../../static/marker/marker-icon.png'),
-	shadowUrl: require('../../../static/marker/marker-shadow.png')
+	iconRetinaUrl: require('../../assets/markers/marker-icon-2x.png'),
+	iconUrl: require('../../assets/markers/marker-icon.png'),
+	shadowUrl: require('../../assets/markers/marker-shadow.png')
 })
 export default {
 	data() {
 		return {
 			tileUrl:
 				'https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA',
-			imgUrl: require('../../assets/maps/201501.png'),
+			imgUrl: require('../../../static/OceanImg/201501.png'),
 			mapOptions: {
 				zoomSnap: 0.5, // 开启小数(0.5)缩放级别
 				zoom: 5.5,
@@ -47,9 +47,25 @@ export default {
 		}
 	},
 	props: [],
-	mounted() {},
+	mounted() {
+		this.getMarkerIcon()
+	},
 	methods: {
-		async getMarkerImg() {},
+		async getMarkerIcon() {
+			const { data: res } = await this.axios.get('img/marker')
+			if (res.meta.status !== 200) {
+				this.$message.error('Failed to get marker-ico data!')
+			} else {
+				const icoArr = res.data
+				// 配置 marker 图标
+				delete L.Icon.Default.prototype._getIconUrl
+				L.Icon.Default.mergeOptions({
+					iconRetinaUrl: icoArr[0],
+					iconUrl: icoArr[1],
+					shadowUrl: icoArr[3]
+				})
+			}
+		},
 		doSomethingOnReady() {
 			alert('地图加载完毕')
 		}
