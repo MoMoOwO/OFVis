@@ -29,7 +29,7 @@ export default {
 			},
 			polarOpt: {
 				title: {
-					text: this.$store.getters.getRegionIDLabel,
+					text: '',
 					right: 0,
 					top: 15
 				},
@@ -68,7 +68,7 @@ export default {
 			},
 			lineOpt: {
 				title: {
-					text: this.$store.getters.getRegionIDLabel,
+					text: '',
 					right: 0,
 					top: 10
 				},
@@ -123,8 +123,17 @@ export default {
 	},
 	props: ['type', 'regionChoosed'],
 	mounted() {
-		console.log(this.queryInfo)
 		this.getAreaData()
+	},
+	watch: {
+		'$store.state.boxRegionChoosed': {
+			// 联动，监听区域选择的变化
+			handler: function(newVal) {
+				this.queryInfo.regionId = newVal
+				this.getAreaData()
+			},
+			deep: true
+		}
 	},
 	methods: {
 		// 是否显示缓冲条
@@ -145,7 +154,6 @@ export default {
 		@param {Boolean} ceil 是否向上取整
 		@param {Number} prec 需要用0占位的数量
 		*/
-
 		formatInt(num, prec, ceil = true) {
 			const len = String(num).length
 			if (len <= prec) {
@@ -199,10 +207,12 @@ export default {
 
 				this.polarOpt.series.data = polarData
 				this.polarOpt.legend.data = yearArr
+				this.polarOpt.title.text = this.$store.getters.getRegionIDLabel
 
 				this.lineOpt.series = lineData
 				this.lineOpt.yAxis.name = `× 10^${max.toString().length - 1} km²`
 				this.lineOpt.legend.data = yearArr
+				this.lineOpt.title.text = this.$store.getters.getRegionIDLabel
 
 				this.isShowLoadding(false)
 			}

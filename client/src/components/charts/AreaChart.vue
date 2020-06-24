@@ -6,7 +6,13 @@
       :options="calendarOpt"
       theme="infographic"
     ></v-chart>
-    <v-chart class="barContainer" ref="barChart" :options="barOpt" theme="infographic"></v-chart>
+    <v-chart
+      class="barContainer"
+      ref="barChart"
+      :options="barOpt"
+      @click="barItemClicked"
+      theme="infographic"
+    ></v-chart>
   </div>
 </template>
 
@@ -73,7 +79,7 @@ export default {
 			},
 			barOpt: {
 				title: {
-					text: this.yearChoosed + ' ' + this.$store.getters.getRegionIDLabel,
+					text: '',
 					right: 0,
 					top: 15,
 					textStyle: {
@@ -86,7 +92,8 @@ export default {
 				},
 				tooltip: {
 					confine: true, // 将 tooltip 框定在容器内
-					formatter: p => `${p.name}<br/>${p.data.toFixed(2)}km²`
+					formatter: p =>
+						`${this.yearChoosed}-${p.name}<br/>${p.data.toFixed(2)}km²`
 				},
 				xAxis: {
 					type: 'value',
@@ -155,11 +162,13 @@ export default {
 		this.getAreaData()
 	},
 	watch: {
-		queryInfo: {
-			handler(query) {
-				console.log(query)
+		'$store.state.boxRegionChoosed': {
+			// 联动，监听区域选择的变化
+			handler: function(newVal) {
+				this.queryInfo.regionId = newVal
+				this.getAreaData()
 			},
-			deep: true // 深度监听可以监听到对象、数组的变化
+			deep: true
 		}
 	},
 	methods: {
@@ -198,13 +207,27 @@ export default {
 					if (min > item[1]) min = item[1]
 					if (max < item[1]) max = item[1]
 				}
+
 				this.calendarOpt.series.data = res.data.calendarData
 				this.calendarOpt.visualMap.min = min
 				this.calendarOpt.visualMap.max = max
 				this.calendarOpt.calendar.range = this.queryInfo.year
+
 				this.barOpt.series.data = res.data.barData
+				this.barOpt.title.text =
+					this.yearChoosed + ' ' + this.$store.getters.getRegionIDLabel
 			}
 			this.isShowLoadding(false)
+		},
+		// 条形图数据项点击事件
+		barItemClicked(e) {
+			if (this.queryInfo.regionId === 'all') {
+				// 当为所有区域面积的时候才支持向下响应
+				this.$store.commit(
+					'selectedDateOnBar',
+					this.yearChoosed + (e.dataIndex + 1 + '').padStart(2, '0')
+				)
+			}
 		}
 	}
 }

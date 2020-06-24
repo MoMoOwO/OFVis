@@ -30,16 +30,14 @@ export default {
 				date: this.$store.state.barDateChoosed
 			},
 			boxOpt: {
-				title: [
-					{
-						text:
-							this.$store.state.barDateChoosed +
-							' ' +
-							this.$store.getters.getRegionIDLabel,
-						right: 0,
-						top: 15
-					}
-				],
+				title: {
+					text:
+						this.$store.state.barDateChoosed +
+						' ' +
+						this.$store.getters.getRegionIDLabel,
+					right: 0,
+					top: 15
+				},
 				tooltip: {
 					trigger: 'item',
 					axisPointer: {
@@ -71,6 +69,28 @@ export default {
 						show: false
 					},
 					axisLabel: {
+						formatter: p => {
+							if (p.length < 3) {
+								// 海区
+								return p
+							} else {
+								const months = [
+									'Jan',
+									'Feb',
+									'Mar',
+									'Apr',
+									'May',
+									'Jun',
+									'Jul',
+									'Aug',
+									'Sep',
+									'Oct',
+									'Nov',
+									'Dec'
+								]
+								return months[p.slice(-2) - 1]
+							}
+						},
 						interval: 0
 					}
 				},
@@ -95,7 +115,7 @@ export default {
 									? (name = 'RegionID: ')
 									: (name = 'Date: ')
 								return [
-									name + param.name + ': ',
+									name + param.name,
 									'upper: ' + param.data[4],
 									'Q3: ' + param.data[3],
 									'median: ' + param.data[2],
@@ -123,11 +143,21 @@ export default {
 	},
 	watch: {
 		'$store.state.boxRegionChoosed': {
+			// 联动，监听选择区域的改变
 			handler: function(newVal) {
-				console.log(newVal)
-				console.log(this)
-				console.log(this.queryInfo)
 				this.queryInfo.regionId = newVal
+			},
+			deep: true
+		},
+		'$store.state.barDateChoosed': {
+			// 响应柱状图选中的年月份
+			handler: function(newVal) {
+				this.queryInfo.date = newVal
+				this.boxOpt.title.text =
+					this.$store.state.barDateChoosed +
+					' ' +
+					this.$store.getters.getRegionIDLabel
+				this.getBoxplotData()
 			},
 			deep: true
 		}
@@ -169,6 +199,10 @@ export default {
 				this.queryInfo.type = '2'
 				this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持其他图表联动更新
 				this.queryInfo.date = this.queryInfo.date.slice(0, 4)
+				this.boxOpt.title.text =
+					this.queryInfo.date.slice(0, 4) +
+					' ' +
+					this.$store.getters.getRegionIDLabel
 				// 请求新数据
 				this.getBoxplotData()
 				// 显示 restore 按钮
@@ -193,6 +227,10 @@ export default {
 			// 改变选择区域的
 			this.$store.commit('selectedRegionIDOnBox', 'all') // 修改状态管理器中的数据，保持其他图表联动更新
 			this.queryInfo.date = this.$store.state.barDateChoosed // 还原为之前选择的日期
+			this.boxOpt.title.text =
+				this.$store.state.barDateChoosed +
+				' ' +
+				this.$store.getters.getRegionIDLabel
 			// 重新获取数据
 			this.getBoxplotData()
 		}
