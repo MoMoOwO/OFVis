@@ -7,12 +7,10 @@ import './plugins/vue2leaflet.js'
 import './assets/css/global.css'
 // 导入 element-ui 组件相关样式
 import 'element-ui/lib/theme-chalk/index.css'
-// 导入 leaflet 地图插件的样式
-import 'leaflet/dist/leaflet.css'
 
 // 导入 VueAwesomeSwiper 滑动组件并应用
 import VueAwesomeSwiper from 'vue-awesome-swiper'
-import 'swiper/css/swiper.css'
+import 'swiper/dist/css/swiper.css'
 
 // 导入axios
 import Axios from 'axios'
