@@ -3,8 +3,18 @@
   <l-map style="height: 565px; width: 100%;" :center="[33, 124]" :options="mapOptions">
     <!-- 地图瓦片 -->
     <l-tile-layer :url="tileUrl"></l-tile-layer>
-    <l-image-overlay :url="imgUrl" :opacity="0.5" :bounds="[[20.6, 115.4], [41.6, 134.5]]"></l-image-overlay>
-    <l-marker :lat-lng="[36.07, 129.38]"></l-marker>
+    <!-- <l-image-overlay :url="imgUrl" :opacity="0.5" :bounds="[[21.98, 116.98], [40.79, 134.06]]"></l-image-overlay>
+    <l-marker :lat-lng="[22, 117]"></l-marker>
+    <l-marker :lat-lng="[41, 131]"></l-marker>
+    <l-marker :lat-lng="[40.475, 120.975 + 0.02]"></l-marker>
+    <l-marker :lat-lng="[38.075, 120.825 + 0.02]"></l-marker>-->
+
+    <l-image-overlay :url="imgUrl" :opacity="0.5" :bounds="[[21.975, 116.975], [40.75, 134.06]]"></l-image-overlay>
+    <l-marker :lat-lng="[22, 117]"></l-marker>
+    <l-marker :lat-lng="[41, 131]"></l-marker>
+    <l-marker :lat-lng="[40.475, 120.975]"></l-marker>
+    <l-marker :lat-lng="[38.075, 120.825]"></l-marker>
+    <l-marker :lat-lng="[30.625, 123.075]"></l-marker>
   </l-map>
 </template>
 
@@ -15,16 +25,16 @@ import L from 'leaflet'
 // 配置 marker 图标
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
-	iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-	iconUrl: require('leaflet/dist/images/marker-icon.png'),
-	shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+	iconRetinaUrl: require('../../../static/marker/marker-icon-2x.png'),
+	iconUrl: require('../../../static/marker/marker-icon.png'),
+	shadowUrl: require('../../../static/marker/marker-shadow.png')
 })
 export default {
 	data() {
 		return {
 			tileUrl:
-				'https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA#5.0/33.031539/127.253861/0',
-			imgUrl: require('../../assets/maps/20150624.png'),
+				'https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA',
+			imgUrl: require('../../assets/maps/201501.png'),
 			mapOptions: {
 				zoomSnap: 0.5, // 开启小数(0.5)缩放级别
 				zoom: 5.5,
@@ -36,14 +46,14 @@ export default {
 			}
 		}
 	},
+	props: [],
+	mounted() {},
 	methods: {
+		async getMarkerImg() {},
 		doSomethingOnReady() {
 			alert('地图加载完毕')
 		}
-	},
-	created() {},
-	mounted() {},
-	props: {}
+	}
 }
 </script>
 
