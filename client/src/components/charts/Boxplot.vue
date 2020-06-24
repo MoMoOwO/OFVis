@@ -178,7 +178,7 @@ export default {
 		// 获取箱线图数据
 		async getBoxplotData() {
 			this.isShowLoadding(true)
-			const { data: res } = await this.axios.get('boxdata', {
+			const { data: res } = await this.axios.get('data/boxdata', {
 				params: this.queryInfo
 			})
 			if (res.meta.status !== 200) {

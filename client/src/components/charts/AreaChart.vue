@@ -193,7 +193,7 @@ export default {
 		// 获取面积数据
 		async getAreaData() {
 			this.isShowLoadding(true)
-			const { data: res } = await this.axios.get('areadata', {
+			const { data: res } = await this.axios.get('data/areadata', {
 				params: this.queryInfo
 			})
 			if (res.meta.status !== 200) {
