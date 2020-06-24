@@ -7,7 +7,7 @@ module.exports = {
     // 以上的 ip 和端口是我们本机的;下面为需要跨域的
     proxy: {  // 配置跨域
       '/api': {
-        target: 'http://localhost:3000/data/',  // 后台服务器地址
+        target: 'http://localhost:3000/',  // 后台服务器地址
         ws: true,
         changOrigin: true,  // 允许跨域
         pathRewrite: {

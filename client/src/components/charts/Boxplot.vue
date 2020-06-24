@@ -26,22 +26,18 @@ export default {
 		return {
 			queryInfo: {
 				type: '1', // 请求类型，1 为所有海区，2 为请求某海域所有月份数据
-				regionId: 'all', // 默认初始请求所有海区数据
-				date: this.dateChoosed // 不使用该参数
-			},
-			historyData: {
-				axisData: [],
-				boxData: [],
-				outliers: []
+				regionId: this.$store.state.boxRegionChoosed, // 默认初始请求所有海区数据
+				date: this.$store.state.barDateChoosed
 			},
 			boxOpt: {
-				title: [
-					{
-						text: this.dateChoosed + ' RegionID: all',
-						right: 0,
-						top: 13
-					}
-				],
+				title: {
+					text:
+						this.$store.state.barDateChoosed +
+						' ' +
+						this.$store.getters.getRegionIDLabel,
+					right: 0,
+					top: 15
+				},
 				tooltip: {
 					trigger: 'item',
 					axisPointer: {
@@ -73,14 +69,39 @@ export default {
 						show: false
 					},
 					axisLabel: {
+						formatter: p => {
+							if (p.length < 3) {
+								// 海区
+								return p
+							} else {
+								const months = [
+									'Jan',
+									'Feb',
+									'Mar',
+									'Apr',
+									'May',
+									'Jun',
+									'Jul',
+									'Aug',
+									'Sep',
+									'Oct',
+									'Nov',
+									'Dec'
+								]
+								return months[p.slice(-2) - 1]
+							}
+						},
 						interval: 0
 					}
 				},
 				yAxis: {
 					type: 'value',
 					name: '℃/km',
-					splitArea: {
+					/* splitArea: {
 						show: true
+					} */
+					nameTextStyle: {
+						padding: [0, 0, 0, 20]
 					}
 				},
 				series: [
@@ -94,7 +115,7 @@ export default {
 									? (name = 'RegionID: ')
 									: (name = 'Date: ')
 								return [
-									name + param.name + ': ',
+									name + param.name,
 									'upper: ' + param.data[4],
 									'Q3: ' + param.data[3],
 									'median: ' + param.data[2],
@@ -120,6 +141,27 @@ export default {
 	mounted() {
 		this.getBoxplotData()
 	},
+	watch: {
+		'$store.state.boxRegionChoosed': {
+			// 联动，监听选择区域的改变
+			handler: function(newVal) {
+				this.queryInfo.regionId = newVal
+			},
+			deep: true
+		},
+		'$store.state.barDateChoosed': {
+			// 响应柱状图选中的年月份
+			handler: function(newVal) {
+				this.queryInfo.date = newVal
+				this.boxOpt.title.text =
+					this.$store.state.barDateChoosed +
+					' ' +
+					this.$store.getters.getRegionIDLabel
+				this.getBoxplotData()
+			},
+			deep: true
+		}
+	},
 	methods: {
 		// 是否显示缓冲条
 		isShowLoadding(b) {
@@ -136,7 +178,7 @@ export default {
 		// 获取箱线图数据
 		async getBoxplotData() {
 			this.isShowLoadding(true)
-			const { data: res } = await this.axios.get('boxdata', {
+			const { data: res } = await this.axios.get('data/boxdata', {
 				params: this.queryInfo
 			})
 			if (res.meta.status !== 200) {
@@ -153,14 +195,14 @@ export default {
 		boxPlotItemClicked(e) {
 			if (e.name.length === 1 && e.seriesType === 'boxplot') {
 				// 点击一层箱体
-				// 记录历史数据
-				this.historyData.axisData = this.boxOpt.xAxis.data
-				this.historyData.boxData = this.boxOpt.series[0].data
-				this.historyData.outliers = this.boxOpt.series[1].data
 				// 修改查询条件
 				this.queryInfo.type = '2'
-				this.queryInfo.regionId = e.name
+				this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持其他图表联动更新
 				this.queryInfo.date = this.queryInfo.date.slice(0, 4)
+				this.boxOpt.title.text =
+					this.queryInfo.date.slice(0, 4) +
+					' ' +
+					this.$store.getters.getRegionIDLabel
 				// 请求新数据
 				this.getBoxplotData()
 				// 显示 restore 按钮
@@ -181,9 +223,16 @@ export default {
 		boxPlotItemsRestore() {
 			// 隐藏 restore 按钮
 			this.boxOpt.toolbox.show = false
-			this.boxOpt.xAxis.data = this.historyData.axisData
-			this.boxOpt.series[0].data = this.historyData.boxData
-			this.boxOpt.series[1].data = this.historyData.outliers
+			this.queryInfo.type = '1'
+			// 改变选择区域的
+			this.$store.commit('selectedRegionIDOnBox', 'all') // 修改状态管理器中的数据，保持其他图表联动更新
+			this.queryInfo.date = this.$store.state.barDateChoosed // 还原为之前选择的日期
+			this.boxOpt.title.text =
+				this.$store.state.barDateChoosed +
+				' ' +
+				this.$store.getters.getRegionIDLabel
+			// 重新获取数据
+			this.getBoxplotData()
 		}
 	}
 }

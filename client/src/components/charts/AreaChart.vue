@@ -6,7 +6,13 @@
       :options="calendarOpt"
       theme="infographic"
     ></v-chart>
-    <v-chart class="barContainer" ref="barChart" :options="barOpt" theme="infographic"></v-chart>
+    <v-chart
+      class="barContainer"
+      ref="barChart"
+      :options="barOpt"
+      @click="barItemClicked"
+      theme="infographic"
+    ></v-chart>
   </div>
 </template>
 
@@ -24,13 +30,13 @@ export default {
 		return {
 			queryInfo: {
 				type: '1', // 请求基础面积统计图数据
-				regionId: 'all', // 默认初始请求所有海区数据
+				regionId: this.$store.state.boxRegionChoosed, // 默认初始请求所有海区数据
 				year: this.yearChoosed
 			},
 			calendarOpt: {
 				tooltip: {
 					confine: true, // 将 tooltip 框定在容器内
-					formatter: p => p.data[0] + ':<br/>' + p.data[1].toFixed(2) + 'km²'
+					formatter: p => `${p.data[0]}<br/>${p.data[1].toFixed(2)}km²`
 				},
 				visualMap: {
 					min: 0,
@@ -73,9 +79,9 @@ export default {
 			},
 			barOpt: {
 				title: {
-					text: this.yearChoosed + ' RegionID：' + this.regionChoosed,
+					text: '',
 					right: 0,
-					top: 10,
+					top: 15,
 					textStyle: {
 						fontSize: 17
 					}
@@ -86,7 +92,8 @@ export default {
 				},
 				tooltip: {
 					confine: true, // 将 tooltip 框定在容器内
-					formatter: p => p.data.toFixed(2) + 'km²'
+					formatter: p =>
+						`${this.yearChoosed}-${p.name}<br/>${p.data.toFixed(2)}km²`
 				},
 				xAxis: {
 					type: 'value',
@@ -147,12 +154,22 @@ export default {
 			}
 		}
 	},
-	props: ['yearChoosed', 'regionChoosed'],
+	props: ['yearChoosed'],
 	components: {
 		'v-chart': ECharts
 	},
 	mounted() {
 		this.getAreaData()
+	},
+	watch: {
+		'$store.state.boxRegionChoosed': {
+			// 联动，监听区域选择的变化
+			handler: function(newVal) {
+				this.queryInfo.regionId = newVal
+				this.getAreaData()
+			},
+			deep: true
+		}
 	},
 	methods: {
 		// 是否显示缓冲条
@@ -176,7 +193,7 @@ export default {
 		// 获取面积数据
 		async getAreaData() {
 			this.isShowLoadding(true)
-			const { data: res } = await this.axios.get('areadata', {
+			const { data: res } = await this.axios.get('data/areadata', {
 				params: this.queryInfo
 			})
 			if (res.meta.status !== 200) {
@@ -190,13 +207,27 @@ export default {
 					if (min > item[1]) min = item[1]
 					if (max < item[1]) max = item[1]
 				}
+
 				this.calendarOpt.series.data = res.data.calendarData
 				this.calendarOpt.visualMap.min = min
 				this.calendarOpt.visualMap.max = max
 				this.calendarOpt.calendar.range = this.queryInfo.year
+
 				this.barOpt.series.data = res.data.barData
+				this.barOpt.title.text =
+					this.yearChoosed + ' ' + this.$store.getters.getRegionIDLabel
 			}
 			this.isShowLoadding(false)
+		},
+		// 条形图数据项点击事件
+		barItemClicked(e) {
+			if (this.queryInfo.regionId === 'all') {
+				// 当为所有区域面积的时候才支持向下响应
+				this.$store.commit(
+					'selectedDateOnBar',
+					this.yearChoosed + (e.dataIndex + 1 + '').padStart(2, '0')
+				)
+			}
 		}
 	}
 }

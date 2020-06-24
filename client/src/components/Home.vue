@@ -24,13 +24,13 @@
           <!-- 面积图区域，可滑动切换年份 -->
           <swiper ref="mySwiper" :options="areaChartSwiperOptions">
             <swiper-slide>
-              <area-chart yearChoosed="2015" regionChoosed="all"></area-chart>
+              <area-chart yearChoosed="2015"></area-chart>
             </swiper-slide>
             <swiper-slide>
-              <area-chart yearChoosed="2016" regionChoosed="all"></area-chart>
+              <area-chart yearChoosed="2016"></area-chart>
             </swiper-slide>
             <swiper-slide>
-              <area-chart yearChoosed="2017" regionChoosed="all"></area-chart>
+              <area-chart yearChoosed="2017"></area-chart>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
           </swiper>
@@ -147,11 +147,8 @@ export default {
 				direction: 'vertical', // 垂直方向移动
 				autoHeight: true,
 				height: 825,
-				pagination: {
-					// 分页
-					el: '.swiper-pagination',
-					clickable: true
-				}
+				pagination: '.swiper-pagination',
+				paginationClickable: true
 			},
 			// 折线图类型选项数组
 			lineType: [

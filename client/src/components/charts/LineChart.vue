@@ -24,14 +24,14 @@ export default {
 		return {
 			queryInfo: {
 				type: '2', // 请求面积折线图统计图数据
-				regionId: 'all', // 默认初始请求所有海区数据
+				regionId: this.$store.state.boxRegionChoosed, // 默认初始请求所有海区数据
 				year: null // 不使用该参数
 			},
 			polarOpt: {
 				title: {
-					text: 'RegionID：' + this.regionChoosed,
+					text: '',
 					right: 0,
-					top: 13
+					top: 15
 				},
 				tooltip: {
 					confine: true
@@ -68,7 +68,7 @@ export default {
 			},
 			lineOpt: {
 				title: {
-					text: 'RegionID：' + this.regionChoosed,
+					text: '',
 					right: 0,
 					top: 10
 				},
@@ -108,7 +108,7 @@ export default {
 					type: 'value',
 					name: '',
 					nameTextStyle: {
-						padding: [0, 0, 0, 55]
+						padding: [0, 0, 0, 60]
 					},
 					axisLabel: {
 						formatter: value => value.toString()[0]
@@ -124,6 +124,16 @@ export default {
 	props: ['type', 'regionChoosed'],
 	mounted() {
 		this.getAreaData()
+	},
+	watch: {
+		'$store.state.boxRegionChoosed': {
+			// 联动，监听区域选择的变化
+			handler: function(newVal) {
+				this.queryInfo.regionId = newVal
+				this.getAreaData()
+			},
+			deep: true
+		}
 	},
 	methods: {
 		// 是否显示缓冲条
@@ -144,7 +154,6 @@ export default {
 		@param {Boolean} ceil 是否向上取整
 		@param {Number} prec 需要用0占位的数量
 		*/
-
 		formatInt(num, prec, ceil = true) {
 			const len = String(num).length
 			if (len <= prec) {
@@ -156,7 +165,7 @@ export default {
 		// 获取折线图数据
 		async getAreaData() {
 			this.isShowLoadding(true)
-			const { data: res } = await this.axios.get('areadata', {
+			const { data: res } = await this.axios.get('data/areadata', {
 				params: this.queryInfo
 			})
 			if (res.meta.status !== 200) {
@@ -195,11 +204,16 @@ export default {
 						value: data[i]
 					})
 				}
+
 				this.polarOpt.series.data = polarData
 				this.polarOpt.legend.data = yearArr
+				this.polarOpt.title.text = this.$store.getters.getRegionIDLabel
+
 				this.lineOpt.series = lineData
 				this.lineOpt.yAxis.name = `× 10^${max.toString().length - 1} km²`
 				this.lineOpt.legend.data = yearArr
+				this.lineOpt.title.text = this.$store.getters.getRegionIDLabel
+
 				this.isShowLoadding(false)
 			}
 		}

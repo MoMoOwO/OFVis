@@ -71,10 +71,11 @@
 
     (4) vue-awesome-swiper
 
-    + 安装：`npm i swiper vue-awesome-swiper -S`
+    + 安装：`npm i vue-awesome-swiper@2.6.7 -S`
     + 作用：左右、上下切换显示内容的组件。
     + [官网](https://github.com/surmon-china/vue-awesome-swiper)
     + [swiper 官网](https://www.swiper.com.cn)
+    + 由于新版本的 swiper 组件会与 Echarts 图表的单击时间冲突，所以版本限定使用 v2.6.7
 
     (5) vue2-leaflet
 
