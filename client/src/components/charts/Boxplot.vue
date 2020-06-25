@@ -137,7 +137,6 @@ export default {
 	components: {
 		'v-chart': ECharts
 	},
-	props: ['dateChoosed'],
 	mounted() {
 		this.getBoxplotData()
 	},
