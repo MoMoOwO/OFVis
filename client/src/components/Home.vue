@@ -60,7 +60,7 @@
           <div class="card-header" slot="header">
             <span>梯度分布图</span>
           </div>
-          <box-plot dateChoosed="201501"></box-plot>
+          <box-plot></box-plot>
         </el-card>
       </el-main>
       <!-- 中部 -->
@@ -77,6 +77,7 @@
           <div class="card-header" slot="header">
             <span>画廊</span>
           </div>
+          <map-gallery></map-gallery>
         </el-card>
       </el-main>
       <!-- 左侧 -->
@@ -137,6 +138,7 @@ import AreaChart from './charts/AreaChart.vue'
 import BoxPlot from './charts/Boxplot.vue'
 import LineChart from './charts/LineChart.vue'
 import MapView from './charts/MapView.vue'
+import MapGallery from './charts/MapGallery.vue'
 import SOMView from './charts/SOMView.vue'
 
 export default {
@@ -170,21 +172,20 @@ export default {
 			}
 		}
 	},
+	components: {
+		'area-chart': AreaChart,
+		'box-plot': BoxPlot,
+		'line-chart': LineChart,
+		'map-view': MapView,
+		'map-gallery': MapGallery,
+		'som-view': SOMView
+	},
 	methods: {
 		submitClusteringSetting() {
 			console.log('提交了 Cluster 的修改')
 			console.log(this.SOMCluOpt)
 			this.isClusteringSettingPopverVisible = false
 		}
-	},
-	created() {},
-	mounted() {},
-	components: {
-		'area-chart': AreaChart,
-		'box-plot': BoxPlot,
-		'line-chart': LineChart,
-		'map-view': MapView,
-		'som-view': SOMView
 	}
 }
 </script>
