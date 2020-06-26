@@ -14,7 +14,7 @@ export default {
 		return {
 			queryInfo: {
 				type: '1',
-				date: this.$store.state.barDateChoosed
+				date: this.$store.state.galleryDateRange
 			},
 			imgList: [],
 			swiperOption: {
@@ -24,12 +24,7 @@ export default {
 				loop: true,
 				loopFillGroupWithBlank: true,
 				pagination: '.swiper-pagination',
-				paginationClickable: true,
-				on: {
-					click: function() {
-						console.log('点击了')
-					}
-				}
+				paginationClickable: true
 			}
 		}
 	},
@@ -45,6 +40,16 @@ export default {
 	mounted() {
 		this.swiper.slideTo(3, 10, false)
 	},
+	watch: {
+		'$store.state.galleryDateRange': {
+			// 联动，监听选择年月份的改变
+			handler: function(newVal) {
+				this.queryInfo.date = newVal
+				this.getImgData()
+			},
+			deep: true
+		}
+	},
 	methods: {
 		async getImgData() {
 			this.imgList = []
@@ -55,12 +60,12 @@ export default {
 				this.$message.error('Failed to get oceanimg data!')
 			} else {
 				this.imgList = res.data
-				this.$store.commit('selectImgShowOnMap', this.imgList[0].base64Str)
+				this.$store.commit('selectImgShowOnMap', this.imgList[0].fileName)
 			}
 		},
 		imgItemClicked(imgData) {
 			// console.log(imgData)
-			this.$store.commit('selectImgShowOnMap', imgData.base64Str)
+			this.$store.commit('selectImgShowOnMap', this.imgList[0].fileName)
 		}
 	}
 }

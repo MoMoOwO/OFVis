@@ -4,6 +4,7 @@
       ref="boxPlot"
       :options="boxOpt"
       @click="boxPlotItemClicked"
+      @mouseover="boxPlotItemMouseover"
       @restore="boxPlotItemsRestore"
       theme="infographic"
     />
@@ -216,6 +217,23 @@ export default {
 			} else {
 				// 其他情况
 				return 0
+			}
+		},
+		boxPlotItemMouseover(e) {
+			if (e.name.length === 1 && e.seriesType === 'scatter') {
+				// 一层散点
+				this.$store.commit(
+					'selectImgShowOnMap',
+					this.$store.state.barDateChoosed
+				)
+				this.$store.commit('hoverPointOnBoxplot', e.data)
+			} else if (e.name.length === 1 && e.seriesType === 'boxplot') {
+				// 一层箱线图，海区
+			} else if (e.name.length === 6 && e.seriesType === 'scatter') {
+				// 二层散点
+				console.log(e)
+				this.$store.commit('selectImgShowOnMap', e.name)
+				this.$store.commit('hoverPointOnBoxplot', e.data)
 			}
 		},
 		// 还原箱线图数据
