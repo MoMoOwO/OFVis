@@ -16,8 +16,8 @@
         <el-card class="area-chart-card" :body-style="{ padding: '0px' }">
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
-            <span>基础面积图</span>
-            <el-button style="padding: 0;" icon="el-icon-setting" type="text"></el-button>
+            <span>Area-Chart</span>
+            <el-button style="padding: 0; display: 'none';" icon="el-icon-setting" type="text"></el-button>
           </div>
           <!-- 卡片内容区域，图表区域 -->
           <!-- <area-chart></area-chart> -->
@@ -38,7 +38,7 @@
         <!-- 面积周期比较折线图容器 -->
         <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>面积周期变化</span>
+            <span>Area-Periodogram</span>
             <el-select
               style="width: 120px;"
               size="mini"
@@ -68,14 +68,15 @@
         <!-- 地图容器 -->
         <el-card class="map-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>地图</span>
+            <span>Map-View</span>
           </div>
           <map-view></map-view>
         </el-card>
         <!-- 画廊容器 -->
         <el-card class="gallery-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>画廊</span>
+            <span>Map-Gallery</span>
+            <span style="color: #4C868A">Date Range: {{this.$store.state.barDateChoosed}}</span>
           </div>
           <map-gallery></map-gallery>
         </el-card>
