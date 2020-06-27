@@ -21,18 +21,7 @@
       <el-table-column prop="ClusterId" label="ClusterId" width="90"></el-table-column>
     </el-table>
   </div>
-  <!-- <split-pane
-    class="som-container"
-    v-on:resize="resize"
-    :min-percent="20"
-    :default-percent="50"
-    split="vertical"
-  >
-    <template slot="paneL">
-      <v-chart :options="matrixOpt"></v-chart>
-    </template>
-    <template slot="paneR">B</template>
-  </split-pane>-->
+
 </template>
 
 <script>
@@ -42,8 +31,6 @@ import ECharts from 'vue-echarts'
 import 'echarts/lib/chart/heatmap'
 import 'echarts/lib/component/tooltip'
 import 'echarts/lib/component/legend'
-// splitpane 组件
-// import splitPane from 'vue-splitpane'
 
 export default {
 	data() {
