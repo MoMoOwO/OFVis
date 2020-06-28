@@ -1196,6 +1196,17 @@ export default {
 					borderWidth: 1
 				},
 				tooltip: {},
+				visualMap: {
+					min: 0,
+					max: 10,
+					precision: 4,
+					calculable: false,
+					orient: 'horizontal',
+					left: 'center',
+					inRange: {
+						color: ['#fff', '#000']
+					}
+				},
 				series: [
 					// 聚类矩阵图
 					{
@@ -1294,6 +1305,8 @@ export default {
 			if (res.meta.status !== 200) {
 				this.$message.error('Failed to get matrix data!')
 			} else {
+				this.matrixOpt.visualMap.min = res.data.min
+				this.matrixOpt.visualMap.max = res.data.max
 				this.matrixOpt.series[0].data = res.data.UMatrix
 			}
 		}
