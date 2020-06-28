@@ -1,7 +1,7 @@
 <template>
   <div class="som-container">
     <v-chart class="martix-container" :options="matrixOpt"></v-chart>
-    <el-table
+    <!-- <el-table
       :data="tableData"
       height="385"
       border
@@ -19,9 +19,8 @@
       <el-table-column prop="Sk" label="Skewness" width="88"></el-table-column>
       <el-table-column prop="EK" label="Ex_Kurtosis" width="97"></el-table-column>
       <el-table-column prop="ClusterId" label="ClusterId" width="90"></el-table-column>
-    </el-table>
+    </el-table>-->
   </div>
-
 </template>
 
 <script>
@@ -724,14 +723,14 @@ export default {
 			]
 		]
 		// 分类颜色数组
-		const colors = [
+		/* const colors = [
 			'rgb(215, 25, 28)',
 			'rgb(253, 174, 97)',
 			'rgb(171, 221, 164)',
 			'rgb(43, 131, 186)'
-		]
+		] */
 		// 距离矩阵数组
-		const disData = [
+		/* const disData = [
 			[0, 0, 0.01507252193181826],
 			[0, 1, 0.01277720251309471],
 			[0, 2, 0.012573982476043865],
@@ -781,9 +780,9 @@ export default {
 			[6, 4, 0.031088894182592027],
 			[6, 5, 0.040543078403117716],
 			[6, 6, 0.014092686662191357]
-		]
+		] */
 		// 预测点数据（矩阵）
-		const predictRes = [
+		/* const predictRes = [
 			[1.4986155413056848, 2.5307162708335635, [201501, 1]],
 			[0.45813685074291255, 2.3168743314238545, [201501, 2]],
 			[6.3861449100889445, 6.373324130304836, [201501, 3]],
@@ -1154,7 +1153,7 @@ export default {
 			[4.43282395589509, 2.549000347346267, [201712, 9]],
 			[6.53399050735684, 2.5060714774482027, [201712, 10]],
 			[6.45996595002322, 6.673369784094805, [201712, 13]]
-		]
+		] */
 
 		return {
 			resData,
@@ -1164,25 +1163,25 @@ export default {
 					{
 						type: 'category',
 						show: false
-					},
-					{
+					}
+					/* {
 						type: 'value',
 						min: 0,
 						max: 6,
 						show: false
-					}
+					} */
 				],
 				yAxis: [
 					{
 						type: 'category',
 						show: false
-					},
-					{
+					}
+					/* {
 						type: 'value',
 						min: 0,
 						max: 6,
 						show: false
-					}
+					} */
 				],
 				grid: {
 					left: 35,
@@ -1197,6 +1196,17 @@ export default {
 					borderWidth: 1
 				},
 				tooltip: {},
+				visualMap: {
+					min: 0,
+					max: 10,
+					precision: 4,
+					calculable: false,
+					orient: 'horizontal',
+					left: 'center',
+					inRange: {
+						color: ['#fff', '#000']
+					}
+				},
 				series: [
 					// 聚类矩阵图
 					{
@@ -1207,17 +1217,17 @@ export default {
 						yAxisIndex: 0,
 						label: {
 							// show: true
-						},
-						itemStyle: {
+						}
+						/* itemStyle: {
 							color: function(params) {
 								return colors[params.data[5]]
 							},
 							borderColor: '#000',
 							borderWidth: 1
-						}
-					},
+						} */
+					}
 					// 距离矩阵图
-					{
+					/* {
 						name: 'distance',
 						symbolSize: function(data) {
 							return data[2] * 800
@@ -1246,16 +1256,20 @@ export default {
 						itemStyle: {
 							color: '#000'
 						}
-					}
+					} */
 				]
 			},
 			tableData: []
 		}
 	},
+	components: {
+		'v-chart': ECharts
+	},
+	props: [],
+	mounted() {
+		this.getMatrixData()
+	},
 	methods: {
-		resize() {
-			console.log('resize')
-		},
 		// 获取表格数据
 		getTableData() {
 			this.resData.forEach(item => {
@@ -1283,16 +1297,20 @@ export default {
 				return 'cluster-d-row'
 			}
 			return ''
+		},
+
+		// 获取 UMatrix
+		async getMatrixData() {
+			const { data: res } = await this.axios.get('som/UMatrix')
+			if (res.meta.status !== 200) {
+				this.$message.error('Failed to get matrix data!')
+			} else {
+				this.matrixOpt.visualMap.min = res.data.min
+				this.matrixOpt.visualMap.max = res.data.max
+				this.matrixOpt.series[0].data = res.data.UMatrix
+			}
 		}
-	},
-	created() {
-		this.getTableData()
-	},
-	components: {
-		'v-chart': ECharts
-		// 'split-pane': splitPane
-	},
-	props: {}
+	}
 }
 </script>
 
