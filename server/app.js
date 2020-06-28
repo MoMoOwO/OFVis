@@ -7,7 +7,8 @@ var ejs = require('ejs');
 // 引入路由文件
 var indexRouter = require('./routes/index');
 var dataRouter = require('./routes/data');
-var imgRouter = require('./routes/image')
+var imgRouter = require('./routes/image');
+var somRouter = require('./routes/somdata');
 
 var app = express();
 
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/data', dataRouter);
 app.use('/img', imgRouter);
+app.use('/som', somRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

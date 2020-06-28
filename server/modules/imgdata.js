@@ -1,7 +1,7 @@
 // 引入连接到数据库的 mongoose 对象
 const mongoose = require('./db.js');
 
-// 定义文档 RegionData 的 Schema
+// 定义文档 ImgData 的 Schema
 const ImgDataSchema = mongoose.Schema({
   fileName: String,
   base64Str: String,
