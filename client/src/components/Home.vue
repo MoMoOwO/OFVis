@@ -118,7 +118,7 @@
           </div>
           <som-view></som-view>
         </el-card>
-        <el-card class="card-placeholder2" :body-style="{ padding: '0px' }">
+        <!-- <el-card class="card-placeholder2" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>占位2</span>
           </div>
@@ -127,7 +127,7 @@
           <div class="card-header" slot="header">
             <span>占位3</span>
           </div>
-        </el-card>
+        </el-card>-->
       </el-main>
     </el-container>
   </el-container>
@@ -256,19 +256,20 @@ export default {
 		padding-left: 2.5px;
 		display: flex;
 		flex-wrap: wrap;
+
 		.clustering-card {
-			height: 50%;
+			height: 845px;
 			width: 100%;
-			margin-bottom: 5px;
+			//margin-bottom: 5px;
 		}
-		.card-placeholder2,
+		/* .card-placeholder2,
 		.card-placeholder3 {
 			height: 48.6%;
 			width: 49.3%;
 		}
 		.card-placeholder2 {
 			margin-right: 5px;
-		}
+		} */
 	}
 }
 .el-main {
