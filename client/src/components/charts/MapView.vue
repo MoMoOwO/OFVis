@@ -4,7 +4,10 @@
     <!-- 地图瓦片 -->
     <l-tile-layer :url="tileUrl"></l-tile-layer>
     <!-- 图片图层 -->
-    <l-image-overlay :url="imgUrl" :bounds="[[21.975, 116.975], [40.75, 134.06]]"></l-image-overlay>
+    <l-image-overlay
+      :url="imgUrl.length === 0 ? '' : imgUrl"
+      :bounds="[[21.975, 116.975], [40.75, 134.06]]"
+    ></l-image-overlay>
     <!-- marker 图层 -->
     <l-marker :lat-lng="marker.length ? marker[2] : [0,0]" v-show="!marker.length"></l-marker>
     <!-- markers 图层 -->
@@ -90,7 +93,6 @@ export default {
 			if (res.meta.status !== 200) {
 				this.$message.error('Failed to get img data!')
 			} else {
-				console.log(res)
 				this.imgUrl = res.data.base64Str
 			}
 		}
