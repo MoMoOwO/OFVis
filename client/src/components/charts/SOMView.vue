@@ -41,31 +41,31 @@ export default {
 					{
 						type: 'category',
 						show: false
-					}
-					/* {
+					},
+					{
 						type: 'value',
 						min: 0,
-						max: 6,
+						max: 10,
 						show: false
-					} */
+					}
 				],
 				yAxis: [
 					{
 						type: 'category',
 						show: false
-					}
-					/* {
+					},
+					{
 						type: 'value',
 						min: 0,
-						max: 6,
+						max: 10,
 						show: false
-					} */
+					}
 				],
 				grid: {
-					left: 35,
-					right: 35,
-					top: 35,
-					bottom: 35
+					left: 20,
+					right: 20,
+					top: 40,
+					bottom: 0
 					// containLabel: true
 				},
 				legend: {
@@ -84,7 +84,8 @@ export default {
 					dimension: 2,
 					inRange: {
 						color: ['#fff', '#000']
-					}
+					},
+					show: false
 				},
 				series: [
 					// 聚类矩阵图
@@ -97,25 +98,19 @@ export default {
 						label: {
 							// show: true
 						}
-						/* itemStyle: {
-							color: function(params) {
-								return colors[params.data[5]]
-							},
-							borderColor: '#000',
-							borderWidth: 1
-						} */
-					}
+					},
 					// 距离矩阵图
-					/* {
+					{
 						name: 'distance',
 						symbolSize: function(data) {
-							return data[2] * 800
+							return data[2] * 2
 						},
 						hoverAnimation: false,
 						type: 'scatter',
+						symbol: 'rect',
 						xAxisIndex: 0,
 						yAxisIndex: 0,
-						data: disData,
+						data: [],
 						itemStyle: {
 							color: 'rgb(255,255,255)'
 						},
@@ -124,32 +119,26 @@ export default {
 								return 'Distance: ' + params.value[2]
 							}
 						}
-					},
-					// 预测散点图
-					{
-						symbolSize: 10,
-						type: 'scatter',
-						xAxisIndex: 1,
-						yAxisIndex: 1,
-						data: predictRes,
-						itemStyle: {
-							color: '#000'
-						}
-					} */
+					}
 				]
 			},
 			wMatrixOpt: {
+				grid: {
+					left: 20,
+					right: 20,
+					top: 40,
+					bottom: 0
+					// containLabel: true
+				},
 				xAxis: {
-					type: 'value',
-					min: 0,
-					max: 10
-					// show: false
+					type: 'category',
+					data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+					show: false
 				},
 				yAxis: {
-					type: 'value',
-					min: 0,
-					max: 10
-					// show: false
+					type: 'category',
+					data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+					show: false
 				},
 				series: []
 			}
@@ -201,24 +190,47 @@ export default {
 				this.uMatrixOpt.visualMap.min = res.data.min
 				this.uMatrixOpt.visualMap.max = res.data.max
 				this.uMatrixOpt.series[0].data = res.data.UMatrix
+				this.uMatrixOpt.series[1].data = res.data.unitCount
 
 				this.wMatrixOpt.xAxis.max = res.data.size
 				this.wMatrixOpt.yAxis.max = res.data.size
+				const seriesData = this.getSeries(res.data.weightsMatrix)
+				this.$refs.weightMartix.mergeOptions({
+					series: {
+						symbolSize: 31,
+						hoverAnimation: false,
+						type: 'scatter',
+						data: seriesData.scatterSeriesData,
+						itemStyle: {
+							color: 'rgb(0,0,0, 0)',
+							borderColor: '#ccc',
+							borderWidth: 2
+						}
+					}
+				})
 				this.$refs.weightMartix.mergeOptions({
 					legend: {
 						data: ["Moran's I", 'Mode', 'Qd', 'Skewness', 'Excess_Kurtosis'],
-						bottom: 20
+						icon: 'circle',
+						itemWidth: 7,
+						itemHeight: 7,
+						textStyle: {
+							fontSize: 12,
+							color: '#ffff0'
+						},
+						top: 5
 					},
-					series: this.getPieSeries(res.data.weightsMatrix)
+					series: seriesData.pieSeries
 				})
 			}
 		},
-		getPieSeries(weightsMatrix) {
+		getSeries(weightsMatrix) {
 			const pieSeries = []
+			const scatterSeriesData = []
 			for (const item of weightsMatrix) {
 				const center = this.$refs.weightMartix.convertToPixel(
 					{ xAxisIndex: 0, yAxisIndex: 0 },
-					[item[0] + 0.5, item[1] + 0.5]
+					[item[0] + '', item[1] + '']
 				)
 				pieSeries.push({
 					id: item[3],
@@ -232,8 +244,10 @@ export default {
 					roseType: 'radius',
 					data: item[2]
 				})
+				scatterSeriesData.push([item[0], item[1], item[3]])
 			}
-			return pieSeries
+			console.log(pieSeries)
+			return { pieSeries, scatterSeriesData }
 		}
 	}
 }
@@ -250,8 +264,8 @@ export default {
 	.wmartix-container {
 		width: 365px;
 	}
-	.el-table {
+	/* .el-table {
 		margin: 5px 5px 5px 0px;
-	}
+	} */
 }
 </style>
