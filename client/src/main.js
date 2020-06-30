@@ -19,6 +19,9 @@ import VueAxios from 'vue-axios'
 // 导入 Vuex 状态管理器
 import store from './store/store'
 
+// 导入 tree-list 组件
+import VueTreeList from 'vue-tree-list'
+
 // 配置请求根路径
 Axios.defaults.baseURL = '/api/'
 // 配置 axios
@@ -26,6 +29,9 @@ Vue.use(VueAxios, Axios)
 
 // 配置 VueAwesomeSwiper
 Vue.use(VueAwesomeSwiper)
+
+// 配置 VueTreeList
+Vue.use(VueTreeList)
 
 Vue.config.productionTip = false
 
