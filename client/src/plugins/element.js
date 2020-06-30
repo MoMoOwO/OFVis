@@ -2,7 +2,7 @@ import Vue from 'vue'
 // 按需引入 element-ui 组件
 import {
   Button, Message, Container, Header, Main, Alert, Card, Select, Option, Table, TableColumn,
-  Popover, Divider, RadioGroup, Radio, Input
+  Popover, Divider, RadioGroup, Radio, Input, ColorPicker
 } from 'element-ui'
 // 将组建添加到 Vue 实例中
 Vue.use(Container)
@@ -20,5 +20,6 @@ Vue.use(Divider)
 Vue.use(RadioGroup)
 Vue.use(Radio)
 Vue.use(Input)
+Vue.use(ColorPicker)
 // 全局挂载 message 组件
 Vue.prototype.$message = Message
