@@ -140,7 +140,7 @@ import BoxPlot from './charts/Boxplot.vue'
 import LineChart from './charts/LineChart.vue'
 import MapView from './charts/MapView.vue'
 import MapGallery from './charts/MapGallery.vue'
-import SOMView from './charts/SOMView.vue'
+import SomView from './charts/SOMView.vue'
 
 export default {
 	data() {
@@ -174,12 +174,12 @@ export default {
 		}
 	},
 	components: {
-		'area-chart': AreaChart,
-		'box-plot': BoxPlot,
-		'line-chart': LineChart,
-		'map-view': MapView,
-		'map-gallery': MapGallery,
-		'som-view': SOMView
+		AreaChart,
+		BoxPlot,
+		LineChart,
+		MapView,
+		MapGallery,
+		SomView
 	},
 	methods: {
 		submitClusteringSetting() {
