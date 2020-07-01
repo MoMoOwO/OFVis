@@ -1,22 +1,20 @@
 <template>
   <div class="som-container">
     <!-- UMartix -->
-    <v-chart ref="unitMartix" class="umartix-container" :options="uMatrixOpt"></v-chart>
+    <v-chart ref="unitMartixRef" class="umartix-container" :options="uMatrixOpt"></v-chart>
     <!-- WeightMartix -->
-    <v-chart ref="weightMartix" class="wmartix-container" :options="wMatrixOpt"></v-chart>
+    <v-chart ref="weightMartixRef" class="wmartix-container" :options="wMatrixOpt"></v-chart>
     <!-- Tree-List -->
     <div class="tree-list">
-      <el-button type="primary" size="mini" icon="el-icon-plus" @click="addNode">Add Cluster</el-button>
+      <el-button type="primary" size="mini" icon="el-icon-plus" @click="addNewCluster">Add Cluster</el-button>
       <vue-tree-list
-        @click="onClick"
-        @change-name="onChangeName"
-        @delete-node="onDel"
-        @add-node="onAddNode"
+        @delete-node="deleteCluster"
+        @drap="changeUnitClusterId"
         :model="treeData"
-        default-tree-node-name="new node"
-        default-leaf-node-name="new leaf"
+        default-tree-node-name="New Cluster"
         v-bind:default-expanded="false"
       >
+        <!-- 图标类插槽 -->
         <span class="icon" slot="editNodeIcon">
           <i class="el-icon-edit"></i>
         </span>
@@ -26,13 +24,26 @@
         <span class="icon" slot="leafNodeIcon">
           <i class="el-icon-menu"></i>
         </span>
-        <!--<template class="icon" v-slot:treeNodeIcon="slotProps"> 作用域插槽
-          <el-color-picker v-model="color" size="mini"></el-color-picker>
-        </template>-->
-        <span class="icon" slot="treeNodeIcon">
+        <!-- 作用域插槽 -->
+        <template v-slot:treeNodeIcon="slotProps">
+          <el-color-picker
+            class="icon"
+            v-model="clustersColors[slotProps.model.clusterId]"
+            :predefine="predefineColors"
+            size="mini"
+            @change="changeClusterColor(slotProps.model.clusterId)"
+          ></el-color-picker>
+        </template>
+        <!-- <span class="icon" slot="treeNodeIcon">
           <el-color-picker v-model="color" :predefine="predefineColors" size="mini"></el-color-picker>
-        </span>
+        </span>-->
       </vue-tree-list>
+      <el-button
+        type="primary"
+        size="mini"
+        icon="el-icon-document-checked"
+        @click="saveClusterTreeList"
+      >Add Cluster</el-button>
       <button @click="getNewTree">Get new tree</button>
       <pre>{{newTree}}</pre>
     </div>
@@ -52,7 +63,7 @@ import { VueTreeList, Tree, TreeNode } from 'vue-tree-list'
 export default {
 	data() {
 		return {
-			color: '#409EFF',
+			// color: '#409EFF',
 			// 提供的预选色
 			predefineColors: [
 				'#a6cee3',
@@ -68,32 +79,30 @@ export default {
 				'#ffff99',
 				'#b15928'
 			],
+			// 聚类选用的颜色
+			clustersColors: [
+				'#1F78B4',
+				'#33A02C',
+				'#FB9A99',
+				'#FDBF6F',
+				'#6A3D9A',
+				'#FFFF99'
+			],
+			// unit 样本统计数据，用于刷新 series，无类别标识
+			unitCountData: [],
+			// 散点原数据，无类别标识
+			clusterScatterData: [],
+			// UMatrix 配置项
 			uMatrixOpt: {
 				// 0 坐标轴用于两个矩阵图，1 坐标轴用于散点图
-				xAxis: [
-					{
-						type: 'category',
-						show: false
-					},
-					{
-						type: 'value',
-						min: 0,
-						max: 10,
-						show: false
-					}
-				],
-				yAxis: [
-					{
-						type: 'category',
-						show: false
-					},
-					{
-						type: 'value',
-						min: 0,
-						max: 10,
-						show: false
-					}
-				],
+				xAxis: {
+					type: 'category',
+					show: false
+				},
+				yAxis: {
+					type: 'category',
+					show: false
+				},
 				grid: {
 					left: 20,
 					right: 20,
@@ -119,15 +128,13 @@ export default {
 					show: false // 暂时不显示
 				},
 				series: [
-					// 聚类矩阵图
+					// 距离矩阵图
 					{
 						name: 'Unit',
 						data: [],
 						type: 'heatmap',
-						xAxisIndex: 0,
-						yAxisIndex: 0,
 						label: {
-							show: true, // 暂时不显示
+							show: false, // 暂时不显示
 							position: 'insideBottomLeft',
 							color: '#000',
 							formatter: p => p.data[3],
@@ -139,7 +146,7 @@ export default {
 								`Unit ${p.data[3]}<br/>distances: ${p.data[2].toFixed(4)}`
 						}
 					},
-					// 距离矩阵图
+					// unitCout
 					{
 						name: 'Sample Count',
 						symbolSize: function(data) {
@@ -148,11 +155,9 @@ export default {
 						hoverAnimation: false,
 						type: 'scatter',
 						symbol: 'rect',
-						xAxisIndex: 0,
-						yAxisIndex: 0,
-						data: [],
+						data: [], // [x, y, count, unitId, clusterId]
 						itemStyle: {
-							color: 'rgb(255,255,255)'
+							color: p => this.clustersColors[p.data[4]]
 						},
 						tooltip: {
 							formatter: p => `Sample Count: ${p.data[2]}`
@@ -160,6 +165,7 @@ export default {
 					}
 				]
 			},
+			// 权重矩阵配置项
 			wMatrixOpt: {
 				grid: {
 					left: 20,
@@ -183,7 +189,9 @@ export default {
 				},
 				series: []
 			},
+			// 修改后树结构对象
 			newTree: {},
+			// 绑定树结构对象
 			treeData: new Tree([
 				{
 					name: 'Cluster 1',
@@ -198,7 +206,8 @@ export default {
 					children: [
 						{
 							name: 'Unit 0',
-							id: 2,
+							unitId: 0,
+							id: 7,
 							isLeaf: true,
 							pid: 1,
 							editNodeDisabled: true,
@@ -206,7 +215,152 @@ export default {
 						},
 						{
 							name: 'Unit 1',
-							id: 3,
+							unitId: 1,
+							id: 8,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 2',
+							unitId: 2,
+							id: 9,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 3',
+							unitId: 3,
+							id: 10,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 4',
+							unitId: 4,
+							id: 11,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 10',
+							unitId: 10,
+							id: 12,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 11',
+							unitId: 11,
+							id: 13,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 12',
+							unitId: 12,
+							id: 14,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 13',
+							unitId: 13,
+							id: 15,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 14',
+							unitId: 14,
+							id: 16,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 20',
+							unitId: 20,
+							id: 17,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 21',
+							unitId: 21,
+							id: 18,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 22',
+							unitId: 22,
+							id: 19,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 23',
+							unitId: 23,
+							id: 20,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 24',
+							unitId: 24,
+							id: 21,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 30',
+							unitId: 30,
+							id: 22,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 40',
+							unitId: 40,
+							id: 23,
+							isLeaf: true,
+							pid: 1,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 50',
+							unitId: 50,
+							id: 24,
 							isLeaf: true,
 							pid: 1,
 							editNodeDisabled: true,
@@ -216,6 +370,258 @@ export default {
 				},
 				{
 					name: 'Cluster 2',
+					clusterId: 1,
+					id: 2,
+					pid: 0,
+					dragDisabled: true,
+					addTreeNodeDisabled: true,
+					addLeafNodeDisabled: true,
+					editNodeDisabled: false,
+					delNodeDisabled: false,
+					children: [
+						{
+							name: 'Unit 5',
+							unitId: 5,
+							id: 25,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 6',
+							unitId: 6,
+							id: 26,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 7',
+							unitId: 7,
+							id: 27,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 8',
+							unitId: 8,
+							id: 28,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 9',
+							unitId: 9,
+							id: 29,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 15',
+							unitId: 15,
+							id: 30,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 16',
+							unitId: 16,
+							id: 31,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 17',
+							unitId: 17,
+							id: 32,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 18',
+							unitId: 18,
+							id: 33,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 19',
+							unitId: 19,
+							id: 34,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 25',
+							unitId: 25,
+							id: 35,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 26',
+							unitId: 26,
+							id: 36,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 27',
+							unitId: 27,
+							id: 37,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 28',
+							unitId: 28,
+							id: 38,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 29',
+							unitId: 29,
+							id: 39,
+							isLeaf: true,
+							pid: 2,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						}
+					]
+				},
+				{
+					name: 'Cluster 3',
+					clusterId: 2,
+					id: 3,
+					pid: 0,
+					dragDisabled: true,
+					addTreeNodeDisabled: true,
+					addLeafNodeDisabled: true,
+					editNodeDisabled: false,
+					delNodeDisabled: false,
+					children: [
+						{
+							name: 'Unit 31',
+							unitId: 31,
+							id: 40,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 32',
+							unitId: 32,
+							id: 41,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 33',
+							unitId: 33,
+							id: 42,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 41',
+							unitId: 41,
+							id: 43,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 42',
+							unitId: 42,
+							id: 44,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 43',
+							unitId: 43,
+							id: 45,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 51',
+							unitId: 51,
+							id: 46,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 52',
+							unitId: 52,
+							id: 47,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 53',
+							unitId: 53,
+							id: 48,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 62',
+							unitId: 62,
+							id: 49,
+							isLeaf: true,
+							pid: 3,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						}
+					]
+				},
+				{
+					name: 'Cluster 4',
+					clusterId: 3,
 					id: 4,
 					pid: 0,
 					dragDisabled: true,
@@ -225,16 +631,225 @@ export default {
 					delNodeDisabled: false,
 					children: [
 						{
-							name: 'Unit 2',
-							id: 5,
+							name: 'Unit 34',
+							unitId: 34,
+							id: 50,
 							isLeaf: true,
 							pid: 4,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 3',
-							id: 6,
+							name: 'Unit 35',
+							unitId: 35,
+							id: 51,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 36',
+							unitId: 36,
+							id: 52,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 37',
+							unitId: 37,
+							id: 53,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 38',
+							unitId: 38,
+							id: 54,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 39',
+							unitId: 39,
+							id: 55,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 44',
+							unitId: 44,
+							id: 56,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 45',
+							unitId: 45,
+							id: 57,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 46',
+							unitId: 46,
+							id: 58,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 47',
+							unitId: 47,
+							id: 59,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 48',
+							unitId: 48,
+							id: 60,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 49',
+							unitId: 49,
+							id: 61,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 54',
+							unitId: 54,
+							id: 62,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 55',
+							unitId: 55,
+							id: 63,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 56',
+							unitId: 56,
+							id: 64,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 57',
+							unitId: 57,
+							id: 65,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 58',
+							unitId: 58,
+							id: 66,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 59',
+							unitId: 59,
+							id: 67,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 63',
+							unitId: 63,
+							id: 68,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 64',
+							unitId: 64,
+							id: 69,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 65',
+							unitId: 65,
+							id: 70,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 66',
+							unitId: 66,
+							id: 71,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 67',
+							unitId: 67,
+							id: 72,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 68',
+							unitId: 68,
+							id: 73,
+							isLeaf: true,
+							pid: 4,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 78',
+							unitId: 78,
+							id: 74,
 							isLeaf: true,
 							pid: 4,
 							editNodeDisabled: true,
@@ -243,7 +858,8 @@ export default {
 					]
 				},
 				{
-					name: 'Cluster 3',
+					name: 'Cluster 5',
+					clusterId: 4,
 					id: 5,
 					pid: 0,
 					dragDisabled: true,
@@ -253,96 +869,301 @@ export default {
 					delNodeDisabled: false,
 					children: [
 						{
-							name: 'Unit 4',
-							id: 6,
+							name: 'Unit 60',
+							unitId: 60,
+							id: 75,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 5',
-							id: 7,
+							name: 'Unit 61',
+							unitId: 61,
+							id: 76,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 4',
-							id: 8,
+							name: 'Unit 70',
+							unitId: 70,
+							id: 77,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 5',
-							id: 9,
+							name: 'Unit 71',
+							unitId: 71,
+							id: 78,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 4',
-							id: 10,
+							name: 'Unit 72',
+							unitId: 72,
+							id: 79,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 5',
-							id: 11,
+							name: 'Unit 80',
+							unitId: 80,
+							id: 80,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 4',
-							id: 12,
+							name: 'Unit 81',
+							unitId: 81,
+							id: 81,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 5',
-							id: 13,
+							name: 'Unit 82',
+							unitId: 82,
+							id: 82,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 4',
-							id: 14,
+							name: 'Unit 90',
+							unitId: 90,
+							id: 83,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 5',
-							id: 15,
+							name: 'Unit 91',
+							unitId: 91,
+							id: 84,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 4',
-							id: 16,
+							name: 'Unit 92',
+							unitId: 92,
+							id: 85,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						}
+					]
+				},
+				{
+					name: 'Cluster 6',
+					clusterId: 5,
+					id: 6,
+					pid: 0,
+					dragDisabled: true,
+					addTreeNodeDisabled: true,
+					addLeafNodeDisabled: true,
+					editNodeDisabled: false,
+					delNodeDisabled: false,
+					children: [
+						{
+							name: 'Unit 69',
+							unitId: 69,
+							id: 86,
+							isLeaf: true,
+							pid: 6,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 73',
+							unitId: 73,
+							id: 87,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
 							delNodeDisabled: true
 						},
 						{
-							name: 'Unit 5',
-							id: 17,
+							name: 'Unit 74',
+							unitId: 74,
+							id: 88,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 75',
+							unitId: 75,
+							id: 89,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 76',
+							unitId: 76,
+							id: 90,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 77',
+							unitId: 77,
+							id: 91,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 79',
+							unitId: 79,
+							id: 92,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 83',
+							unitId: 83,
+							id: 93,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 84',
+							unitId: 84,
+							id: 94,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 85',
+							unitId: 85,
+							id: 95,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 86',
+							unitId: 86,
+							id: 96,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 87',
+							unitId: 87,
+							id: 97,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 88',
+							unitId: 88,
+							id: 98,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 89',
+							unitId: 89,
+							id: 99,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 93',
+							unitId: 93,
+							id: 100,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 94',
+							unitId: 94,
+							id: 101,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 95',
+							unitId: 95,
+							id: 102,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 96',
+							unitId: 96,
+							id: 103,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 97',
+							unitId: 97,
+							id: 104,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 98',
+							unitId: 98,
+							id: 105,
+							isLeaf: true,
+							pid: 5,
+							editNodeDisabled: true,
+							delNodeDisabled: true
+						},
+						{
+							name: 'Unit 99',
+							unitId: 99,
+							id: 106,
 							isLeaf: true,
 							pid: 5,
 							editNodeDisabled: true,
@@ -365,19 +1186,31 @@ export default {
 		// 是否显示缓冲条
 		isShowLoadding(b) {
 			if (b) {
-				this.$refs.unitMartix.showLoading({
+				this.$refs.unitMartixRef.showLoading({
 					text: 'Loading…',
 					color: '#409EFF',
 					maskColor: 'rgba(255, 255, 255, 0.4)'
 				})
-				this.$refs.weightMartix.showLoading({
+				this.$refs.weightMartixRef.showLoading({
 					text: 'Loading…',
 					color: '#409EFF',
 					maskColor: 'rgba(255, 255, 255, 0.4)'
 				})
 			} else {
-				this.$refs.unitMartix.hideLoading()
-				this.$refs.weightMartix.hideLoading()
+				this.$refs.unitMartixRef.hideLoading()
+				this.$refs.weightMartixRef.hideLoading()
+			}
+		},
+		// 获取聚类树数据
+		async getClusterTreeData() {},
+		getClusterID(unitID) {
+			// 遍历分类树
+			for (const clusterObj of this.treeData.children) {
+				for (const unitObj of clusterObj.children) {
+					if (unitObj.unitId === unitID) {
+						return clusterObj.clusterId
+					}
+				}
 			}
 		},
 		// 获取 SOM Result
@@ -387,31 +1220,36 @@ export default {
 			if (res.meta.status !== 200) {
 				this.$message.error('Failed to get matrix data!')
 			} else {
+				// UMatrix 矩阵
 				this.uMatrixOpt.visualMap.min = res.data.min
 				this.uMatrixOpt.visualMap.max = res.data.max
 				this.uMatrixOpt.series[0].data = res.data.UMatrix
-				this.uMatrixOpt.series[1].data = res.data.unitCount
+				this.unitCountData = res.data.unitCount // 保存原数据
+				const unitCount = res.data.unitCount
+				for (const item of unitCount) {
+					item.push(this.getClusterID(item[3])) // [x, y, count, unitId, clusterId]
+				}
+				this.uMatrixOpt.series[1].data = unitCount
 
+				// 权重矩阵
 				this.wMatrixOpt.xAxis.max = res.data.size
 				this.wMatrixOpt.yAxis.max = res.data.size
 				const seriesData = this.getSeries(res.data.weightsMatrix)
-				this.$refs.weightMartix.mergeOptions({
+				this.$refs.weightMartixRef.mergeOptions({
 					series: {
 						symbolSize: 31,
 						hoverAnimation: false,
 						type: 'scatter',
-						data: seriesData.scatterSeriesData,
+						data: seriesData.scatterSeriesData, // [x, y, unitId, clusterId]
 						itemStyle: {
-							color: 'rgb(0,0,0, 0)',
-							borderColor: '#ccc',
-							borderWidth: 2
+							color: p => this.clustersColors[p.data[3]]
 						},
 						tooltip: {
 							formatter: p => `Unit ${p.data[2]}`
 						}
 					}
 				})
-				this.$refs.weightMartix.mergeOptions({
+				this.$refs.weightMartixRef.mergeOptions({
 					legend: {
 						data: ["Moran's I", 'Mode', 'Qd', 'Skewness', 'Excess_Kurtosis'],
 						icon: 'circle',
@@ -432,7 +1270,8 @@ export default {
 			const pieSeries = []
 			const scatterSeriesData = []
 			for (const item of weightsMatrix) {
-				const center = this.$refs.weightMartix.convertToPixel(
+				// 获取饼图的中心点
+				const center = this.$refs.weightMartixRef.convertToPixel(
 					{ xAxisIndex: 0, yAxisIndex: 0 },
 					[item[0] + '', item[1] + '']
 				)
@@ -444,36 +1283,58 @@ export default {
 					label: {
 						show: false
 					},
+					z: 99,
 					radius: 15,
 					roseType: 'radius',
 					data: item[2]
 				})
-				scatterSeriesData.push([item[0], item[1], item[3]])
+				// 保留原始数据
+				this.clusterScatterData.push([item[0] + '', item[1] + '', item[3]])
+				scatterSeriesData.push([
+					item[0],
+					item[1],
+					item[3],
+					this.getClusterID(item[3])
+				]) // [x, y, unitId, clusterId]
 			}
 			return { pieSeries, scatterSeriesData }
 		},
-		// tree
-		onDel(node) {
-			console.log(node)
-			node.remove()
+		// 为类选择了新的peise
+		changeClusterColor(clusterId) {
+			// uMaxtrix 配色改变
+			this.$refs.unitMartixRef.mergeOptions({
+				series: {
+					itemStyle: {
+						color: p => this.clustersColors[p.data[4]]
+					}
+				}
+			})
+			// 权重矩阵配色改变
+			this.$refs.weightMartixRef.mergeOptions({
+				series: {
+					itemStyle: {
+						color: p => this.clustersColors[p.data[3]]
+					}
+				}
+			})
 		},
-
-		onChangeName(params) {
-			console.log(params)
+		// 删除根节点（cluster）
+		deleteCluster(node) {
+			if (node.children && node.children.length !== 0) {
+				// 有孩子结点
+				return this.$message.error('Delete Failed：This node has children！')
+			} else {
+				// 改变 clusterId
+				// 不改变 id， id 一直往后迭代
+				node.remove()
+			}
 		},
-
-		onAddNode(params) {
-			console.log(params)
-		},
-
-		onClick(params) {
-			console.log(params)
-		},
-
-		addNode() {
-			var node = new TreeNode({
-				name: 'new Cluster',
+		// 添加新的类
+		addNewCluster() {
+			this.clustersColors.push('') // 添加一种空颜色
+			const node = new TreeNode({
 				isLeaf: false,
+				clusterId: this.clustersColors.length - 1,
 				dragDisabled: true,
 				addTreeNodeDisabled: true,
 				addLeafNodeDisabled: true,
@@ -483,30 +1344,39 @@ export default {
 			if (!this.treeData.children) this.treeData.children = []
 			this.treeData.addChildren(node)
 		},
-
+		// 获取修改后的分类树结构
 		getNewTree() {
-			var vm = this
+			const vm = this
 			function _dfs(oldNode) {
-				var newNode = {
-					colors: [] // 携带回设置好的聚类颜色
+				const newNode = {
+					colors: vm.clustersColors // 携带回设置好的聚类颜色
 				}
-
-				for (var k in oldNode) {
+				for (const k in oldNode) {
 					if (k !== 'children' && k !== 'parent') {
 						newNode[k] = oldNode[k]
 					}
 				}
-
 				if (oldNode.children && oldNode.children.length > 0) {
 					newNode.children = []
-					for (var i = 0, len = oldNode.children.length; i < len; i++) {
+					for (let i = 0; i < oldNode.children.length; i++) {
 						newNode.children.push(_dfs(oldNode.children[i]))
 					}
 				}
 				return newNode
 			}
-
 			vm.newTree = _dfs(vm.treeData)
+		},
+		// 拖动修改 unit 所属的类
+		changeUnitClusterId(node, src, target) {
+			// bug is hear
+			console.log(node)
+			console.log(src)
+			console.log(target)
+		},
+
+		// 将分类结构传递给后台保存
+		saveClusterTreeList() {
+			this.$message.success('保存成功！')
 		}
 	}
 }
@@ -540,9 +1410,6 @@ export default {
 			cursor: pointer;
 		}
 		margin-right: 5px;
-	}
-	.el-color-dropdown__link-btn {
-		display: none !important;
 	}
 }
 </style>
