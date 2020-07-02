@@ -490,18 +490,48 @@ export default {
 		 * target 拖拽节点的目标节点
 		 */
 		changeUnitClusterId(params) {
-			console.log(this.uMatrixOpt.series[1].data)
-			const moveUnitId = params.node.unitId
+			// todo data 设置为最新
+			// const moveUnitId = params.node.unitId
 			const targetClusterId = params.target.clusterId
-			if (typeof target !== 'undefined') {
-				this.uMatrixOpt.series[1].data.forEach((item, index, arr) => {
-					if (item[3] === moveUnitId) arr[index][4] = targetClusterId
+			if (typeof targetClusterId !== 'undefined') {
+				const newUnitCountData = []
+				const newClusterScatterData = []
+				for (const item of this.unitCountData) {
+					newUnitCountData.push([
+						item[0],
+						item[1],
+						item[2],
+						item[3],
+						this.getClusterID(item[3])
+					]) // [x, y, count, unitId, clusterId]
+				}
+				for (const item of this.clusterScatterData) {
+					newClusterScatterData.push([
+						item[0],
+						item[1],
+						item[2],
+						this.getClusterID(item[2])
+					]) // [x, y, unitId, clusterId]
+				}
+				this.uMatrixOpt.series[1].data = newUnitCountData
+
+				this.$refs.weightMartixRef.mergeOptions({
+					series: {
+						symbolSize: 31,
+						hoverAnimation: false,
+						type: 'scatter',
+						data: newClusterScatterData, // [x, y, unitId, clusterId]
+						itemStyle: {
+							color: p => this.clustersColors[p.data[3]]
+						},
+						tooltip: {
+							formatter: p => `Unit ${p.data[2]}`
+						}
+					}
 				})
-				this.wMatrixOpt.series[0].data.forEach((item, index, arr) => {
-					if (item[2] === moveUnitId) arr[index][3] = targetClusterId
-				})
+				console.log(this.$refs.weightMartixRef)
+				// this.changeClusterColor()
 			}
-			console.log(this.uMatrixOpt.series[1].data)
 		},
 
 		// 将分类结构传递给后台保存
