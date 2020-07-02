@@ -50,7 +50,7 @@ router.get('/clustertree', function (req, res, next) {
 // 更新分类树结构
 router.put('/clustertree/:name', function (req, res, next) {
   console.log(req.params)
-  console.log(req.query);
+  console.log(req.body);
 });
 
 // 获取 som 结果数据集，主要包含各类图表所需数据
