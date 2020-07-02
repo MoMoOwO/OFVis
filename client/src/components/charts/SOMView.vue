@@ -9,7 +9,7 @@
       <el-button type="primary" size="mini" icon="el-icon-plus" @click="addNewCluster">Add Cluster</el-button>
       <vue-tree-list
         @delete-node="deleteCluster"
-        @drap="changeUnitClusterId"
+        @drop="changeUnitClusterId"
         :model="treeData"
         default-tree-node-name="New Cluster"
         v-bind:default-expanded="false"
