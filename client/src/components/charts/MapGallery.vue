@@ -65,7 +65,7 @@ export default {
 		},
 		imgItemClicked(imgData) {
 			// console.log(imgData)
-			this.$store.commit('selectImgShowOnMap', this.imgList[0].fileName)
+			this.$store.commit('selectImgShowOnMap', imgData.fileName)
 		}
 	}
 }

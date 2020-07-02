@@ -28,24 +28,6 @@ body,
   height: 100%;
 }
 
-/* el-table 表格样式 */
-/* .el-table td,
-.el-table th {
-  padding: 5px 0 !important;
-}
-.el-table .cluster-a-row {
-  background-color: rgb(215, 25, 28);
-}
-.el-table .cluster-b-row {
-  background-color: rgb(253, 174, 97);
-}
-.el-table .cluster-c-row {
-  background-color: rgb(171, 221, 164);
-}
-.el-table .cluster-d-row {
-  background-color: rgb(43, 131, 186);
-} */
-
 /* 隐藏取色器的取消按钮 */
 .el-color-dropdown__link-btn {
   display: none !important;

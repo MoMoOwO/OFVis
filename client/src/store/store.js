@@ -8,7 +8,7 @@ const store = new Vuex.Store({
     barDateChoosed: '201501', // 从面积柱状图中点击某个月份，箱线图切换到相同月份的统计，
     boxRegionChoosed: 'all',
     galleryDateRange: '201501',
-    imgShowOnMap: '',
+    imgShowOnMap: '20150101',
     markerShowOnMap: [], // 箱线图悬浮的某个点
     markersShowOnMap: [] // 箱线图中点选的点
   },

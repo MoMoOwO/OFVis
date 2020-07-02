@@ -70,6 +70,17 @@ export default {
 	methods: {
 		// 获取图表图片
 		async getMarkerIcon() {
+			/* const DefaultIcon = L.icon({
+				iconUrl: markerIcon,
+				iconRetinaUrl: markerIcon2x,
+				shadowUrl: markerShadow,
+				iconSize: [25, 41],
+				iconAnchor: [12, 41],
+				popupAnchor: [1, -34],
+				tooltipAnchor: [16, -28],
+				shadowSize: [41, 41]
+			})
+			L.Marker.prototype.options.icon = DefaultIcon */
 			const { data: res } = await this.axios.get('img/marker')
 			if (res.meta.status !== 200) {
 				this.$message.error('Failed to get marker-ico data!')
@@ -81,7 +92,12 @@ export default {
 				L.Icon.Default.mergeOptions({
 					iconRetinaUrl: icoArr[0],
 					iconUrl: icoArr[1],
-					shadowUrl: icoArr[3]
+					shadowUrl: icoArr[3],
+					iconSize: [25, 41],
+					iconAnchor: [12, 41],
+					popupAnchor: [1, -34],
+					tooltipAnchor: [16, -28],
+					shadowSize: [41, 41]
 				})
 			}
 		},
