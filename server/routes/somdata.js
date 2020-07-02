@@ -49,8 +49,14 @@ router.get('/clustertree', function (req, res, next) {
 });
 // 更新分类树结构
 router.put('/clustertree/:name', function (req, res, next) {
-  console.log(req.params)
-  console.log(req.body);
+  ClusterTreeModel.updateOne(req.params, req.body, (err, doc) => {
+    if (err) {
+      console.log('/som/clustertree/:name err:' + err);
+      res.status(400).json({ meta: { msg: '保存 Cluster-Tree 数据失败！', status: 400 } });
+    } else {
+      res.status(400).json({ data: 'Save Cluster Tree Data Success!', meta: { msg: '保存 Cluster-Tree 数据成功！', status: 400 } });
+    }
+  })
 });
 
 // 获取 som 结果数据集，主要包含各类图表所需数据
