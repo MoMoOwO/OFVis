@@ -4,6 +4,7 @@ var SOM = require('ml-som');
 // 引入可以操作数据库的 Model 模块
 const SOMDataModel = require('../modules/sommodel');
 const RegionDataModel = require('../modules/regiondata');
+const ClusterTreeModel = require('../modules/clustertree')
 // 引入工具类
 const utils = require('../modules/utils');
 
@@ -28,6 +29,31 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'som-data-api' });
 });
 
+// 获取分类树结构数据
+router.get('/clustertree', function (req, res, next) {
+  ClusterTreeModel.find({ name: 'root' }, (err, docs) => {
+    if (err) {
+      console.log('/som/clustertree err:' + err);
+      res.status(400).json({ meta: { msg: '获取 Cluster-Tree 数据失败！', status: 400 } });
+    } else {
+      const clusterTreeData = {
+        id: docs[0].id,
+        isLeaf: docs[0].isLeaf,
+        name: docs[0].name,
+        colors: docs[0].colors,
+        children: docs[0].children
+      }
+      res.status(200).json({ data: clusterTreeData, meta: { msg: '获取 Cluster-Tree 成功！', status: 200 } });
+    }
+  });
+});
+// 更新分类树结构
+router.put('/clustertree/:name', function (req, res, next) {
+  console.log(req.params)
+  console.log(req.query);
+});
+
+// 获取 som 结果数据集，主要包含各类图表所需数据
 router.get('/somresult', function (req, res, next) {
   SOMDataModel.find({}, (err, doc) => {
     if (err) {
@@ -127,7 +153,7 @@ router.get('/somresult', function (req, res, next) {
             { name: 'Excess_Kurtosis', index: 7, text: 'Excess_Kurtosis' }
           ]
 
-          res.status(200).json({ data: { min, max, size, UMatrix, unitCount, weightsMatrix, dataSet, dataSetSchemaToParallel }, meta: { msg: '获取 UMatrix 成功！', status: 200 } });
+          res.status(200).json({ data: { min, max, size, UMatrix, unitCount, weightsMatrix, dataSet, dataSetSchemaToParallel }, meta: { msg: '获取 SOM-Result 成功！', status: 200 } });
         }
       });
     }
