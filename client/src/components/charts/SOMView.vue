@@ -1179,6 +1179,9 @@ export default {
 		VueTreeList
 	},
 	props: [],
+	created() {
+		this.getClusterTreeData() // 先获取该数据，因为图表要使用该数据
+	},
 	mounted() {
 		this.getSOMResult()
 	},
@@ -1202,7 +1205,15 @@ export default {
 			}
 		},
 		// 获取聚类树数据
-		async getClusterTreeData() {},
+		async getClusterTreeData() {
+			const { data: res } = await this.axios.get('/som/clustertree')
+			if (res.meta.status !== 200) {
+				this.$message.error('Failed to get Cluster-Tree data!')
+			} else {
+				console.log(res.data)
+			}
+		},
+		// 前端根据 unitId 将节点内的样本进行划分
 		getClusterID(unitID) {
 			// 遍历分类树
 			for (const clusterObj of this.treeData.children) {
@@ -1326,6 +1337,7 @@ export default {
 			} else {
 				// 改变 clusterId
 				// 不改变 id， id 一直往后迭代
+				this.clustersColors.pop()
 				node.remove()
 			}
 		},
@@ -1375,8 +1387,17 @@ export default {
 		},
 
 		// 将分类结构传递给后台保存
-		saveClusterTreeList() {
-			this.$message.success('保存成功！')
+		async saveClusterTreeList() {
+			this.getNewTree()
+			const childrenData = this.newTree.children
+			const { data: res } = await this.axios.put('som/clustertree/root', {
+				children: childrenData
+			})
+			if (res.meta.status !== 200) {
+				this.$message.error('保存失败！')
+			} else {
+				this.$message.success('保存成功！')
+			}
 		}
 	}
 }
