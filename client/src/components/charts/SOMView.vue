@@ -1,9 +1,19 @@
 <template>
   <div class="som-container">
     <!-- UMartix -->
-    <v-chart ref="unitMartixRef" class="umartix-container" :options="uMatrixOpt"></v-chart>
+    <v-chart
+      ref="unitMartixRef"
+      class="umartix-container"
+      theme="infographic"
+      :options="uMatrixOpt"
+    ></v-chart>
     <!-- WeightMartix -->
-    <v-chart ref="weightMartixRef" class="wmartix-container" :options="wMatrixOpt"></v-chart>
+    <v-chart
+      ref="weightMartixRef"
+      class="wmartix-container"
+      theme="infographic"
+      :options="wMatrixOpt"
+    ></v-chart>
     <!-- Tree-List -->
     <div class="tree-list">
       <el-button type="primary" size="mini" icon="el-icon-plus" @click="addNewCluster">Add Cluster</el-button>
@@ -34,19 +44,24 @@
             @change="changeClusterColor"
           ></el-color-picker>
         </template>
-        <!-- <span class="icon" slot="treeNodeIcon">
-          <el-color-picker v-model="color" :predefine="predefineColors" size="mini"></el-color-picker>
-        </span>-->
       </vue-tree-list>
       <el-button
         type="primary"
         size="mini"
         icon="el-icon-document-checked"
         @click="saveClusterTreeList"
-      >Add Cluster</el-button>
-      <button @click="getNewTree">Get new tree</button>
-      <pre>{{newTree}}</pre>
+      >Save Data</el-button>
     </div>
+    <!-- 平行坐标图和散点图 -->
+    <swiper class="swiper" :options="chartSwiperOptions">
+      <swiper-slide>
+        <v-chart ref="paralleRef" :options="paralleOpt" @axisareaselected="selectedAreaOnParalle"></v-chart>
+      </swiper-slide>
+      <swiper-slide>
+        <v-chart ref="scatterRef" theme="infographic" :options="timeSeriesScatterOpt"></v-chart>
+      </swiper-slide>
+      <div class="swiper-pagination" slot="pagination"></div>
+    </swiper>
   </div>
 </template>
 
@@ -57,6 +72,9 @@ import ECharts from 'vue-echarts'
 import 'echarts/lib/chart/heatmap'
 import 'echarts/lib/component/tooltip'
 import 'echarts/lib/component/legend'
+import 'echarts/lib/component/parallelAxis'
+import 'echarts/lib/component/parallel'
+import 'echarts/lib/component/dataZoom'
 // tree-list 组件
 import { VueTreeList, Tree, TreeNode } from 'vue-tree-list'
 
@@ -92,9 +110,15 @@ export default {
 			unitCountData: [],
 			// 散点原数据，无类别标识
 			clusterScatterData: [],
+			// 样本数据原数据，无类别标识
+			sampleDataSet: [],
 			// UMatrix 配置项
 			uMatrixOpt: {
-				// 0 坐标轴用于两个矩阵图，1 坐标轴用于散点图
+				title: {
+					text: 'U-Matix',
+					left: 12,
+					top: 3
+				},
 				xAxis: {
 					type: 'category',
 					show: false
@@ -106,7 +130,7 @@ export default {
 				grid: {
 					left: 20,
 					right: 20,
-					top: 40,
+					top: 45,
 					bottom: 0
 					// containLabel: true
 				},
@@ -167,10 +191,15 @@ export default {
 			},
 			// 权重矩阵配置项
 			wMatrixOpt: {
+				title: {
+					text: 'Component Plane',
+					left: 12,
+					top: 3
+				},
 				grid: {
 					left: 20,
 					right: 20,
-					top: 40,
+					top: 45,
 					bottom: 0
 					// containLabel: true
 				},
@@ -271,7 +300,68 @@ export default {
 					delNodeDisabled: false,
 					children: []
 				}
-			])
+			]),
+			chartSwiperOptions: {
+				noSwiping: true,
+				pagination: '.swiper-pagination',
+				paginationClickable: true,
+				simulateTouch: false
+			},
+			paralleOpt: {
+				brush: {
+					toolbox: ['clear'],
+					transformable: false,
+					seriesIndex: 'all',
+					throttleType: 'debounce',
+					throttleDelay: 1000
+				},
+				parallel: {
+					left: 20,
+					right: 50
+				},
+				parallelAxis: [
+					{ dim: 0, name: 'Sample', type: 'category' },
+					{ dim: 1, name: "Maoram's I" },
+					{ dim: 2, name: 'Mode' },
+					{ dim: 3, name: 'Qd' },
+					{ dim: 4, name: 'Skewness' },
+					{ dim: 5, name: 'Ex_Kurtosis' }
+				],
+				series: []
+			},
+			timeSeriesScatterOpt: {
+				xAxis: { type: 'category' },
+				yAxis: {
+					type: 'category',
+					name: 'regionID',
+					nameTextStyle: {
+						padding: [0, 0, 0, 20]
+					}
+				},
+				grid: {
+					left: 20,
+					right: 30,
+					bottom: 80
+				},
+				dataZoom: {
+					type: 'slider',
+					start: 0,
+					end: 30,
+					showDataShadow: false,
+					handleIcon:
+						'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+					handleSize: '50%',
+					bottom: 30
+				},
+				series: {
+					symbolSize: 10,
+					data: [],
+					type: 'scatter',
+					itemStyle: {
+						color: p => this.clustersColors[p.data[2]]
+					}
+				}
+			}
 		}
 	},
 	components: {
@@ -299,9 +389,15 @@ export default {
 					color: '#409EFF',
 					maskColor: 'rgba(255, 255, 255, 0.4)'
 				})
+				this.$refs.paralleRef.showLoading({
+					text: 'Loading…',
+					color: '#409EFF',
+					maskColor: 'rgba(255, 255, 255, 0.4)'
+				})
 			} else {
 				this.$refs.unitMartixRef.hideLoading()
 				this.$refs.weightMartixRef.hideLoading()
+				this.$refs.paralleRef.hideLoading()
 			}
 		},
 		// 获取聚类树数据
@@ -349,7 +445,7 @@ export default {
 				// 权重矩阵
 				this.wMatrixOpt.xAxis.max = res.data.size
 				this.wMatrixOpt.yAxis.max = res.data.size
-				const seriesData = this.getSeries(res.data.weightsMatrix)
+				const seriesData = this.getPieMartrixSeries(res.data.weightsMatrix)
 				this.$refs.weightMartixRef.mergeOptions({
 					series: {
 						symbolSize: 31,
@@ -367,6 +463,10 @@ export default {
 				this.$refs.weightMartixRef.mergeOptions({
 					legend: {
 						data: ["Moran's I", 'Mode', 'Qd', 'Skewness', 'Excess_Kurtosis'],
+						formatter: name => {
+							if (name === 'Excess_Kurtosis') return 'Ex_Kurtosis'
+							return name
+						},
 						icon: 'circle',
 						itemWidth: 7,
 						itemHeight: 7,
@@ -374,14 +474,24 @@ export default {
 							fontSize: 12,
 							color: '#ffff0'
 						},
-						top: 5
+						top: 23
 					},
 					series: seriesData.pieSeries
 				})
+
+				// 平行坐标轴
+				this.sampleDataSet = res.data.dataSet // 保存原数据
+				const seriesDataObj = this.getParallelAndScatterData(res.data.dataSet)
+				this.paralleOpt.series = seriesDataObj.parallelSeries
+
+				// 时序散点图
+				this.timeSeriesScatterOpt.series.data = seriesDataObj.scatterData
+
 				this.isShowLoadding(false)
 			}
 		},
-		getSeries(weightsMatrix) {
+		// 获取权重矩阵图数据
+		getPieMartrixSeries(weightsMatrix) {
 			const pieSeries = []
 			const scatterSeriesData = []
 			for (const item of weightsMatrix) {
@@ -414,22 +524,60 @@ export default {
 			}
 			return { pieSeries, scatterSeriesData }
 		},
-		// 为类选择了新的peise
+		// 获取平行坐标轴数据，时序散点
+		getParallelAndScatterData(dataSet) {
+			const parallelSeries = []
+			const scatterData = []
+			// 根据类别颜色数创建数组，类别数
+			for (let i = 0; i < this.clustersColors.length; i++) {
+				parallelSeries.push({
+					type: 'parallel',
+					lineStyle: {
+						color: p => this.clustersColors[i]
+					},
+					data: []
+				})
+			}
+			for (const item of dataSet) {
+				const clusterId = this.getClusterID(item[8])
+				// item.push(clusterId)
+				// arr[clusterId].push(item)
+				parallelSeries[clusterId].data.push([
+					item[0],
+					item[3],
+					item[4],
+					item[5],
+					item[6],
+					item[7]
+				])
+				scatterData.push([item[1], item[2], clusterId])
+			}
+			return { parallelSeries, scatterData }
+		},
+		// 为类选择了新的 color
 		changeClusterColor() {
 			// uMaxtrix 配色改变
 			this.$refs.unitMartixRef.mergeOptions({
 				series: {
-					itemStyle: {
-						color: p => this.clustersColors[p.data[4]]
-					}
+					itemStyle: {}
 				}
 			})
 			// 权重矩阵配色改变
 			this.$refs.weightMartixRef.mergeOptions({
 				series: {
-					itemStyle: {
-						color: p => this.clustersColors[p.data[3]]
-					}
+					itemStyle: {}
+				}
+			})
+			// 平行坐标图配色改变
+			this.$refs.paralleRef.mergeOptions({
+				series: {
+					itemStyle: {}
+				}
+			})
+			// 时序散点图配色改变
+			this.$refs.scatterRef.mergeOptions({
+				series: {
+					itemStyle: {}
 				}
 			})
 		},
@@ -490,7 +638,6 @@ export default {
 		 * target 拖拽节点的目标节点
 		 */
 		changeUnitClusterId(params) {
-			// todo data 设置为最新
 			// const moveUnitId = params.node.unitId
 			const targetClusterId = params.target.clusterId
 			if (typeof targetClusterId !== 'undefined') {
@@ -517,23 +664,23 @@ export default {
 
 				this.$refs.weightMartixRef.mergeOptions({
 					series: {
-						symbolSize: 31,
-						hoverAnimation: false,
-						type: 'scatter',
 						data: newClusterScatterData, // [x, y, unitId, clusterId]
 						itemStyle: {
 							color: p => this.clustersColors[p.data[3]]
-						},
-						tooltip: {
-							formatter: p => `Unit ${p.data[2]}`
 						}
 					}
 				})
-				console.log(this.$refs.weightMartixRef)
-				// this.changeClusterColor()
+
+				// 更新平行坐标图
+				const seriesDataObj = this.getParallelAndScatterData(this.sampleDataSet)
+				this.paralleOpt.series = seriesDataObj.parallelSeries
+
+				// 更新时序散点图
+				this.timeSeriesScatterOpt.series.data = seriesDataObj.scatterData
+			} else {
+				return 0
 			}
 		},
-
 		// 将分类结构传递给后台保存
 		async saveClusterTreeList() {
 			this.getNewTree()
@@ -546,6 +693,16 @@ export default {
 			} else {
 				this.$message.success('保存成功！')
 			}
+		},
+		// 在平行坐标轴上进行刷选
+		selectedAreaOnParalle(e) {
+			// e.intervals 为该选择轴上的值区间（类别轴为起始索引，数值轴为数值上下限）
+			console.log(e)
+			/* const series0 = this.$refs.paralleRef.getModel().getSeries()[0]
+			const series1 = this.$refs.paralleRef.getModel().getSeries()[1]
+			const indices0 = series0.getRawIndicesByActiveState('active')
+			const indices1 = series1.getRawIndicesByActiveState('active')
+			console.log(indices0, indices1) */
 		}
 	}
 }
@@ -567,18 +724,25 @@ export default {
 	}
 	.tree-list {
 		width: 30%;
-		height: 415px;
-		margin: 10px 0 0 10px;
+		height: 390px;
+		margin: 5px 0 0 20px;
+		padding: 5px;
 		overflow: auto;
 		.el-button {
 			margin-bottom: 3px;
 		}
+		border: 1px #ccc dashed;
 	}
 	.icon {
 		&:hover {
 			cursor: pointer;
 		}
 		margin-right: 5px;
+	}
+	.swiper {
+		margin-top: 10px;
+		height: 410px;
+		width: 475px;
 	}
 }
 </style>
