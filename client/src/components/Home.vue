@@ -22,7 +22,7 @@
           <!-- 卡片内容区域，图表区域 -->
           <!-- <area-chart></area-chart> -->
           <!-- 面积图区域，可滑动切换年份 -->
-          <swiper ref="mySwiper" :options="areaChartSwiperOptions">
+          <swiper :options="areaChartSwiperOptions">
             <swiper-slide>
               <area-chart yearChoosed="2015"></area-chart>
             </swiper-slide>
@@ -58,7 +58,7 @@
         <!-- 梯度分布图容器 -->
         <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>梯度分布图</span>
+            <span>Gradient-Distribution-Chart</span>
           </div>
           <box-plot></box-plot>
         </el-card>
