@@ -17,7 +17,7 @@
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
             <span>Area-Chart</span>
-            <el-button style="padding: 0; display: 'none';" icon="el-icon-setting" type="text"></el-button>
+            <el-button style="padding: 0" type="text" icon="el-icon-info"></el-button>
           </div>
           <!-- 卡片内容区域，图表区域 -->
           <!-- <area-chart></area-chart> -->
