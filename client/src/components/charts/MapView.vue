@@ -9,11 +9,27 @@
       :bounds="[[21.975, 116.975], [40.75, 134.06]]"
     ></l-image-overlay>
     <!-- marker 图层 -->
-    <l-marker :lat-lng="marker.length ? marker[2] : [0,0]" v-show="!marker.length"></l-marker>
+    <l-marker :lat-lng="marker.length ? marker[2] : [0,0]" v-show="!marker.length">
+      <l-tooltip>{{marker.length ? marker[2] : [0,0]}}</l-tooltip>
+    </l-marker>
     <!-- markers 图层 -->
     <!-- <l-marker :lat-lng="marker[2]">
       <l-tooltip>{{RegionID: marker[0]+1 <br/> }}</l-tooltip>
     </l-marker>-->
+    <!-- 是否显示海区图层 -->
+    <l-control class="control-panel" position="bottomleft">
+      <span>Region:</span>
+      <br />
+      <el-switch
+        style="{margin-top: 5px;}"
+        v-model="isShowRegion"
+        size="mini"
+        active-color="#13ce66"
+      ></el-switch>
+    </l-control>
+    <!-- GeoJson 图层 全海区 -->
+    <l-geo-json v-if="isShowRegion" :options="geoJsonOptions" :geojson="geojson"></l-geo-json>
+    <!-- 现实的 -->
   </l-map>
 </template>
 
@@ -25,8 +41,10 @@ import L from 'leaflet'
 export default {
 	data() {
 		return {
+			// 地图瓦片地址
 			tileUrl:
 				'https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA',
+			// 地图配置项
 			mapOptions: {
 				zoomSnap: 0.5, // 开启小数(0.5)缩放级别
 				zoom: 5.5,
@@ -36,13 +54,353 @@ export default {
 				dragging: true,
 				attributionControl: false
 			},
+			// 查询信息
 			queryInfo: {
 				type: '2', // 获取指定日期的数据
 				date: this.$store.state.imgShowOnMap
 			},
+			// 图片图层图片 URL
 			imgUrl: '', // 图片
 			marker: this.$store.state.markerShowOnMap, // 悬浮交互显示的点
-			markers: [] // 点选交互显示的点集
+			markers: [], // 点选交互显示的点集
+			// 是否显示 Region
+			isShowRegion: false,
+			// geojson数据
+			geojson: {
+				type: 'FeatureCollection',
+				features: [
+					{
+						properties: {
+							note: '1',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[117.5, 41],
+									[117.5, 37],
+									[119.35, 37],
+									[120, 38.5],
+									[122, 38.5],
+									[122, 40],
+									[123, 41],
+									[117.5, 41]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '2',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[122, 40],
+									[126, 40],
+									[126, 38],
+									[127, 38],
+									[127, 36],
+									[124, 36],
+									[124, 38],
+									[122, 38.5],
+									[122, 40]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '3',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[122, 38.5],
+									[120, 38.5],
+									[118.5, 35],
+									[124, 35],
+									[124, 38],
+									[122, 38.5]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '4',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[123, 35],
+									[124, 35],
+									[124, 36],
+									[129.2, 36],
+									[132, 35],
+									[132, 33],
+									[125.7, 33],
+									[123, 34.5],
+									[123, 35]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '5',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[118.5, 35],
+									[118.5, 30],
+									[122.4, 30],
+									[123, 31],
+									[123, 31.5],
+									[123.8, 32.2],
+									[123.8, 32.8],
+									[123, 33.4],
+									[123, 35],
+									[118.5, 35]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '6',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[131.3, 33],
+									[131.3, 31],
+									[127.7, 31],
+									[127.7, 33],
+									[131.3, 33]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '7',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[117, 30],
+									[116.3, 23.1],
+									[118, 23.1],
+									[120.3, 24],
+									[123, 27.6],
+									[123.3, 29.5],
+									[123, 31],
+									[122.4, 30],
+									[117, 30]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '8',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[110, 18.5],
+									[110, 23.1],
+									[118, 23.1],
+									[120.3, 24],
+									[120.3, 22],
+									[112, 18.5],
+									[110, 18.5]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '9',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[120.3, 24],
+									[122, 25],
+									[124, 25],
+									[124, 19.5],
+									[122, 19.5],
+									[120.3, 22],
+									[120.3, 24]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '10',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[127.7, 31],
+									[126, 29],
+									[123.062, 28],
+									[123, 27.6],
+									[120.3, 24],
+									[122, 25],
+									[126, 25],
+									[131.3, 31],
+									[127.7, 31]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '11',
+							distance: '1845824.01 m',
+							drawtype: 'polygon',
+							area: '21646118.32 ha'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[123, 34.5],
+									[123, 33.4],
+									[123.8, 32.8],
+									[123.8, 32.2],
+									[123, 31.5],
+									[123, 31],
+									[123.3, 29.5],
+									[123.062, 28],
+									[126, 29],
+									[127.7, 31],
+									[127.7, 33],
+									[125.7, 33],
+									[123, 34.5]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '12',
+							distance: '',
+							drawtype: 'polygon',
+							area: ''
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[131.3, 31],
+									[126, 25],
+									[124, 25],
+									[124, 19.5],
+									[131.3, 19.5],
+									[131.3, 31]
+								]
+							]
+						}
+					},
+					{
+						properties: {
+							note: '13',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[132, 35],
+									[129.2, 36],
+									[127, 36],
+									[127, 38],
+									[126, 38],
+									[126, 40],
+									[122, 40],
+									[123, 41],
+									[132, 41],
+									[132, 35]
+								]
+							]
+						}
+					}
+				]
+			},
+			regionId: '1',
+			color: '#b2df8a',
+			// geojson 图层配置项
+			geoJsonOptions: {
+				onEachFeature: (feature, layer) => {
+					return layer.bindTooltip(
+						'<div>RegionID:' + feature.properties.note + '</div>',
+						{ permanent: false, sticky: true }
+					)
+				},
+				style: {
+					weight: 1,
+					color: '#000',
+					fillColor: '#ECEFF1',
+					fillOpacity: 0.2
+				}
+				/* feature => {
+					if (this.regionId === 'all') {
+						return {
+							weight: 1,
+							color: this.color,
+							fillColor: this.color,
+							fillOpacity: 0.2
+						}
+					} else {
+						return {
+							weight: feature.properties.note === this.regionId ? 1 : 0,
+							color:
+								feature.properties.note === this.regionId ? this.color : '',
+							fillColor:
+								feature.properties.note === this.regionId ? this.color : '',
+							fillOpacity: feature.properties.note === this.regionId ? 0.2 : 0
+						}
+					}
+				} */
+			}
 		}
 	},
 	created() {
@@ -117,4 +475,15 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.leaflet-control {
+	padding: 6px 8px;
+	font: 14px/16px Arial, Helvetica, sans-serif;
+	background: white;
+	background: rgba(255, 255, 255, 0.8);
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+	border-radius: 5px;
+	.el-switch {
+		margin-top: 5px;
+	}
+}
 </style>
