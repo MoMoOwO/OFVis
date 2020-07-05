@@ -72,6 +72,7 @@ import ECharts from 'vue-echarts'
 import 'echarts/lib/chart/heatmap'
 import 'echarts/lib/component/tooltip'
 import 'echarts/lib/component/legend'
+import 'echarts/lib/component/toolbox'
 import 'echarts/lib/component/parallelAxis'
 import 'echarts/lib/component/parallel'
 import 'echarts/lib/component/dataZoom'
@@ -308,24 +309,37 @@ export default {
 				simulateTouch: false
 			},
 			paralleOpt: {
-				brush: {
-					toolbox: ['clear'],
-					transformable: false,
-					seriesIndex: 'all',
-					throttleType: 'debounce',
-					throttleDelay: 1000
+				toolbox: {
+					feature: {
+						brush: {
+							type: ['clear'],
+							transformable: false,
+							seriesIndex: 'all',
+							throttleType: 'debounce',
+							throttleDelay: 1000,
+							title: {
+								clear: 'clear'
+							}
+						}
+					},
+					top: 0,
+					right: 30
+					/* tooltip: {
+						textStyle: {
+							fontSize: 10
+						}
+					} */
 				},
 				parallel: {
-					left: 20,
+					left: 35,
 					right: 50
 				},
 				parallelAxis: [
-					{ dim: 0, name: 'Sample', type: 'category' },
-					{ dim: 1, name: "Maoram's I" },
-					{ dim: 2, name: 'Mode' },
-					{ dim: 3, name: 'Qd' },
-					{ dim: 4, name: 'Skewness' },
-					{ dim: 5, name: 'Ex_Kurtosis' }
+					{ dim: 3, name: "Maoram's I" },
+					{ dim: 4, name: 'Mode' },
+					{ dim: 5, name: 'Qd' },
+					{ dim: 6, name: 'Skewness' },
+					{ dim: 7, name: 'Ex_Kurtosis' }
 				],
 				series: []
 			},
@@ -339,7 +353,7 @@ export default {
 					}
 				},
 				grid: {
-					left: 20,
+					left: 35,
 					right: 30,
 					bottom: 80
 				},
@@ -544,6 +558,8 @@ export default {
 				// arr[clusterId].push(item)
 				parallelSeries[clusterId].data.push([
 					item[0],
+					item[1],
+					item[2],
 					item[3],
 					item[4],
 					item[5],
