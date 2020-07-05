@@ -5,6 +5,7 @@
       :options="boxOpt"
       @click="boxPlotItemClicked"
       @mouseover="boxPlotItemMouseover"
+      @mouseout="boxPlotItemMouseout"
       @restore="boxPlotItemsRestore"
       theme="infographic"
     />
@@ -193,7 +194,7 @@ export default {
 		},
 		// 点击箱线图数据项
 		boxPlotItemClicked(e) {
-			if (e.name.length === 1 && e.seriesType === 'boxplot') {
+			if (e.name.length <= 2 && e.seriesType === 'boxplot') {
 				// 点击一层箱体
 				// 修改查询条件
 				this.queryInfo.type = '2'
@@ -207,7 +208,7 @@ export default {
 				this.getBoxplotData()
 				// 显示 restore 按钮
 				this.boxOpt.toolbox.show = true
-			} else if (e.name.length === 1 && e.seriesType === 'scatter') {
+			} else if (e.name.length <= 2 && e.seriesType === 'scatter') {
 				// 点击一层散点
 				// 点击散点在地图上添加标注
 				console.log(`点击了点，日期${this.queryInfo.date}，数据${e.data}`)
@@ -220,21 +221,30 @@ export default {
 			}
 		},
 		boxPlotItemMouseover(e) {
-			if (e.name.length === 1 && e.seriesType === 'scatter') {
+			if (e.name.length <= 2 && e.seriesType === 'scatter') {
 				// 一层散点
 				this.$store.commit(
 					'selectImgShowOnMap',
 					this.$store.state.barDateChoosed
 				)
 				this.$store.commit('hoverPointOnBoxplot', e.data)
-			} else if (e.name.length === 1 && e.seriesType === 'boxplot') {
+			} else if (e.name.length <= 2 && e.seriesType === 'boxplot') {
 				// 一层箱线图，海区
+				// console.log(e.name + 1) // 海区 id
+				this.$store.commit(
+					'selectImgShowOnMap',
+					this.$store.state.barDateChoosed
+				)
+				this.$store.commit('changeRegionShowOnMap', [+e.name])
 			} else if (e.name.length === 6 && e.seriesType === 'scatter') {
 				// 二层散点
-				console.log(e)
+				// console.log(e)
 				this.$store.commit('selectImgShowOnMap', e.name)
 				this.$store.commit('hoverPointOnBoxplot', e.data)
 			}
+		},
+		boxPlotItemMouseout() {
+			this.$store.commit('changeRegionShowOnMap', [])
 		},
 		// 还原箱线图数据
 		boxPlotItemsRestore() {

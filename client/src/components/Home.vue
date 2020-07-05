@@ -6,7 +6,7 @@
         <img src="../assets/logo.jpg" />
         <span>OFViser</span>
       </div>
-      <el-alert title="成功提示的文案" type="success" :closable="false"></el-alert>
+      <el-alert title="Tips：" :description="tipsDescription" type="success" :closable="false"></el-alert>
     </el-header>
     <!-- 主体区域 - 圣杯布局 -->
     <el-container class="main-container">
@@ -17,7 +17,12 @@
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
             <span>Area-Chart</span>
-            <el-button style="padding: 0" type="text" icon="el-icon-info"></el-button>
+            <el-button
+              style="padding: 0"
+              type="text"
+              icon="el-icon-info"
+              @click="tipClick('areaChart')"
+            ></el-button>
           </div>
           <!-- 卡片内容区域，图表区域 -->
           <!-- <area-chart></area-chart> -->
@@ -52,6 +57,12 @@
                 :value="item.value"
               ></el-option>
             </el-select>
+            <el-button
+              style="padding: 0"
+              type="text"
+              icon="el-icon-info"
+              @click="tipClick('areaLineChart')"
+            ></el-button>
           </div>
           <line-chart :type="lineTypeChoosed" regionChoosed="all"></line-chart>
         </el-card>
@@ -59,6 +70,12 @@
         <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Gradient-Distribution-Chart</span>
+            <el-button
+              style="padding: 0"
+              type="text"
+              icon="el-icon-info"
+              @click="tipClick('boxplot')"
+            ></el-button>
           </div>
           <box-plot></box-plot>
         </el-card>
@@ -69,6 +86,12 @@
         <el-card class="map-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Map-View</span>
+            <el-button
+              style="padding: 0"
+              type="text"
+              icon="el-icon-info"
+              @click="tipClick('mapView')"
+            ></el-button>
           </div>
           <map-view></map-view>
         </el-card>
@@ -77,6 +100,12 @@
           <div class="card-header" slot="header">
             <span>Map-Gallery</span>
             <span style="color: #4C868A">Date Range: {{this.$store.state.barDateChoosed}}</span>
+            <el-button
+              style="padding: 0"
+              type="text"
+              icon="el-icon-info"
+              @click="tipClick('mapGallery')"
+            ></el-button>
           </div>
           <map-gallery></map-gallery>
         </el-card>
@@ -115,6 +144,12 @@
               </div>
               <el-button style="padding: 0;" slot="reference" icon="el-icon-setting" type="text"></el-button>
             </el-popover>
+            <el-button
+              style="padding: 0"
+              type="text"
+              icon="el-icon-info"
+              @click="tipClick('somView')"
+            ></el-button>
           </div>
           <som-view></som-view>
         </el-card>
@@ -170,7 +205,16 @@ export default {
 				Qd: 0,
 				SK: 0,
 				EK: 0
-			}
+			},
+			tips: {
+				areaChart: 'areaCharts tips',
+				areaLineChart: 'areaLineCharts tips',
+				boxplot: 'boxplot tips',
+				mapView: 'mapView tips',
+				mapGallery: 'mapGallery tips',
+				somView: 'SOMView tips'
+			},
+			tipsDescription: ''
 		}
 	},
 	components: {
@@ -186,6 +230,10 @@ export default {
 			console.log('提交了 Cluster 的修改')
 			console.log(this.SOMCluOpt)
 			this.isClusteringSettingPopverVisible = false
+		},
+		tipClick(chart) {
+			console.log(chart)
+			this.tipsDescription = this.tips[chart]
 		}
 	}
 }
