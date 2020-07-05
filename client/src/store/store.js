@@ -10,7 +10,9 @@ const store = new Vuex.Store({
     galleryDateRange: '201501',
     imgShowOnMap: '20150101',
     markerShowOnMap: [], // 箱线图悬浮的某个点
-    markersShowOnMap: [] // 箱线图中点选的点
+    markersShowOnMap: [], // 箱线图中点选的点
+    regionsShowOnMap: [], // 联动在地图上显示的海区
+    regionsColors: [] // 海区颜色
   },
   mutations: { // 对外提供修改 state 中数据的接口
     selectedRegionIDOnBox(state, newID) {
@@ -25,6 +27,12 @@ const store = new Vuex.Store({
     },
     hoverPointOnBoxplot(state, newVal) {
       state.markerShowOnMap = newVal
+    },
+    changeRegionShowOnMap(state, newVal) {
+      state.regionsShowOnMap = newVal
+    },
+    changeRegionsColors(state, newVal) {
+      state.regionsColors = newVal
     }
   },
   getters: { // 对外提供获取 state 中数据的接口，可以在获取时对 state 中数据进行包装，否则也可以直接从 state 中获取数据
