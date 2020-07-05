@@ -3,6 +3,8 @@ import App from './App.vue'
 import router from './router'
 import './plugins/element.js'
 import './plugins/vue2leaflet.js'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
 // 导入全局样式表
 import './assets/css/global.css'
 // 导入 element-ui 组件相关样式
@@ -21,6 +23,19 @@ import store from './store/store'
 
 // 导入 tree-list 组件
 import VueTreeList from 'vue-tree-list'
+
+// 配置 leaflet marker 图标
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41]
+})
 
 // 配置请求根路径
 Axios.defaults.baseURL = '/api/'
