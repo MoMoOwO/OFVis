@@ -8,14 +8,6 @@
       :url="imgUrl.length === 0 ? '' : imgUrl"
       :bounds="[[21.975, 116.975], [40.75, 134.06]]"
     ></l-image-overlay>
-    <!-- marker 图层 -->
-    <l-marker :lat-lng="marker.length ? marker[2] : [0,0]" v-show="!marker.length">
-      <l-tooltip>{{marker.length ? marker[2] : [0,0]}}</l-tooltip>
-    </l-marker>
-    <!-- markers 图层 -->
-    <!-- <l-marker :lat-lng="marker[2]">
-      <l-tooltip>{{RegionID: marker[0]+1 <br/> }}</l-tooltip>
-    </l-marker>-->
     <!-- 是否显示海区图层 -->
     <l-control class="control-panel" position="bottomleft">
       <span>Region:</span>
@@ -29,7 +21,18 @@
     </l-control>
     <!-- GeoJson 图层 全海区 -->
     <l-geo-json v-if="isShowRegion" :options="geoJsonOptions" :geojson="geojson"></l-geo-json>
-    <!-- 现实的 -->
+
+    <!-- 交互显示的图层 -->
+    <!-- marker 图层 -->
+    <l-marker :lat-lng="marker.length ? marker[2] : [0,0]" v-show="!marker.length">
+      <l-tooltip>{{marker.length ? `Gradient: ${marker[1]}℃/km [${marker[2]}]` : [0,0]}}</l-tooltip>
+    </l-marker>
+    <!-- markers 图层 -->
+    <!-- <l-marker :lat-lng="marker[2]">
+      <l-tooltip>{{RegionID: marker[0]+1 <br/> }}</l-tooltip>
+    </l-marker>-->
+    <!-- gejson 图层 -->
+    <l-geo-json :geojson="showRegionJson" :options="showRegionJsonOptions"></l-geo-json>
   </l-map>
 </template>
 
@@ -61,8 +64,6 @@ export default {
 			},
 			// 图片图层图片 URL
 			imgUrl: '', // 图片
-			marker: this.$store.state.markerShowOnMap, // 悬浮交互显示的点
-			markers: [], // 点选交互显示的点集
 			// 是否显示 Region
 			isShowRegion: false,
 			// geojson数据
@@ -365,8 +366,6 @@ export default {
 					}
 				]
 			},
-			regionId: '1',
-			color: '#b2df8a',
 			// geojson 图层配置项
 			geoJsonOptions: {
 				onEachFeature: (feature, layer) => {
@@ -377,7 +376,7 @@ export default {
 				},
 				style: {
 					weight: 1,
-					color: '#000',
+					color: '#ccc',
 					fillColor: '#ECEFF1',
 					fillOpacity: 0.2
 				}
@@ -400,12 +399,61 @@ export default {
 						}
 					}
 				} */
-			}
+			},
+			marker: this.$store.state.markerShowOnMap, // 悬浮交互显示的点
+			markers: [], // 点选交互显示的点集
+			regionsId: this.$store.state.regionsShowOnMap, // 在地图上显示的海区 id
+			regionsColors: this.$store.state.regionsColors, // 海区的颜色标记
+			showRegionJson: {
+				type: 'FeatureCollection',
+				features: [
+					{
+						properties: {
+							note: '-1',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[0, 0],
+									[0, 1],
+									[0, 0]
+								]
+							]
+						}
+					}
+				]
+			},
+			showRegionJsonCopy: {
+				type: 'FeatureCollection',
+				features: [
+					{
+						properties: {
+							note: '-1',
+							drawtype: 'polygon'
+						},
+						type: 'Feature',
+						geometry: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[0, 0],
+									[0, 1],
+									[0, 0]
+								]
+							]
+						}
+					}
+				]
+			},
+			showRegionJsonOptions: {}
 		}
 	},
 	created() {
 		// 从后台获取 marker 图表
-		this.getMarkerIcon()
+		// this.getMarkerIcon()
 	},
 	mounted() {
 		// this.marker = [0, 0.1068, [40.475, 120.975]]
@@ -420,10 +468,19 @@ export default {
 			},
 			deep: true
 		},
-		'$store.state.markerShowOnMap': function(newVal) {
-			this.marker = newVal
+		'$store.state.markerShowOnMap': {
+			handler: function(newVal) {
+				this.marker = newVal
+			},
+			deep: true
 		},
-		deep: true
+		'$store.state.regionsShowOnMap': {
+			handler: function(newVal) {
+				this.getRegionGeoJsonShowOnMap(newVal, this.$store.state.regionsColors)
+				// console.log(newVal, this.$store.state.regionsColors)
+			},
+			deep: true
+		}
 	},
 	methods: {
 		// 获取图表图片
@@ -468,6 +525,37 @@ export default {
 				this.$message.error('Failed to get img data!')
 			} else {
 				this.imgUrl = res.data.base64Str
+			}
+		},
+		// 跟据传递的参数获取对应海区的 GeoJson 和 Options
+		getRegionGeoJsonShowOnMap(ids, colors) {
+			const features = []
+			for (const index of ids) {
+				for (const feature of this.geojson.features) {
+					if (feature.properties.note === index + '') {
+						features.push(feature)
+					}
+				}
+			}
+			this.showRegionJson.features = features
+			this.showRegionJsonOptions = {
+				style: feature => {
+					if (this.regionsColors.length === 0) {
+						return {
+							weight: 1,
+							color: '#000',
+							fillColor: '#ECEFF1',
+							fillOpacity: 0.2
+						}
+					} else {
+						return {
+							weight: 1,
+							color: this.regionsColors[+feature.properties.note],
+							fillColor: this.regionsColors[+feature.properties.note],
+							fillOpacity: 0.2
+						}
+					}
+				}
 			}
 		}
 	}
