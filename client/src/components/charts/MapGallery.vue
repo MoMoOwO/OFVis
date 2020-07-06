@@ -1,7 +1,7 @@
 <template>
   <swiper ref="imgSwiper" class="swiper" :options="swiperOption">
     <div class="swiper-lazy-preloader swiper-lazy-preloader-white" v-show="!imgList.length"></div>
-    <swiper-slide v-for="item in imgList" :key="item.fileName">
+    <swiper-slide v-for="item in imgList" :key="item.fileName" v-show="imgList.length">
       <img :src="item.base64Str" :title="item.fileName" @click="imgItemClicked(item)" />
     </swiper-slide>
     <div class="swiper-pagination" slot="pagination"></div>
@@ -13,7 +13,7 @@ export default {
 	data() {
 		return {
 			queryInfo: {
-				type: '1',
+				type: '1', // 1 月份的所有天，或者年份的 12 个月，3 日期数组
 				date: this.$store.state.yearOnGallery
 			},
 			imgList: [],
@@ -44,8 +44,9 @@ export default {
 		'$store.state.barDateChoosed': {
 			// 联动，监听选择年月份的改变
 			handler: function(newVal) {
-				this.queryInfo.date = newVal
 				this.imgList = []
+				this.queryInfo.type = '1'
+				this.queryInfo.date = newVal
 				this.getImgData()
 			},
 			deep: true
@@ -53,8 +54,19 @@ export default {
 		'$store.state.yearOnGallery': {
 			// 联动，监听选择年月份的改变
 			handler: function(newVal) {
-				this.queryInfo.date = newVal
 				this.imgList = []
+				this.queryInfo.type = '1'
+				this.queryInfo.date = newVal
+				this.getImgData()
+			},
+			deep: true
+		},
+		'$store.state.dateArrOnGallery': {
+			// 联动，监听选择年月份的改变
+			handler: function(newVal) {
+				this.imgList = []
+				this.queryInfo.type = '3'
+				this.queryInfo.date = newVal.join(',')
 				this.getImgData()
 			},
 			deep: true

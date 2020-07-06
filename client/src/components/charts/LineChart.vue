@@ -225,7 +225,7 @@ export default {
 			} else if (e.seriesType === 'line') {
 				const month = (e.dataIndex + '').padStart(2, 0)
 				const dates = ['2015' + month, '2016' + month, '2017' + month]
-				this.$store.commit('dateArrOnGallery', dates)
+				this.$store.commit('changeDateArrOnGallery', dates)
 			}
 		}
 	}

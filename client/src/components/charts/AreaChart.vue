@@ -257,7 +257,6 @@ export default {
 			// 延时更改，以支持多选
 			this.timer = setTimeout(() => {
 				this.$store.commit('changeDateArrOnGallery', this.selectDateOnCalendar)
-				console.log(this.$store.state.dateArrOnGallery)
 			}, 2000)
 		},
 		// 日历图单项双击
