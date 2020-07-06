@@ -14,7 +14,7 @@ export default {
 		return {
 			queryInfo: {
 				type: '1',
-				date: this.$store.state.galleryDateRange
+				date: this.$store.state.yearOnGallery
 			},
 			imgList: [],
 			swiperOption: {
@@ -41,10 +41,20 @@ export default {
 		this.swiper.slideTo(3, 10, false)
 	},
 	watch: {
-		'$store.state.galleryDateRange': {
+		'$store.state.barDateChoosed': {
 			// 联动，监听选择年月份的改变
 			handler: function(newVal) {
 				this.queryInfo.date = newVal
+				this.imgList = []
+				this.getImgData()
+			},
+			deep: true
+		},
+		'$store.state.yearOnGallery': {
+			// 联动，监听选择年月份的改变
+			handler: function(newVal) {
+				this.queryInfo.date = newVal
+				this.imgList = []
 				this.getImgData()
 			},
 			deep: true
