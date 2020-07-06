@@ -6,9 +6,10 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: { // 共享状态/数据
     barDateChoosed: '201501', // 从面积柱状图中点击某个月份，箱线图切换到相同月份的统计，
-    boxRegionChoosed: 'all',
-    galleryDateRange: '201501',
-    imgShowOnMap: '20150101',
+    boxRegionChoosed: 'all', // 在箱线图上通过点击箱体选择海区
+    imgShowOnMap: '20150101', // 在地图上显示的
+    yearOnGallery: '2015',
+    dateArrOnGallery: [], // 通过日历图，折线图修改该数组，显示在 gallery 中
     markerShowOnMap: [], // 箱线图悬浮的某个点
     markersShowOnMap: [], // 箱线图中点选的点
     regionsShowOnMap: [], // 联动在地图上显示的海区
@@ -20,7 +21,6 @@ const store = new Vuex.Store({
     },
     selectedDateOnBar(state, newVal) {
       state.barDateChoosed = newVal
-      state.galleryDateRange = newVal
     },
     selectImgShowOnMap(state, newVal) {
       state.imgShowOnMap = newVal
@@ -33,6 +33,12 @@ const store = new Vuex.Store({
     },
     changeRegionsColors(state, newVal) {
       state.regionsColors = newVal
+    },
+    changeDateArrOnGallery(state, newVal) {
+      state.dateArrOnGallery = newVal
+    },
+    changeYearOnGallery(state, newVal) {
+      state.yearOnGallery = newVal
     }
   },
   getters: { // 对外提供获取 state 中数据的接口，可以在获取时对 state 中数据进行包装，否则也可以直接从 state 中获取数据

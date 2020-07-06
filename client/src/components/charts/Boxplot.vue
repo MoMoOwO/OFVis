@@ -198,6 +198,7 @@ export default {
 				// 点击一层箱体
 				// 修改查询条件
 				this.queryInfo.type = '2'
+				// 通过箱线图点击箱体选择一个海区，面积图和面积折线图调正显示为选择海区的面积统计
 				this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持其他图表联动更新
 				this.queryInfo.date = this.queryInfo.date.slice(0, 4)
 				this.boxOpt.title.text =

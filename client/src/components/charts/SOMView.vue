@@ -129,8 +129,8 @@ export default {
 					show: false
 				},
 				grid: {
-					left: 20,
-					right: 20,
+					left: 10,
+					right: 10,
 					top: 45,
 					bottom: 0
 					// containLabel: true
@@ -198,8 +198,8 @@ export default {
 					top: 3
 				},
 				grid: {
-					left: 20,
-					right: 20,
+					left: 7,
+					right: 7,
 					top: 45,
 					bottom: 0
 					// containLabel: true
@@ -462,7 +462,7 @@ export default {
 				const seriesData = this.getPieMartrixSeries(res.data.weightsMatrix)
 				this.$refs.weightMartixRef.mergeOptions({
 					series: {
-						symbolSize: 31,
+						symbolSize: 35,
 						hoverAnimation: false,
 						type: 'scatter',
 						data: seriesData.scatterSeriesData, // [x, y, unitId, clusterId]
