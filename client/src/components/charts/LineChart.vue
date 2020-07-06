@@ -4,6 +4,7 @@
       ref="lineChart"
       :options="this.type === 'polarOpt' ? this.polarOpt : this.lineOpt"
       theme="infographic"
+      @click="lineItemClick"
     />
   </div>
 </template>
@@ -215,6 +216,16 @@ export default {
 				this.lineOpt.title.text = this.$store.getters.getRegionIDLabel
 
 				this.isShowLoadding(false)
+			}
+		},
+		// 折线图点击事件
+		lineItemClick(e) {
+			if (e.seriesType === 'radar') {
+				this.$store.commit('changeYearOnGallery', e.name)
+			} else if (e.seriesType === 'line') {
+				const month = (e.dataIndex + '').padStart(2, 0)
+				const dates = ['2015' + month, '2016' + month, '2017' + month]
+				this.$store.commit('dateArrOnGallery', dates)
 			}
 		}
 	}
