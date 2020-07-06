@@ -27,17 +27,11 @@
           <!-- 卡片内容区域，图表区域 -->
           <!-- <area-chart></area-chart> -->
           <!-- 面积图区域，可滑动切换年份 -->
-          <swiper :options="areaChartSwiperOptions">
-            <swiper-slide>
-              <area-chart yearChoosed="2015"></area-chart>
+          <swiper ref="areaChartSwiperRef" :options="areaChartSwiperOptions">
+            <swiper-slide v-for="year in areaChartYearArr" :key="year">
+              <area-chart :yearChoosed="year"></area-chart>
             </swiper-slide>
-            <swiper-slide>
-              <area-chart yearChoosed="2016"></area-chart>
-            </swiper-slide>
-            <swiper-slide>
-              <area-chart yearChoosed="2017"></area-chart>
-            </swiper-slide>
-            <div class="swiper-pagination" slot="pagination"></div>
+            <div class="swiper-pagination" click="swiperPaginationClicked" slot="pagination"></div>
           </swiper>
         </el-card>
         <!-- 面积周期比较折线图容器 -->
@@ -99,7 +93,6 @@
         <el-card class="gallery-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Map-Gallery</span>
-            <span style="color: #4C868A">Date Range: {{this.$store.state.barDateChoosed}}</span>
             <el-button
               style="padding: 0"
               type="text"
@@ -117,7 +110,7 @@
           <div class="card-header" slot="header">
             <span>SOMClusterView</span>
             <!-- Cluster 设置弹出框 -->
-            <el-popover
+            <!-- <el-popover
               placement="left-start"
               width="230"
               title="Clustering Setting"
@@ -143,7 +136,7 @@
                 <el-button type="primary" size="mini" @click="submitClusteringSetting">确定</el-button>
               </div>
               <el-button style="padding: 0;" slot="reference" icon="el-icon-setting" type="text"></el-button>
-            </el-popover>
+            </el-popover>-->
             <el-button
               style="padding: 0"
               type="text"
@@ -186,8 +179,16 @@ export default {
 				autoHeight: true,
 				height: 825,
 				pagination: '.swiper-pagination',
-				paginationClickable: true
+				paginationClickable: true,
+				onSlideChangeEnd: swiper => {
+					// 修改在 gallery 上显示的年份数据
+					this.$store.commit(
+						'changeYearOnGallery',
+						this.areaChartYearArr[swiper.realIndex]
+					)
+				}
 			},
+			areaChartYearArr: [2015, 2016, 2017],
 			// 折线图类型选项数组
 			lineType: [
 				{ value: 'polarOpt', label: 'Polar' },
@@ -225,12 +226,19 @@ export default {
 		MapGallery,
 		SomView
 	},
+	computed: {
+		swiper() {
+			return this.$refs.areaChartSwiperRef.swiper
+		}
+	},
 	methods: {
+		// 旧
 		submitClusteringSetting() {
 			console.log('提交了 Cluster 的修改')
 			console.log(this.SOMCluOpt)
 			this.isClusteringSettingPopverVisible = false
 		},
+		// 点击各个图表的 tips
 		tipClick(chart) {
 			console.log(chart)
 			this.tipsDescription = this.tips[chart]
