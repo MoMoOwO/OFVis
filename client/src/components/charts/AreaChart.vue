@@ -2,16 +2,18 @@
   <div class="areaContainer">
     <v-chart
       class="calendarContainer"
-      ref="calendarChart"
+      ref="calendarChartRef"
       :options="calendarOpt"
       theme="infographic"
+      @click="calendarItemClicked"
+      @dblclick="calendarItemdbClicked"
     ></v-chart>
     <v-chart
       class="barContainer"
-      ref="barChart"
+      ref="barChartRef"
       :options="barOpt"
-      @click="barItemClicked"
       theme="infographic"
+      @click="barItemClicked"
     ></v-chart>
   </div>
 </template>
@@ -46,6 +48,7 @@ export default {
 					orient: 'horizontal',
 					color: ['#F03B20', '#FEB24C', '#FFEDA0'],
 					left: 'center',
+					bottom: 15,
 					itemHeight: '100%'
 				},
 				calendar: {
@@ -73,7 +76,14 @@ export default {
 					// 热力图的series
 					coordinateSystem: 'calendar',
 					type: 'heatmap',
-					calendarIndex: 0, // 日历索引
+					calendarIndex: 0, // 日历坐标系索引
+					itemStyle: {
+						normal: {},
+						emphasis: {
+							borderWidth: 1,
+							borderColor: 'black'
+						}
+					},
 					data: null
 				}
 			},
@@ -151,7 +161,10 @@ export default {
 							}
 						} */
 				}
-			}
+			},
+			selectedDateIndex: [], // 选中项索引
+			selectDateOnCalendar: [], // 选中的日期
+			timer: null
 		}
 	},
 	props: ['yearChoosed'],
@@ -175,19 +188,19 @@ export default {
 		// 是否显示缓冲条
 		isShowLoadding(b) {
 			if (b) {
-				this.$refs.calendarChart.showLoading({
+				this.$refs.calendarChartRef.showLoading({
 					text: 'Loading…',
 					color: '#409EFF',
 					maskColor: 'rgba(255, 255, 255, 0.4)'
 				})
-				this.$refs.barChart.showLoading({
+				this.$refs.barChartRef.showLoading({
 					text: 'Loading…',
 					color: '#409EFF',
 					maskColor: 'rgba(255, 255, 255, 0.4)'
 				})
 			} else {
-				this.$refs.calendarChart.hideLoading()
-				this.$refs.barChart.hideLoading()
+				this.$refs.calendarChartRef.hideLoading()
+				this.$refs.barChartRef.hideLoading()
 			}
 		},
 		// 获取面积数据
@@ -223,11 +236,43 @@ export default {
 		barItemClicked(e) {
 			if (this.queryInfo.regionId === 'all') {
 				// 当为所有区域面积的时候才支持向下响应
+				// 当选择柱状图上某个月时，显示箱线图显示该月份的海区统计，地图画廊显示该月份 30 天的情况
 				this.$store.commit(
 					'selectedDateOnBar',
 					this.yearChoosed + (e.dataIndex + 1 + '').padStart(2, '0')
 				)
 			}
+		},
+		// 日历图单项点击
+		calendarItemClicked(e) {
+			clearTimeout(this.timer) // 清空 timer
+
+			this.selectedDateIndex.push(e.dataIndex) // 记录 item 的索引项
+			this.selectDateOnCalendar.push(e.value[0].replace(/-/g, '')) // 格式化的日期，用于向后台请求数据
+			this.$refs.calendarChartRef.dispatchAction({
+				type: 'highlight',
+				dataIndex: e.dataIndex
+			})
+
+			// 延时更改，以支持多选
+			this.timer = setTimeout(() => {
+				this.$store.commit('changeDateArrOnGallery', this.selectDateOnCalendar)
+				console.log(this.$store.state.dateArrOnGallery)
+			}, 2000)
+		},
+		// 日历图单项双击
+		calendarItemdbClicked(e) {
+			for (const index of this.selectedDateIndex) {
+				this.$refs.calendarChartRef.dispatchAction({
+					type: 'downplay',
+					dataIndex: index
+				})
+			}
+			// 置空
+			this.timer = null
+			this.selectedDateIndex = []
+			this.selectDateOnCalendar = []
+			this.$store.commit('changeDateArrOnGallery', [])
 		}
 	}
 }
