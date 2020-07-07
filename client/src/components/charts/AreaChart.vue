@@ -164,7 +164,7 @@ export default {
 			},
 			selectedDateIndex: [], // 选中项索引
 			selectDateOnCalendar: [], // 选中的日期
-			timer: null
+			timer: null // 用于延时提交
 		}
 	},
 	props: ['yearChoosed'],
