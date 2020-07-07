@@ -64,10 +64,13 @@ export default {
 		'$store.state.dateArrOnGallery': {
 			// 联动，监听选择年月份的改变
 			handler: function(newVal) {
-				this.imgList = []
-				this.queryInfo.type = '3'
-				this.queryInfo.date = newVal.join(',')
-				this.getImgData()
+				if (newVal.length !== 0) {
+					// 有新数组
+					this.imgList = []
+					this.queryInfo.type = '3'
+					this.queryInfo.date = newVal.join(',')
+					this.getImgData()
+				}
 			},
 			deep: true
 		}

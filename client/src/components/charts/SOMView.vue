@@ -6,6 +6,8 @@
       class="umartix-container"
       theme="infographic"
       :options="uMatrixOpt"
+      @click="uMatrixItemClicked"
+      @dblclick="uMatrixItemdbClicked"
     ></v-chart>
     <!-- WeightMartix -->
     <v-chart
@@ -117,7 +119,7 @@ export default {
 			uMatrixOpt: {
 				title: {
 					text: 'U-Matix',
-					left: 12,
+					left: 7,
 					top: 3
 				},
 				xAxis: {
@@ -129,10 +131,10 @@ export default {
 					show: false
 				},
 				grid: {
-					left: 10,
-					right: 10,
+					left: 7,
+					right: 7,
 					top: 45,
-					bottom: 0
+					bottom: 1
 					// containLabel: true
 				},
 				tooltip: {
@@ -156,7 +158,7 @@ export default {
 					// 距离矩阵图
 					{
 						name: 'Unit',
-						data: [],
+						data: [], // [x, y, dis, unitId]
 						type: 'heatmap',
 						label: {
 							show: false, // 暂时不显示
@@ -165,6 +167,13 @@ export default {
 							formatter: p => p.data[3],
 							distance: 0,
 							fontSize: 10
+						},
+						itemStyle: {
+							normal: {},
+							emphasis: {
+								borderWidth: 1,
+								borderColor: 'black'
+							}
 						},
 						tooltip: {
 							formatter: p =>
@@ -194,14 +203,14 @@ export default {
 			wMatrixOpt: {
 				title: {
 					text: 'Component Plane',
-					left: 12,
+					left: 7,
 					top: 3
 				},
 				grid: {
 					left: 7,
 					right: 7,
 					top: 45,
-					bottom: 0
+					bottom: 1
 					// containLabel: true
 				},
 				xAxis: {
@@ -332,7 +341,7 @@ export default {
 				},
 				parallel: {
 					left: 35,
-					right: 50
+					right: 45
 				},
 				parallelAxis: [
 					{ dim: 3, name: "Maoram's I" },
@@ -354,7 +363,7 @@ export default {
 				},
 				grid: {
 					left: 35,
-					right: 30,
+					right: 25,
 					bottom: 80
 				},
 				dataZoom: {
@@ -372,10 +381,13 @@ export default {
 					data: [],
 					type: 'scatter',
 					itemStyle: {
-						color: p => this.clustersColors[p.data[2]]
+						color: p => this.clustersColors[p.data[3]]
 					}
 				}
-			}
+			},
+			selectedUnitIndex: [], // 选中项索引
+			selectedUnitIdOnUMatrix: [], // 选中的日期
+			timer: null
 		}
 	},
 	components: {
@@ -448,7 +460,7 @@ export default {
 				// UMatrix 矩阵
 				this.uMatrixOpt.visualMap.min = res.data.min
 				this.uMatrixOpt.visualMap.max = res.data.max
-				this.uMatrixOpt.series[0].data = res.data.UMatrix
+				this.uMatrixOpt.series[0].data = res.data.UMatrix // [x, y, dis, unitId]
 				this.unitCountData = res.data.unitCount // 保存原数据
 				const unitCount = res.data.unitCount
 				for (const item of unitCount) {
@@ -461,19 +473,39 @@ export default {
 				this.wMatrixOpt.yAxis.max = res.data.size
 				const seriesData = this.getPieMartrixSeries(res.data.weightsMatrix)
 				this.$refs.weightMartixRef.mergeOptions({
-					series: {
-						symbolSize: 35,
-						hoverAnimation: false,
-						type: 'scatter',
-						data: seriesData.scatterSeriesData, // [x, y, unitId, clusterId]
-						itemStyle: {
-							color: p => this.clustersColors[p.data[3]]
+					series: [
+						{
+							name: 'cluster',
+							symbolSize: 35,
+							hoverAnimation: false,
+							type: 'scatter',
+							data: seriesData.scatterSeriesData, // [x, y, unitId, clusterId]
+							itemStyle: {
+								color: p => this.clustersColors[p.data[3]]
+							},
+							tooltip: {
+								formatter: p => `Unit ${p.data[2]}`
+							}
 						},
-						tooltip: {
-							formatter: p => `Unit ${p.data[2]}`
+						{
+							symbolSize: 30,
+							// hoverAnimation: false,
+							type: 'scatter',
+							data: seriesData.scatterSeriesData, // [x, y, unitId, clusterId]
+							itemStyle: {
+								color: '#fff',
+								opacity: 1
+							},
+							tooltip: {
+								show: false
+							},
+							slient: true,
+							animation: false,
+							z: 10
 						}
-					}
+					]
 				})
+
 				this.$refs.weightMartixRef.mergeOptions({
 					legend: {
 						data: ["Moran's I", 'Mode', 'Qd', 'Skewness', 'Excess_Kurtosis'],
@@ -547,26 +579,19 @@ export default {
 				parallelSeries.push({
 					type: 'parallel',
 					lineStyle: {
-						color: p => this.clustersColors[i]
+						color: p => this.clustersColors[i],
+						width: 2
 					},
 					data: []
 				})
 			}
 			for (const item of dataSet) {
+				// item ['201501-1', '201501', '1', MI, Mo, Qd, Sk, EK, unitId]
 				const clusterId = this.getClusterID(item[8])
 				// item.push(clusterId)
 				// arr[clusterId].push(item)
-				parallelSeries[clusterId].data.push([
-					item[0],
-					item[1],
-					item[2],
-					item[3],
-					item[4],
-					item[5],
-					item[6],
-					item[7]
-				])
-				scatterData.push([item[1], item[2], clusterId])
+				parallelSeries[clusterId].data.push(item)
+				scatterData.push([item[1], item[2], item[8], clusterId]) // [x, y, unitId, clusterId]
 			}
 			return { parallelSeries, scatterData }
 		},
@@ -710,6 +735,46 @@ export default {
 				this.$message.success('保存成功！')
 			}
 		},
+		// UMartix 点选
+		uMatrixItemClicked(e) {
+			if (e.seriesType === 'heatmap') {
+				// 响应 heatmap 的 item 项
+				this.selectedUnitIndex.push(e.dataIndex)
+				this.selectedUnitIdOnUMatrix.push(e.data[3])
+				this.$refs.unitMartixRef.dispatchAction({
+					type: 'highlight',
+					dataIndex: e.dataIndex
+				})
+
+				// 同步筛选平行坐标轴
+				this.$refs.paralleRef.mergeOptions({
+					// todo bug in hear
+					series: {
+						lineStyle: {
+							color: p => {
+								console.log(p.data[8])
+								if (this.selectedUnitIdOnUMatrix.indexOf(p.data[8]) === -1) {
+									return '#ccc'
+								}
+							}
+						}
+					}
+				})
+			}
+		},
+		// UMartix 双击取消选择
+		uMatrixItemdbClicked(e) {
+			for (const index of this.selectedUnitIndex) {
+				this.$refs.unitMartixRef.dispatchAction({
+					type: 'downplay',
+					dataIndex: index
+				})
+			}
+			// 置空
+			this.timer = null
+			this.selectedUnitIndex = []
+			this.selectedUnitIdOnUMatrix = []
+		},
 		// 在平行坐标轴上进行刷选
 		selectedAreaOnParalle(e) {
 			// e.intervals 为该选择轴上的值区间（类别轴为起始索引，数值轴为数值上下限）
@@ -739,9 +804,9 @@ export default {
 		height: 390px; /*  */
 	}
 	.tree-list {
-		width: 30%;
+		width: 28%;
 		height: 390px;
-		margin: 5px 0 0 20px;
+		margin: 5px 0 0 7px;
 		padding: 5px;
 		overflow: auto;
 		.el-button {
@@ -758,7 +823,7 @@ export default {
 	.swiper {
 		margin-top: 10px;
 		height: 410px;
-		width: 475px;
+		width: 500px;
 	}
 }
 </style>
