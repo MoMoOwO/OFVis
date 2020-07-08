@@ -27,9 +27,9 @@ import VueTreeList from 'vue-tree-list'
 // 配置 leaflet marker 图标
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+  iconRetinaUrl: require('./assets/markers/marker-icon-2x.png'),
+  iconUrl: require('./assets/markers/marker-icon.png'),
+  shadowUrl: require('./assets/markers/marker-shadow.png'),
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],

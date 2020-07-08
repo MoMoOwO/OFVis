@@ -6,7 +6,13 @@
         <img src="../assets/logo.jpg" />
         <span>OFViser</span>
       </div>
-      <el-alert title="Tips：" :description="tipsDescription" type="success" :closable="false"></el-alert>
+      <el-alert
+        title="Tips："
+        :description="tipsDescription"
+        type="info"
+        show-icon
+        :closable="false"
+      ></el-alert>
     </el-header>
     <!-- 主体区域 - 圣杯布局 -->
     <el-container class="main-container">
@@ -215,7 +221,7 @@ export default {
 				mapGallery: 'mapGallery tips',
 				somView: 'SOMView tips'
 			},
-			tipsDescription: ''
+			tipsDescription: 'Click the info-button to see tips here.'
 		}
 	},
 	components: {
@@ -312,9 +318,10 @@ export default {
 		padding-left: 2.5px;
 		display: flex;
 		flex-wrap: wrap;
+		width: 740px;
 
 		.clustering-card {
-			height: 845px;
+			height: 99.4%;
 			width: 100%;
 			//margin-bottom: 5px;
 		}
@@ -335,5 +342,8 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	line-height: 28px;
+}
+.el-alert {
+	padding: 3px 16px;
 }
 </style>
