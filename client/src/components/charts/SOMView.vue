@@ -2,7 +2,7 @@
   <div class="som-container">
     <!-- UMartix -->
     <v-chart
-      ref="unitMartixRef"
+      ref="unitMatrixRef"
       class="umartix-container"
       theme="infographic"
       :options="uMatrixOpt"
@@ -369,7 +369,7 @@ export default {
 				dataZoom: {
 					type: 'slider',
 					start: 0,
-					end: 30,
+					end: 100,
 					showDataShadow: false,
 					handleIcon:
 						'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
@@ -378,7 +378,7 @@ export default {
 				},
 				series: {
 					symbolSize: 10,
-					data: [],
+					data: [], // [x, y, unitId, clusterId]
 					type: 'scatter',
 					itemStyle: {
 						color: p => this.clustersColors[p.data[3]]
@@ -387,7 +387,8 @@ export default {
 			},
 			selectedUnitIndex: [], // 选中项索引
 			selectedUnitIdOnUMatrix: [], // 选中的日期
-			timer: null
+			timer: null,
+			tiemSeriesHightlightDataIndex: []
 		}
 	},
 	components: {
@@ -405,7 +406,7 @@ export default {
 		// 是否显示缓冲条
 		isShowLoadding(b) {
 			if (b) {
-				this.$refs.unitMartixRef.showLoading({
+				this.$refs.unitMatrixRef.showLoading({
 					text: 'Loading…',
 					color: '#409EFF',
 					maskColor: 'rgba(255, 255, 255, 0.4)'
@@ -421,7 +422,7 @@ export default {
 					maskColor: 'rgba(255, 255, 255, 0.4)'
 				})
 			} else {
-				this.$refs.unitMartixRef.hideLoading()
+				this.$refs.unitMatrixRef.hideLoading()
 				this.$refs.weightMartixRef.hideLoading()
 				this.$refs.paralleRef.hideLoading()
 			}
@@ -579,7 +580,7 @@ export default {
 				parallelSeries.push({
 					type: 'parallel',
 					lineStyle: {
-						color: p => this.clustersColors[i],
+						color: this.clustersColors[i],
 						width: 2
 					},
 					data: []
@@ -598,7 +599,7 @@ export default {
 		// 为类选择了新的 color
 		changeClusterColor() {
 			// uMaxtrix 配色改变
-			this.$refs.unitMartixRef.mergeOptions({
+			this.$refs.unitMatrixRef.mergeOptions({
 				series: {
 					itemStyle: {}
 				}
@@ -735,50 +736,112 @@ export default {
 				this.$message.success('保存成功！')
 			}
 		},
-		// UMartix 点选
+		// UMatrix 点选
 		uMatrixItemClicked(e) {
 			if (e.seriesType === 'heatmap') {
 				// 响应 heatmap 的 item 项
 				this.selectedUnitIndex.push(e.dataIndex)
 				this.selectedUnitIdOnUMatrix.push(e.data[3])
-				this.$refs.unitMartixRef.dispatchAction({
+				this.$refs.unitMatrixRef.dispatchAction({
 					type: 'highlight',
 					dataIndex: e.dataIndex
 				})
 
 				// 同步筛选平行坐标轴
-				this.$refs.paralleRef.mergeOptions({
-					// todo bug in hear
+				/* this.$refs.paralleRef.mergeOptions({
+					// todo bug in here
 					series: {
 						lineStyle: {
 							color: p => {
-								console.log(p.data[8])
+								console.log(p.data)
 								if (this.selectedUnitIdOnUMatrix.indexOf(p.data[8]) === -1) {
 									return '#ccc'
 								}
 							}
 						}
 					}
+				}) */
+
+				const parallelSeries = []
+				// 根据类别颜色数创建数组，类别数
+				for (let i = 0; i < this.clustersColors.length; i++) {
+					parallelSeries.push({
+						type: 'parallel',
+						lineStyle: {
+							color: p => {
+								if (this.selectedUnitIdOnUMatrix.indexOf(p.data[8]) === -1) {
+									return 'rgb(204,204,204, 0.2)'
+								} else {
+									return this.clustersColors[i]
+								}
+							},
+							width: 2
+						},
+						data: []
+					})
+				}
+				for (const item of this.sampleDataSet) {
+					const clusterId = this.getClusterID(item[8])
+					parallelSeries[clusterId].data.push(item)
+				}
+				this.paralleOpt.series = parallelSeries
+
+				for (let i = 0; i < this.timeSeriesScatterOpt.series.data.length; i++) {
+					if (
+						this.selectedUnitIdOnUMatrix.indexOf(
+							this.timeSeriesScatterOpt.series.data[i][2]
+						) !== -1
+					) {
+						this.tiemSeriesHightlightDataIndex.push(i)
+					}
+				}
+				// 时序散点图高亮
+				this.$refs.scatterRef.dispatchAction({
+					type: 'highlight',
+					dataIndex: this.tiemSeriesHightlightDataIndex
 				})
 			}
 		},
-		// UMartix 双击取消选择
+		// UMatrix 双击取消选择
 		uMatrixItemdbClicked(e) {
+			// UMartix 恢复
 			for (const index of this.selectedUnitIndex) {
-				this.$refs.unitMartixRef.dispatchAction({
+				this.$refs.unitMatrixRef.dispatchAction({
 					type: 'downplay',
 					dataIndex: index
 				})
 			}
+
+			this.paralleOpt.series = this.getParallelAndScatterData(
+				this.sampleDataSet
+			).parallelSeries
+
+			// timescatter 恢复
+			this.$refs.scatterRef.dispatchAction({
+				type: 'downplay',
+				dataIndex: this.tiemSeriesHightlightDataIndex
+			})
 			// 置空
+			this.tiemSeriesHightlightDataIndex = []
 			this.timer = null
 			this.selectedUnitIndex = []
 			this.selectedUnitIdOnUMatrix = []
 		},
+		// 在时序散点图上 datazoom 的时候保持高亮
+		dataRangeOnTimeScatter(e) {
+			console.log(e)
+			if (this.tiemSeriesHightlightDataIndex.length !== 0) {
+				console.log(e)
+				this.$refs.scatterRef.dispatchAction({
+					type: 'highlight',
+					dataIndex: this.tiemSeriesHightlightDataIndex
+				})
+			}
+		},
 		// 在平行坐标轴上进行刷选
 		selectedAreaOnParalle(e) {
 			// e.intervals 为该选择轴上的值区间（类别轴为起始索引，数值轴为数值上下限）
-			console.log(e)
+			console.log('平行坐标轴刷选了')
 			/* const series0 = this.$refs.paralleRef.getModel().getSeries()[0]
 			const series1 = this.$refs.paralleRef.getModel().getSeries()[1]
 			const indices0 = series0.getRawIndicesByActiveState('active')
@@ -791,8 +854,8 @@ export default {
 
 <style lang="less" scoped>
 .som-container {
-	width: 100%;
-	height: 805px;
+	// width: 100%;
+	height: 822px;
 	display: flex;
 	flex-wrap: wrap;
 	.umartix-container {
@@ -805,7 +868,7 @@ export default {
 	}
 	.tree-list {
 		width: 28%;
-		height: 390px;
+		height: 410px;
 		margin: 5px 0 0 7px;
 		padding: 5px;
 		overflow: auto;
@@ -822,7 +885,7 @@ export default {
 	}
 	.swiper {
 		margin-top: 10px;
-		height: 410px;
+		height: 420px;
 		width: 500px;
 	}
 }

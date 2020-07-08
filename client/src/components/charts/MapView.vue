@@ -8,6 +8,7 @@
       :url="imgUrl.length === 0 ? '' : imgUrl"
       :bounds="[[21.975, 116.975], [40.75, 134.06]]"
     ></l-image-overlay>
+    <!-- <l-image-overlay :url="img" :opacity="0.5" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay> -->
     <!-- 是否显示海区图层 -->
     <l-control class="control-panel" position="bottomleft">
       <span>Region:</span>
