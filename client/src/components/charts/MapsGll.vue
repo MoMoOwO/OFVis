@@ -1,73 +1,59 @@
 <template>
-  <!-- 地图根容器 -->
-  <l-map style="height: 555px; width: 100%;" :center="[33.9, 124.2]" :options="mapOptions">
-    <!-- 地图瓦片 -->
-    <l-tile-layer :url="tileUrl"></l-tile-layer>
-    <!-- 图片图层 -->
-    <!-- <l-image-overlay
-      :url="imgUrl.length === 0 ? '' : imgUrl"
-      :bounds="[[21.975, 116.975], [40.75, 134.06]]"
-    ></l-image-overlay>-->
-    <l-image-overlay :url="imgUrl.length === 0 ? '' : imgUrl" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
-    <!-- 是否显示海区图层 -->
-    <l-control class="control-panel" position="bottomleft">
-      <span>Region:</span>
-      <br />
-      <el-switch
-        style="{margin-top: 5px;}"
-        v-model="isShowRegion"
-        size="mini"
-        active-color="#13ce66"
-      ></el-switch>
-    </l-control>
-    <!-- GeoJson 图层 全海区 -->
-    <l-geo-json v-if="isShowRegion" :options="geoJsonOptions" :geojson="geojson"></l-geo-json>
+  <swiper ref="imgSwiper" class="swiper" :options="swiperOption">
+    <div class="swiper-lazy-preloader swiper-lazy-preloader-white" v-show="!imgList.length"></div>
+    <swiper-slide v-for="(index, item) in imgList" :key="item.fileName" v-show="imgList.length">
+      <div style="text-align: center;">{{item.fileName}}</div>
 
-    <!-- 交互显示的图层 -->
-    <!-- marker 图层 -->
-    <l-marker :lat-lng="marker.length ? marker[2] : [0,0]" v-show="!marker.length">
-      <l-tooltip>{{marker.length ? `Gradient: ${marker[1]}℃/km [${marker[2]}]` : [0,0]}}</l-tooltip>
-    </l-marker>
-    <!-- markers 图层 -->
-    <!-- <l-marker :lat-lng="marker[2]">
-      <l-tooltip>{{RegionID: marker[0]+1 <br/> }}</l-tooltip>
-    </l-marker>-->
-    <!-- gejson 图层 -->
-    <l-geo-json :geojson="showRegionJson" :options="showRegionJsonOptions"></l-geo-json>
-  </l-map>
+      <!-- <img :src="item.base64Str" :title="item.fileName" @click="imgItemClicked(item)" /> -->
+      <l-map style="height: 150px; width: 140px;" :center="[32.3, 126.8]" :options="mapOptions">
+        <l-image-overlay :url="item.base64Str" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
+        <!-- 海区分类 gejson 图层 -->
+        <l-geo-json
+          v-if="clusterShowData.date.length"
+          :geojson="getShowRegionJson(index)"
+          :options="getShowRegionJsonOptions(index)"
+        ></l-geo-json>
+      </l-map>
+    </swiper-slide>
+    <div class="swiper-pagination" slot="pagination"></div>
+  </swiper>
 </template>
 
 <script>
-// 导入 leaflet 地图插件的样式
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
-
 export default {
 	data() {
 		return {
-			// 地图瓦片地址
-			tileUrl:
-				'https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA',
-			// 地图配置项
+			queryInfo: {
+				type: '1', // 1 月份的所有天，或者年份的 12 个月，3 日期数组
+				date: this.$store.state.yearOnGallery
+			},
+			// 要显示带海区分类的数据
+			clusterShowData: {
+				date: [],
+				regionId: [],
+				color: []
+			},
+			imgList: [],
+			swiperOption: {
+				slidesPerView: 3,
+				spaceBetween: 5,
+				slidesPerGroup: 3,
+				loop: true,
+				loopFillGroupWithBlank: true,
+				pagination: '.swiper-pagination',
+				paginationClickable: true,
+				simulateTouch: false // 不可触摸滑动
+			},
 			mapOptions: {
 				zoomSnap: 0.5, // 开启小数(0.5)缩放级别
-				zoom: 5.5,
-				zoomControl: true,
+				zoom: 3,
+				zoomControl: false,
 				scrollWheelZoom: true,
 				doubleClickZoom: false,
 				dragging: true,
 				attributionControl: false
 			},
-			// 查询信息
-			queryInfo: {
-				type: '2', // 获取指定日期的数据
-				date: this.$store.state.imgShowOnMap
-			},
-			// 图片图层图片 URL
-			imgUrl: '', // 图片
-			// 是否显示 Region
-			isShowRegion: false,
-			// geojson数据
+			// 所有海区的 geojson 数据，用于取显示海区
 			geojson: {
 				type: 'FeatureCollection',
 				features: [
@@ -367,44 +353,7 @@ export default {
 					}
 				]
 			},
-			// geojson 图层配置项
-			geoJsonOptions: {
-				onEachFeature: (feature, layer) => {
-					return layer.bindTooltip(
-						'<div>RegionID:' + feature.properties.note + '</div>',
-						{ permanent: false, sticky: true }
-					)
-				},
-				style: {
-					weight: 1,
-					color: '#ccc',
-					fillColor: '#ECEFF1',
-					fillOpacity: 0.2
-				}
-				/* feature => {
-					if (this.regionId === 'all') {
-						return {
-							weight: 1,
-							color: this.color,
-							fillColor: this.color,
-							fillOpacity: 0.2
-						}
-					} else {
-						return {
-							weight: feature.properties.note === this.regionId ? 1 : 0,
-							color:
-								feature.properties.note === this.regionId ? this.color : '',
-							fillColor:
-								feature.properties.note === this.regionId ? this.color : '',
-							fillOpacity: feature.properties.note === this.regionId ? 0.2 : 0
-						}
-					}
-				} */
-			},
-			marker: this.$store.state.markerShowOnMap, // 悬浮交互显示的点
-			markers: [], // 点选交互显示的点集
-			regionsId: this.$store.state.regionsShowOnMap, // 在地图上显示的海区 id
-			regionsColors: this.$store.state.regionsColors, // 海区的颜色标记
+			// 在地图上显示海区的数据
 			showRegionJson: {
 				type: 'FeatureCollection',
 				features: [
@@ -427,152 +376,102 @@ export default {
 					}
 				]
 			},
-			showRegionJsonCopy: {
-				type: 'FeatureCollection',
-				features: [
-					{
-						properties: {
-							note: '-1',
-							drawtype: 'polygon'
-						},
-						type: 'Feature',
-						geometry: {
-							type: 'Polygon',
-							coordinates: [
-								[
-									[0, 0],
-									[0, 1],
-									[0, 0]
-								]
-							]
-						}
-					}
-				]
-			},
+			// 显示 geojson 配置项
 			showRegionJsonOptions: {}
 		}
 	},
+	components: {},
 	created() {
-		// 从后台获取 marker 图表
-		// this.getMarkerIcon()
+		this.getImgData()
+	},
+	computed: {
+		swiper() {
+			return this.$refs.imgSwiper.swiper
+		}
 	},
 	mounted() {
-		// this.marker = [0, 0.1068, [40.475, 120.975]]
-		this.getImg()
+		this.swiper.slideTo(3, 10, false)
 	},
 	watch: {
-		'$store.state.imgShowOnMap': {
-			// 联动，监听选择区域的改变
+		'$store.state.barDateChoosed': {
+			// 联动，监听选择年月份的改变
 			handler: function(newVal) {
+				this.imgList = []
+				this.queryInfo.type = '1'
 				this.queryInfo.date = newVal
-				this.getImg()
+				this.getImgData()
 			},
 			deep: true
 		},
-		'$store.state.markerShowOnMap': {
+		'$store.state.yearOnGallery': {
+			// 联动，监听选择年月份的改变
 			handler: function(newVal) {
-				this.marker = newVal
+				this.imgList = []
+				this.queryInfo.type = '1'
+				this.queryInfo.date = newVal
+				this.getImgData()
 			},
 			deep: true
 		},
-		'$store.state.regionsShowOnMap': {
+		'$store.state.dateArrOnGallery': {
+			// 联动，监听选择年月份的改变
 			handler: function(newVal) {
-				this.getRegionGeoJsonShowOnMap(newVal, this.$store.state.regionsColors)
-				// console.log(newVal, this.$store.state.regionsColors)
+				if (newVal.length !== 0) {
+					// 有新数组
+					this.imgList = []
+					this.queryInfo.type = '3'
+					this.queryInfo.date = newVal.join(',')
+					this.getImgData()
+				}
 			},
 			deep: true
 		}
 	},
 	methods: {
-		// 获取图表图片
-		async getMarkerIcon() {
-			/* const DefaultIcon = L.icon({
-				iconUrl: markerIcon,
-				iconRetinaUrl: markerIcon2x,
-				shadowUrl: markerShadow,
-				iconSize: [25, 41],
-				iconAnchor: [12, 41],
-				popupAnchor: [1, -34],
-				tooltipAnchor: [16, -28],
-				shadowSize: [41, 41]
-			})
-			L.Marker.prototype.options.icon = DefaultIcon */
-			const { data: res } = await this.axios.get('img/marker')
-			if (res.meta.status !== 200) {
-				this.$message.error('Failed to get marker-ico data!')
-			} else {
-				// 删除默认图标
-				delete L.Icon.Default.prototype._getIconUrl
-				const icoArr = res.data
-				// 配置 marker 图标
-				L.Icon.Default.mergeOptions({
-					iconRetinaUrl: icoArr[0],
-					iconUrl: icoArr[1],
-					shadowUrl: icoArr[3],
-					iconSize: [25, 41],
-					iconAnchor: [12, 41],
-					popupAnchor: [1, -34],
-					tooltipAnchor: [16, -28],
-					shadowSize: [41, 41]
-				})
-			}
-		},
-		// 获取显示在地图上的图片
-		async getImg() {
+		async getImgData() {
+			this.imgList = []
 			const { data: res } = await this.axios.get('img/oceanimg', {
 				params: this.queryInfo
 			})
 			if (res.meta.status !== 200) {
-				this.$message.error('Failed to get img data!')
+				this.$message.error('Failed to get oceanimg data!')
 			} else {
-				this.imgUrl = res.data.base64Str
+				this.imgList = res.data
+				this.$store.commit('selectImgShowOnMap', this.imgList[0].fileName)
 			}
 		},
-		// 跟据传递的参数获取对应海区的 GeoJson 和 Options
-		getRegionGeoJsonShowOnMap(ids, colors) {
-			const features = []
-			for (const index of ids) {
-				for (const feature of this.geojson.features) {
-					if (feature.properties.note === index + '') {
-						features.push(feature)
-					}
-				}
-			}
-			this.showRegionJson.features = features
-			this.showRegionJsonOptions = {
-				style: feature => {
-					if (this.regionsColors.length === 0) {
-						return {
-							weight: 1,
-							color: '#000',
-							fillColor: '#ECEFF1',
-							fillOpacity: 0.2
-						}
-					} else {
-						return {
-							weight: 1,
-							color: this.regionsColors[+feature.properties.note],
-							fillColor: this.regionsColors[+feature.properties.note],
-							fillOpacity: 0.2
-						}
-					}
-				}
-			}
-		}
+		imgItemClicked(imgData) {
+			// console.log(imgData)
+			this.$store.commit('selectImgShowOnMap', imgData.fileName)
+    },
+    // 获取对应的 geojson 数据
+    getShowRegionJson(index){
+
+    },
+    // 获取对应 geojson 配置项
+    getShowRegionJsonOptions(){
+
+    }
 	}
 }
 </script>
 
 <style lang="less" scoped>
-.leaflet-control {
-	padding: 6px 8px;
-	font: 14px/16px Arial, Helvetica, sans-serif;
-	background: white;
-	background: rgba(255, 255, 255, 0.8);
-	box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-	border-radius: 5px;
-	.el-switch {
-		margin-top: 5px;
+.swiper {
+	height: 205px;
+	width: 100%;
+	background-color: #ccc;
+	.swiper-slide {
+		/* display: flex;
+		justify-content: center;
+		align-items: center; */
+		background-color: white;
+		/* object-fit: contain;
+		img {
+			max-width: 100%;
+			max-height: 100%;
+			transform: translateY(-10px);
+		} */
 	}
 }
 </style>

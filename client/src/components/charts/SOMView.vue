@@ -118,7 +118,7 @@ export default {
 			// UMatrix 配置项
 			uMatrixOpt: {
 				title: {
-					text: 'U-Matix',
+					text: 'U-Matrix',
 					left: 7,
 					top: 3
 				},
@@ -311,12 +311,14 @@ export default {
 					children: []
 				}
 			]),
+			// 平行坐标图与时序散点图切换 swiper 配置项
 			chartSwiperOptions: {
 				noSwiping: true,
 				pagination: '.swiper-pagination',
 				paginationClickable: true,
 				simulateTouch: false
 			},
+			// 平行坐标图配置项
 			paralleOpt: {
 				toolbox: {
 					feature: {
@@ -352,6 +354,7 @@ export default {
 				],
 				series: []
 			},
+			// 时序散点图配置项
 			timeSeriesScatterOpt: {
 				xAxis: { type: 'category' },
 				yAxis: {
@@ -365,6 +368,10 @@ export default {
 					left: 35,
 					right: 25,
 					bottom: 80
+				},
+				tooltip: {
+					confine: true,
+					formatter: p => `Date: ${p.data[0]}<br/>RegionID: ${p.data[1]}`
 				},
 				dataZoom: {
 					type: 'slider',
@@ -387,8 +394,8 @@ export default {
 			},
 			selectedUnitIndex: [], // 选中项索引
 			selectedUnitIdOnUMatrix: [], // 选中的日期
-			timer: null,
-			tiemSeriesHightlightDataIndex: []
+			timer: null, // 延时器
+			itemSeriesHightlightDataIndex: [] //
 		}
 	},
 	components: {
@@ -784,6 +791,7 @@ export default {
 					const clusterId = this.getClusterID(item[8])
 					parallelSeries[clusterId].data.push(item)
 				}
+				// 修改平行坐标图
 				this.paralleOpt.series = parallelSeries
 
 				for (let i = 0; i < this.timeSeriesScatterOpt.series.data.length; i++) {
@@ -792,15 +800,80 @@ export default {
 							this.timeSeriesScatterOpt.series.data[i][2]
 						) !== -1
 					) {
-						this.tiemSeriesHightlightDataIndex.push(i)
+						this.itemSeriesHightlightDataIndex.push(i)
 					}
 				}
 				// 时序散点图高亮
 				this.$refs.scatterRef.dispatchAction({
 					type: 'highlight',
-					dataIndex: this.tiemSeriesHightlightDataIndex
+					dataIndex: this.itemSeriesHightlightDataIndex
 				})
+
+				// 延时更改，以支持多选
+				this.timer = setTimeout(() => {
+					// 获取 gallery 中需要的数据 dateArr regionIDArr clolors
+					console.log(this.getSampleDetailData(this.selectedUnitIdOnUMatrix))
+				}, 2000)
 			}
+		},
+		// 根据选中的 unitID 数组获取日期、海区、分类颜色等数组
+		getSampleDetailData(unitIDArr) {
+			// 初始化样本数组，并赋空值
+			const sampleDateRegionData = new Array(unitIDArr.length)
+			for (let i = 0; i < sampleDateRegionData.length; i++) {
+				sampleDateRegionData[i] = []
+			}
+			// 初始化分类 ID 数组 和 分类颜色数组
+			// const clusterIDArr = new Array(unitIDArr.length)
+			const clusterColorsArr = new Array(unitIDArr.length)
+
+			for (let i = 0; i < unitIDArr.length; i++) {
+				for (const item of this.sampleDataSet) {
+					if (item[8] === unitIDArr[i]) sampleDateRegionData[i].push(item[0]) // 每个 unitId 对应的样本的 date-regionID 数组
+				}
+				const clusterID = this.getClusterID(unitIDArr[i])
+				clusterColorsArr[i] = this.clustersColors[clusterID]
+			}
+
+			// 返回的数据
+			const resObj = {
+				date: [],
+				regionId: [],
+				color: []
+			}
+			// 初始化空长度的 regionId、color 数组
+			/* const tempArr = []
+			for(let i = 0; i< sampleDateRegionData.length; i++){
+				for(let j =0; j< sampleDateRegionData[i].length; j++){
+					const date = sampleDateRegionData[i][j].split('-')[0]
+					tempArr.push(date)
+				}
+			}
+			const len = Array.from(new Set(tempArr)).length
+			for(let i = 0; i< len; i++){
+				resObj.regionId.push([])
+				resObj.color.push([])
+			} */
+
+			// 遍历获取最终数据
+			for (let i = 0; i < sampleDateRegionData.length; i++) {
+				for (let j = 0; j < sampleDateRegionData[i].length; j++) {
+					const date = sampleDateRegionData[i][j].split('-')[0]
+					const region = sampleDateRegionData[i][j].split('-')[1]
+					if (resObj.date.indexOf(date) === -1) {
+						// 时间数组中没有该日期数据
+						resObj.date.push(date)
+						resObj.regionId.push([region])
+						resObj.color.push([clusterColorsArr[i]])
+					} else {
+						// 存在该日期的数据
+						const index = resObj.date.indexOf(date)
+						resObj.regionId[index].push(region)
+						resObj.color[index].push(clusterColorsArr[i])
+					}
+				}
+			}
+			return resObj
 		},
 		// UMatrix 双击取消选择
 		uMatrixItemdbClicked(e) {
@@ -819,10 +892,10 @@ export default {
 			// timescatter 恢复
 			this.$refs.scatterRef.dispatchAction({
 				type: 'downplay',
-				dataIndex: this.tiemSeriesHightlightDataIndex
+				dataIndex: this.itemSeriesHightlightDataIndex
 			})
 			// 置空
-			this.tiemSeriesHightlightDataIndex = []
+			this.itemSeriesHightlightDataIndex = []
 			this.timer = null
 			this.selectedUnitIndex = []
 			this.selectedUnitIdOnUMatrix = []
@@ -830,11 +903,11 @@ export default {
 		// 在时序散点图上 datazoom 的时候保持高亮
 		dataRangeOnTimeScatter(e) {
 			console.log(e)
-			if (this.tiemSeriesHightlightDataIndex.length !== 0) {
+			if (this.itemSeriesHightlightDataIndex.length !== 0) {
 				console.log(e)
 				this.$refs.scatterRef.dispatchAction({
 					type: 'highlight',
-					dataIndex: this.tiemSeriesHightlightDataIndex
+					dataIndex: this.itemSeriesHightlightDataIndex
 				})
 			}
 		},

@@ -106,7 +106,8 @@
               @click="tipClick('mapGallery')"
             ></el-button>
           </div>
-          <map-gallery></map-gallery>
+          <!-- <map-gallery></map-gallery> -->
+          <maps-gll></maps-gll>
         </el-card>
       </el-main>
       <!-- 左侧 -->
@@ -173,8 +174,9 @@ import AreaChart from './charts/AreaChart.vue'
 import BoxPlot from './charts/Boxplot.vue'
 import LineChart from './charts/LineChart.vue'
 import MapView from './charts/MapView.vue'
-import MapGallery from './charts/MapGallery.vue'
+// import MapGallery from './charts/MapGallery.vue'
 import SomView from './charts/SOMView.vue'
+import MapsGll from './charts/MapsGll.vue'
 
 export default {
 	data() {
@@ -229,8 +231,9 @@ export default {
 		BoxPlot,
 		LineChart,
 		MapView,
-		MapGallery,
-		SomView
+		// MapGallery,
+		SomView,
+		MapsGll
 	},
 	computed: {
 		swiper() {
