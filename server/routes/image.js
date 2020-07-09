@@ -8,7 +8,7 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'img-api' });
 });
 
-router.get('/marker', function (req, res, next) {
+/* router.get('/marker', function (req, res, next) {
   ImgDataModel.find({ fileName: /^marker/ }, (err, docs) => {
     if (err) {
       console.log('/img/marker err:' + err);
@@ -27,7 +27,7 @@ router.get('/marker', function (req, res, next) {
       res.status(200).json({ data: dataArr, meta: { msg: '获取 marker 图片成功！', status: 200 } });
     }
   });
-});
+}); */
 
 router.get('/oceanimg', function (req, res, next) {
   const type = req.query.type; // 获取类型，1 获取传入日期一个月的或者某年的所有月份的所有图片，2 获取指定日期的图片，3 为获取date数组中日期的图片
