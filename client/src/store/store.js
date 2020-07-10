@@ -11,9 +11,10 @@ const store = new Vuex.Store({
     yearOnGallery: '2015',
     dateArrOnGallery: [], // 通过日历图，折线图修改该数组，显示在 gallery 中
     markerShowOnMap: [], // 箱线图悬浮的某个点
-    markersShowOnMap: [], // 箱线图中点选的点
+    // markersShowOnMap: [], // 箱线图中点选的点
     regionsShowOnMap: [], // 联动在地图上显示的海区
-    regionsColors: [] // 海区颜色
+    regionsColors: [], // 海区颜色
+    sampleDataSelectedOnSOM: {} // 在 SOMView 中选择的样本数据 {dateArr, regionIDArr, color}
   },
   mutations: { // 对外提供修改 state 中数据的接口
     selectedRegionIDOnBox(state, newID) {
@@ -39,6 +40,9 @@ const store = new Vuex.Store({
     },
     changeYearOnGallery(state, newVal) {
       state.yearOnGallery = newVal
+    },
+    selectSampleDataOnSom(state, newVal) {
+      state.sampleDataSelectedOnSOM = newVal
     }
   },
   getters: { // 对外提供获取 state 中数据的接口，可以在获取时对 state 中数据进行包装，否则也可以直接从 state 中获取数据

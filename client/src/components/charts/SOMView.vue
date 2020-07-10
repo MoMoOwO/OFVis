@@ -812,7 +812,10 @@ export default {
 				// 延时更改，以支持多选
 				this.timer = setTimeout(() => {
 					// 获取 gallery 中需要的数据 dateArr regionIDArr clolors
-					console.log(this.getSampleDetailData(this.selectedUnitIdOnUMatrix))
+					this.$store.commit(
+						'selectSampleDataOnSom',
+						this.getSampleDetailData(this.selectedUnitIdOnUMatrix)
+					)
 				}, 2000)
 			}
 		},
@@ -899,6 +902,11 @@ export default {
 			this.timer = null
 			this.selectedUnitIndex = []
 			this.selectedUnitIdOnUMatrix = []
+			this.$store.commit('selectSampleDataOnSom', {
+				date: [],
+				regionId: [],
+				color: []
+			})
 		},
 		// 在时序散点图上 datazoom 的时候保持高亮
 		dataRangeOnTimeScatter(e) {

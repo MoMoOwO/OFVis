@@ -541,7 +541,7 @@ export default {
 			this.showRegionJson.features = features
 			this.showRegionJsonOptions = {
 				style: feature => {
-					if (this.regionsColors.length === 0) {
+					if (colors.length === 0) {
 						return {
 							weight: 1,
 							color: '#000',
@@ -551,9 +551,9 @@ export default {
 					} else {
 						return {
 							weight: 1,
-							color: this.regionsColors[+feature.properties.note],
-							fillColor: this.regionsColors[+feature.properties.note],
-							fillOpacity: 0.2
+							color: colors[ids.indexOf(feature.properties.note)],
+							fillColor: colors[ids.indexOf(feature.properties.note)],
+							fillOpacity: 0.3
 						}
 					}
 				}
