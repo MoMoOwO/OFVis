@@ -106,8 +106,7 @@
               @click="tipClick('mapGallery')"
             ></el-button>
           </div>
-          <!-- <map-gallery></map-gallery> -->
-          <maps-gll></maps-gll>
+          <map-gallery></map-gallery>
         </el-card>
       </el-main>
       <!-- 左侧 -->
@@ -116,34 +115,6 @@
         <el-card class="clustering-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>SOMClusterView</span>
-            <!-- Cluster 设置弹出框 -->
-            <!-- <el-popover
-              placement="left-start"
-              width="230"
-              title="Clustering Setting"
-              v-model="isClusteringSettingPopverVisible"
-            >
-              <el-divider content-position="center">Train Set</el-divider>
-              <el-radio-group v-model="SOMCluOpt.trainSetType">
-                <el-radio :label="1">Random Data</el-radio>
-                <el-radio :label="2">70% Data</el-radio>
-              </el-radio-group>
-              <el-divider content-position="center">Clustering Features</el-divider>Moran's-I
-              <el-input v-model="SOMCluOpt.MI" size="mini" type="number" placeholder="请输入内容"></el-input>Mode
-              <el-input v-model="SOMCluOpt.Mo" size="mini" type="number" placeholder="请输入内容"></el-input>Qd
-              <el-input v-model="SOMCluOpt.Qd" size="mini" type="number" placeholder="请输入内容"></el-input>Skewness
-              <el-input v-model="SOMCluOpt.Sk" size="mini" type="number" placeholder="请输入内容"></el-input>Ex_Kurtosis
-              <el-input v-model="SOMCluOpt.EK" size="mini" type="number" placeholder="请输入内容"></el-input>
-              <div style="text-align: right; margin: 0">
-                <el-button
-                  size="mini"
-                  type="text"
-                  @click="isClusteringSettingPopverVisible = false"
-                >取消</el-button>
-                <el-button type="primary" size="mini" @click="submitClusteringSetting">确定</el-button>
-              </div>
-              <el-button style="padding: 0;" slot="reference" icon="el-icon-setting" type="text"></el-button>
-            </el-popover>-->
             <el-button
               style="padding: 0"
               type="text"
@@ -174,9 +145,8 @@ import AreaChart from './charts/AreaChart.vue'
 import BoxPlot from './charts/Boxplot.vue'
 import LineChart from './charts/LineChart.vue'
 import MapView from './charts/MapView.vue'
-// import MapGallery from './charts/MapGallery.vue'
+import MapGallery from './charts/MapGallery.vue'
 import SomView from './charts/SOMView.vue'
-import MapsGll from './charts/MapsGll.vue'
 
 export default {
 	data() {
@@ -204,24 +174,18 @@ export default {
 			],
 			// 选中的折线图类型
 			lineTypeChoosed: 'polarOpt',
-			// SOM 聚类设置弹出框是否可见
-			isClusteringSettingPopverVisible: false,
-			// SOM 训练集配置项
-			SOMCluOpt: {
-				trainSetType: 1,
-				MI: 0,
-				Mo: 0,
-				Qd: 0,
-				SK: 0,
-				EK: 0
-			},
 			tips: {
-				areaChart: 'areaCharts tips',
-				areaLineChart: 'areaLineCharts tips',
-				boxplot: 'boxplot tips',
-				mapView: 'mapView tips',
-				mapGallery: 'mapGallery tips',
-				somView: 'SOMView tips'
+				areaChart:
+					'时间序列筛选的重要途径，可以在日历图上点选想要查看的日期的海洋锋空间分布情况(双击取消)，在条形图上点选会在 Map-Gallery 中显示整个月的空间分布情况',
+				areaLineChart:
+					'可以选择极坐标系或者直角坐标系，极坐标系有利于周期性的发现，而直角坐标系更适合比较，支持点选进行海洋锋空间分布的查看与比较',
+				boxplot:
+					'海洋锋强度分布情况的统计，响应 Area-Chart 的时间筛选，初始按海区统计，点击某个海区的 boxplot 会显示当前海区当前年份十二个月份的统计情况，海区与 outliers 能够通过鼠标悬浮在 Map-View 上响应。',
+				mapView: '响应其他图表，主要进行聚焦的海洋锋空间状态探索',
+				mapGallery:
+					'Small-Multiple 与 Carousel 的结合，主要用于海洋锋时空序列的展示',
+				somView:
+					'SOM 聚类窗口，不仅包括增加了交互的 UMatrix 和 Component Plane，还设置了支持重新分类与配色的 Cluster Tree List，此外还有属性相关性研究的 Parallel 和 海区分类时序散点图'
 			},
 			tipsDescription: 'Click the info-button to see tips here.'
 		}
@@ -231,9 +195,8 @@ export default {
 		BoxPlot,
 		LineChart,
 		MapView,
-		// MapGallery,
-		SomView,
-		MapsGll
+		MapGallery,
+		SomView
 	},
 	computed: {
 		swiper() {
@@ -241,12 +204,6 @@ export default {
 		}
 	},
 	methods: {
-		// 旧
-		submitClusteringSetting() {
-			console.log('提交了 Cluster 的修改')
-			console.log(this.SOMCluOpt)
-			this.isClusteringSettingPopverVisible = false
-		},
 		// 点击各个图表的 tips
 		tipClick(chart) {
 			console.log(chart)
