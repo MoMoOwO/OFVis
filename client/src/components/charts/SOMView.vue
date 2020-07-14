@@ -17,7 +17,8 @@
       :options="wMatrixOpt"
     ></v-chart>
     <!-- Tree-List -->
-    <div class="tree-list">
+    <v-chart class="tree-chart" ref="treeChartRef" v-if="!showTree"></v-chart>
+    <div class="tree-list" v-if="showTree">
       <el-button type="primary" size="mini" icon="el-icon-plus" @click="addNewCluster">Add Cluster</el-button>
       <vue-tree-list
         @delete-node="deleteCluster"
@@ -228,6 +229,8 @@ export default {
 				},
 				series: []
 			},
+			// tree 和 loading 的显示
+			showTree: false,
 			// 修改后树结构对象
 			newTree: {},
 			// 绑定树结构对象
@@ -428,10 +431,16 @@ export default {
 					color: '#409EFF',
 					maskColor: 'rgba(255, 255, 255, 0.4)'
 				})
+				this.$refs.treeChartRef.showLoading({
+					text: 'Loading…',
+					color: '#409EFF',
+					maskColor: 'rgba(255, 255, 255, 0.4)'
+				})
 			} else {
 				this.$refs.unitMatrixRef.hideLoading()
 				this.$refs.weightMartixRef.hideLoading()
 				this.$refs.paralleRef.hideLoading()
+				this.$refs.treeChartRef.hideLoading()
 			}
 		},
 		// 获取聚类树数据
@@ -515,12 +524,16 @@ export default {
 				})
 
 				this.$refs.weightMartixRef.mergeOptions({
+					tooltip: {
+						formatter: p => `${p.marker}${p.name}：${p.value.toFixed(4)}`
+					},
 					legend: {
 						data: ["Moran's I", 'Mode', 'Qd', 'Skewness', 'Excess_Kurtosis'],
 						formatter: name => {
 							if (name === 'Excess_Kurtosis') return 'Ex_Kurtosis'
 							return name
 						},
+						selectedMode: false,
 						icon: 'circle',
 						itemWidth: 7,
 						itemHeight: 7,
@@ -541,6 +554,7 @@ export default {
 				// 时序散点图
 				this.timeSeriesScatterOpt.series.data = seriesDataObj.scatterData
 
+				this.showTree = true
 				this.isShowLoadding(false)
 			}
 		},
@@ -947,6 +961,7 @@ export default {
 		width: 365px;
 		height: 390px; /*  */
 	}
+	.tree-chart,
 	.tree-list {
 		width: 28%;
 		height: 410px;
