@@ -377,7 +377,7 @@ export default {
 				},
 				style: {
 					weight: 1,
-					color: '#ccc',
+					color: '#000',
 					fillColor: '#ECEFF1',
 					fillOpacity: 0.2
 				}
