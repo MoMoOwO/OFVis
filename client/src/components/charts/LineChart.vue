@@ -35,7 +35,28 @@ export default {
 					top: 15
 				},
 				tooltip: {
-					confine: true
+					confine: true,
+					formatter: p => {
+						let res = p.marker + p.name + '<br/>'
+						const month = [
+							'Jan',
+							'Feb',
+							'Mar',
+							'Apr',
+							'May',
+							'Jun',
+							'Jul',
+							'Aug',
+							'Sep',
+							'Oct',
+							'Nov',
+							'Dec'
+						]
+						for (let i = 0; i < month.length; i++) {
+							res += `${month[i]}：${p.value[i].toFixed(2)}km²<br/>`
+						}
+						return res
+					}
 				},
 				legend: {
 					data: null
@@ -74,7 +95,17 @@ export default {
 					top: 10
 				},
 				tooltip: {
-					trigger: 'axis'
+					trigger: 'axis',
+					confine: true,
+					formatter: p => {
+						let res = p[0].name + '<br/>'
+						p.forEach(item => {
+							res += `${item.marker}${item.seriesName}：${item.value.toFixed(
+								2
+							)}km²<br/>`
+						})
+						return res
+					}
 				},
 				legend: {
 					data: null
