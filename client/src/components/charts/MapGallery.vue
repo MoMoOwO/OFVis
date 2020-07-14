@@ -517,7 +517,7 @@ export default {
 		},
 		// 单击某个 Slider
 		selectMap(index) {
-			if (this.samplesData.date.lenght === 0) {
+			if (this.samplesData.date.length === 0) {
 				this.$store.commit('selectImgShowOnMap', this.imgList[index].fileName)
 				this.$store.commit('changeRegionShowOnMap', [])
 				this.$store.commit('changeRegionsColors', [])
