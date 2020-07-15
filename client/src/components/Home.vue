@@ -92,8 +92,14 @@
               icon="el-icon-info"
               @click="tipClick('mapView')"
             ></el-button>
+            <el-button
+              style="padding: 0"
+              type="text"
+              icon="el-icon-full-screen"
+              @click="this.isGalleyFullScreen = !this.isGalleryFullScreen"
+            ></el-button>
           </div>
-          <map-view></map-view>
+          <map-view isFullScreen="isGalleyFullScreen"></map-view>
         </el-card>
         <!-- 画廊容器 -->
         <el-card class="gallery-card" :body-style="{ padding: '0px' }">
@@ -174,6 +180,8 @@ export default {
 			],
 			// 选中的折线图类型
 			lineTypeChoosed: 'polarOpt',
+			// Gallery 是否最大化
+			isGalleyFullScreen: false,
 			tips: {
 				areaChart:
 					'时间序列筛选的重要途径，可以在日历图上点选想要查看的日期的海洋锋空间分布情况(双击取消)，在条形图上点选会在 Map-Gallery 中显示整个月的空间分布情况',
