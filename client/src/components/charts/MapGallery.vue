@@ -15,6 +15,22 @@
       </l-map>
     </swiper-slide>
     <div class="swiper-pagination" slot="pagination"></div>
+
+    <el-dialog title="Map-Gallery" :visible.sync="isFullScreen" width="50%">
+      <div v-for="(item, index) in imgList" :key="item.fileName" v-show="imgList.length">
+        <div style="text-align: center; cursor:pointer" @click="selectMap(index)">{{item.fileName}}</div>
+        <!-- <img :src="item.base64Str" :title="item.fileName" @click="imgItemClicked(item)" /> -->
+        <l-map style="height: 150px; width: 141px;" :center="[32.3, 126.5]" :options="mapOptions">
+          <l-image-overlay :url="item.base64Str" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
+          <!-- 海区分类 gejson 图层 -->
+          <l-geo-json
+            v-if="samplesData.regionId.length"
+            :geojson="getShowRegionJson(index)"
+            :options="getShowRegionJsonOptions(index)"
+          ></l-geo-json>
+        </l-map>
+      </div>
+    </el-dialog>
   </swiper>
 </template>
 
@@ -382,7 +398,7 @@ export default {
 			}
 		}
 	},
-	components: {},
+	props: ['isFullScreen'],
 	created() {
 		this.getImgData()
 	},
