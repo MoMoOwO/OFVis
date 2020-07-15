@@ -92,14 +92,8 @@
               icon="el-icon-info"
               @click="tipClick('mapView')"
             ></el-button>
-            <el-button
-              style="padding: 0"
-              type="text"
-              icon="el-icon-full-screen"
-              @click="this.isGalleyFullScreen = !this.isGalleryFullScreen"
-            ></el-button>
           </div>
-          <map-view isFullScreen="isGalleyFullScreen"></map-view>
+          <map-view></map-view>
         </el-card>
         <!-- 画廊容器 -->
         <el-card class="gallery-card" :body-style="{ padding: '0px' }">
@@ -108,11 +102,17 @@
             <el-button
               style="padding: 0"
               type="text"
+              icon="el-icon-full-screen"
+              @click="this.isGalleyFullScreen = !this.isGalleryFullScreen"
+            ></el-button>
+            <el-button
+              style="padding: 0"
+              type="text"
               icon="el-icon-info"
               @click="tipClick('mapGallery')"
             ></el-button>
           </div>
-          <map-gallery></map-gallery>
+          <map-gallery isFullScreen="isGalleyFullScreen"></map-gallery>
         </el-card>
       </el-main>
       <!-- 左侧 -->
