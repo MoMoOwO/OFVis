@@ -530,32 +530,30 @@ export default {
 		},
 		// 跟据传递的参数获取对应海区的 GeoJson 和 Options
 		getRegionGeoJsonShowOnMap(ids, colors) {
-			if (ids.length !== 0) {
-				const features = []
-				for (const index of ids) {
-					for (const feature of this.geojson.features) {
-						if (feature.properties.note === index + '') {
-							features.push(feature)
-						}
+			const features = []
+			for (const index of ids) {
+				for (const feature of this.geojson.features) {
+					if (feature.properties.note === index + '') {
+						features.push(feature)
 					}
 				}
-				this.showRegionJson.features = features
-				this.showRegionJsonOptions = {
-					style: feature => {
-						if (colors.length === 0) {
-							return {
-								weight: 1,
-								color: '#000',
-								fillColor: '#ECEFF1',
-								fillOpacity: 0.2
-							}
-						} else {
-							return {
-								weight: 1,
-								color: colors[ids.indexOf(feature.properties.note)],
-								fillColor: colors[ids.indexOf(feature.properties.note)],
-								fillOpacity: 0.3
-							}
+			}
+			this.showRegionJson.features = features
+			this.showRegionJsonOptions = {
+				style: feature => {
+					if (colors.length === 0) {
+						return {
+							weight: 1,
+							color: '#000',
+							fillColor: '#ECEFF1',
+							fillOpacity: 0.2
+						}
+					} else {
+						return {
+							weight: 1,
+							color: colors[ids.indexOf(feature.properties.note)],
+							fillColor: colors[ids.indexOf(feature.properties.note)],
+							fillOpacity: 0.3
 						}
 					}
 				}

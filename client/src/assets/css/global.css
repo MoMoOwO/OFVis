@@ -32,3 +32,9 @@ body,
 .el-color-dropdown__link-btn {
   display: none !important;
 }
+
+.el-dialog__body {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
