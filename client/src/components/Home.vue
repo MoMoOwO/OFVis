@@ -23,12 +23,7 @@
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
             <span>Area-Chart</span>
-            <el-button
-              style="padding: 0"
-              type="text"
-              icon="el-icon-info"
-              @click="tipClick('areaChart')"
-            ></el-button>
+            <el-button type="text" icon="el-icon-info" @click="tipClick('areaChart')"></el-button>
           </div>
           <!-- 卡片内容区域，图表区域 -->
           <!-- <area-chart></area-chart> -->
@@ -44,25 +39,22 @@
         <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Area-Periodogram</span>
-            <el-select
-              style="width: 120px;"
-              size="mini"
-              v-model="lineTypeChoosed"
-              placeholder="choose"
-            >
-              <el-option
-                v-for="item in lineType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-            <el-button
-              style="padding: 0"
-              type="text"
-              icon="el-icon-info"
-              @click="tipClick('areaLineChart')"
-            ></el-button>
+            <div class="optPanel">
+              <el-select
+                style="width: 120px;"
+                size="mini"
+                v-model="lineTypeChoosed"
+                placeholder="choose"
+              >
+                <el-option
+                  v-for="item in lineType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+              <el-button type="text" icon="el-icon-info" @click="tipClick('areaLineChart')"></el-button>
+            </div>
           </div>
           <line-chart :type="lineTypeChoosed" regionChoosed="all"></line-chart>
         </el-card>
@@ -70,12 +62,7 @@
         <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Gradient-Distribution-Chart</span>
-            <el-button
-              style="padding: 0"
-              type="text"
-              icon="el-icon-info"
-              @click="tipClick('boxplot')"
-            ></el-button>
+            <el-button type="text" icon="el-icon-info" @click="tipClick('boxplot')"></el-button>
           </div>
           <box-plot></box-plot>
         </el-card>
@@ -86,12 +73,7 @@
         <el-card class="map-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Map-View</span>
-            <el-button
-              style="padding: 0"
-              type="text"
-              icon="el-icon-info"
-              @click="tipClick('mapView')"
-            ></el-button>
+            <el-button type="text" icon="el-icon-info" @click="tipClick('mapView')"></el-button>
           </div>
           <map-view></map-view>
         </el-card>
@@ -99,20 +81,16 @@
         <el-card class="gallery-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Map-Gallery</span>
-            <el-button
-              style="padding: 0"
-              type="text"
-              icon="el-icon-full-screen"
-              @click="this.isGalleyFullScreen = !this.isGalleryFullScreen"
-            ></el-button>
-            <el-button
-              style="padding: 0"
-              type="text"
-              icon="el-icon-info"
-              @click="tipClick('mapGallery')"
-            ></el-button>
+            <div class="optPanel">
+              <el-button
+                type="text"
+                icon="el-icon-full-screen"
+                @click="isGalleryFunnlScreen = !isGalleryFunnlScreen"
+              ></el-button>
+              <el-button type="text" icon="el-icon-info" @click="tipClick('mapGallery')"></el-button>
+            </div>
           </div>
-          <map-gallery isFullScreen="isGalleyFullScreen"></map-gallery>
+          <map-gallery :isFullScreen="isGalleryFunnlScreen" @closeFullScreen="toggleFullScreenVal"></map-gallery>
         </el-card>
       </el-main>
       <!-- 左侧 -->
@@ -121,12 +99,7 @@
         <el-card class="clustering-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>SOMClusterView</span>
-            <el-button
-              style="padding: 0"
-              type="text"
-              icon="el-icon-info"
-              @click="tipClick('somView')"
-            ></el-button>
+            <el-button type="text" icon="el-icon-info" @click="tipClick('somView')"></el-button>
           </div>
           <som-view></som-view>
         </el-card>
@@ -181,7 +154,7 @@ export default {
 			// 选中的折线图类型
 			lineTypeChoosed: 'polarOpt',
 			// Gallery 是否最大化
-			isGalleyFullScreen: false,
+			isGalleryFunnlScreen: false,
 			tips: {
 				areaChart:
 					'时间序列筛选的重要途径，可以在日历图上点选想要查看的日期的海洋锋空间分布情况(双击取消)，在条形图上点选会在 Map-Gallery 中显示整个月的空间分布情况',
@@ -216,6 +189,10 @@ export default {
 		tipClick(chart) {
 			console.log(chart)
 			this.tipsDescription = this.tips[chart]
+		},
+		// 关闭 gallery 全屏
+		toggleFullScreenVal(val) {
+			this.isGalleryFunnlScreen = val
 		}
 	}
 }
@@ -310,6 +287,15 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	line-height: 28px;
+	.el-button {
+		padding: 0;
+	}
+	.optPanel {
+		display: flex;
+		.el-button {
+			margin-left: 5px;
+		}
+	}
 }
 .el-alert {
 	padding: 3px 16px;
