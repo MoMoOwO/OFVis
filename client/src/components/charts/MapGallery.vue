@@ -1,26 +1,11 @@
 <template>
-  <swiper ref="imgSwiper" class="swiper" :options="swiperOption">
-    <div class="swiper-lazy-preloader swiper-lazy-preloader-white" v-show="!imgList.length"></div>
-    <swiper-slide v-for="(item, index) in imgList" :key="item.fileName" v-show="imgList.length">
-      <div style="text-align: center; cursor:pointer" @click="selectMap(index)">{{item.fileName}}</div>
-      <!-- <img :src="item.base64Str" :title="item.fileName" @click="imgItemClicked(item)" /> -->
-      <l-map style="height: 150px; width: 141px;" :center="[32.3, 126.5]" :options="mapOptions">
-        <l-image-overlay :url="item.base64Str" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
-        <!-- 海区分类 gejson 图层 -->
-        <l-geo-json
-          v-if="samplesData.regionId.length"
-          :geojson="getShowRegionJson(index)"
-          :options="getShowRegionJsonOptions(index)"
-        ></l-geo-json>
-      </l-map>
-    </swiper-slide>
-    <div class="swiper-pagination" slot="pagination"></div>
-
-    <el-dialog title="Map-Gallery" :visible.sync="isFullScreen" width="50%">
-      <div v-for="(item, index) in imgList" :key="item.fileName" v-show="imgList.length">
+  <div class="swiper">
+    <swiper ref="imgSwiper" class="swiper" :options="swiperOption">
+      <div class="swiper-lazy-preloader swiper-lazy-preloader-white" v-show="!imgList.length"></div>
+      <swiper-slide v-for="(item, index) in imgList" :key="item.fileName" v-show="imgList.length">
         <div style="text-align: center; cursor:pointer" @click="selectMap(index)">{{item.fileName}}</div>
         <!-- <img :src="item.base64Str" :title="item.fileName" @click="imgItemClicked(item)" /> -->
-        <l-map style="height: 150px; width: 141px;" :center="[32.3, 126.5]" :options="mapOptions">
+        <l-map style="height: 150px; width: 141px;" :center="[32.3, 126]" :options="mapOptions">
           <l-image-overlay :url="item.base64Str" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
           <!-- 海区分类 gejson 图层 -->
           <l-geo-json
@@ -29,9 +14,29 @@
             :options="getShowRegionJsonOptions(index)"
           ></l-geo-json>
         </l-map>
+      </swiper-slide>
+      <div class="swiper-pagination" slot="pagination"></div>
+    </swiper>
+    <!-- 弹窗 SmallMutiple -->
+    <el-dialog
+      title="Map-Gallery"
+      :visible.sync="isFullScreen"
+      width="50%"
+      :before-close="fullScreenClosed"
+    >
+      <div v-for="(item, index) in imgList" :key="item.fileName" v-show="imgList.length">
+        <div style="text-align: center; cursor:pointer" @click="selectMap(index)">{{item.fileName}}</div>
+        <l-map style="height: 140px; width: 120px;" :center="[32, 125.9]" :options="mapOptions">
+          <l-image-overlay :url="item.base64Str" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
+          <l-geo-json
+            v-if="samplesData.regionId.length"
+            :geojson="getShowRegionJson(index)"
+            :options="getShowRegionJsonOptions(index)"
+          ></l-geo-json>
+        </l-map>
       </div>
     </el-dialog>
-  </swiper>
+  </div>
 </template>
 
 <script>
@@ -478,10 +483,6 @@ export default {
 				this.$store.commit('selectImgShowOnMap', this.imgList[0].fileName)
 			}
 		},
-		imgItemClicked(imgData) {
-			// console.log(imgData)
-			this.$store.commit('selectImgShowOnMap', imgData.fileName)
-		},
 		// 获取对应的 geojson 数据
 		getShowRegionJson(index) {
 			// console.log(this.samplesData.regionId.length)
@@ -533,6 +534,7 @@ export default {
 		},
 		// 单击某个 Slider
 		selectMap(index) {
+			this.fullScreenClosed()
 			if (this.samplesData.date.length === 0) {
 				this.$store.commit('selectImgShowOnMap', this.imgList[index].fileName)
 				this.$store.commit('changeRegionShowOnMap', [])
@@ -545,6 +547,10 @@ export default {
 				)
 				this.$store.commit('changeRegionsColors', this.samplesData.color[index])
 			}
+		},
+		// 关闭 gallery 全屏 dialog
+		fullScreenClosed() {
+			this.$emit('closeFullScreen', false)
 		}
 	}
 }
