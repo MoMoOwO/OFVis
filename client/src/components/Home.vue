@@ -23,7 +23,9 @@
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
             <span>Area-Chart</span>
-            <el-button type="text" icon="el-icon-info" @click="tipClick('areaChart')"></el-button>
+            <el-tooltip content="Click to see tips." placement="top" effect="light">
+              <el-button type="text" icon="el-icon-info" @click="tipClick('areaChart')"></el-button>
+            </el-tooltip>
           </div>
           <!-- 卡片内容区域，图表区域 -->
           <!-- <area-chart></area-chart> -->
@@ -53,7 +55,9 @@
                   :value="item.value"
                 ></el-option>
               </el-select>
-              <el-button type="text" icon="el-icon-info" @click="tipClick('areaLineChart')"></el-button>
+              <el-tooltip content="Click to see tips." placement="top" effect="light">
+                <el-button type="text" icon="el-icon-info" @click="tipClick('areaLineChart')"></el-button>
+              </el-tooltip>
             </div>
           </div>
           <line-chart :type="lineTypeChoosed" regionChoosed="all"></line-chart>
@@ -62,7 +66,9 @@
         <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Gradient-Distribution-Chart</span>
-            <el-button type="text" icon="el-icon-info" @click="tipClick('boxplot')"></el-button>
+            <el-tooltip content="Click to see tips." placement="top" effect="light">
+              <el-button type="text" icon="el-icon-info" @click="tipClick('boxplot')"></el-button>
+            </el-tooltip>
           </div>
           <box-plot></box-plot>
         </el-card>
@@ -73,7 +79,9 @@
         <el-card class="map-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Map-View</span>
-            <el-button type="text" icon="el-icon-info" @click="tipClick('mapView')"></el-button>
+            <el-tooltip content="Click to see tips." placement="top" effect="light">
+              <el-button type="text" icon="el-icon-info" @click="tipClick('mapView')"></el-button>
+            </el-tooltip>
           </div>
           <map-view></map-view>
         </el-card>
@@ -82,12 +90,16 @@
           <div class="card-header" slot="header">
             <span>Map-Gallery</span>
             <div class="optPanel">
-              <el-button
-                type="text"
-                icon="el-icon-full-screen"
-                @click="isGalleryFunnlScreen = !isGalleryFunnlScreen"
-              ></el-button>
-              <el-button type="text" icon="el-icon-info" @click="tipClick('mapGallery')"></el-button>
+              <el-tooltip content="Full Screen" placement="top" effect="light">
+                <el-button
+                  type="text"
+                  icon="el-icon-full-screen"
+                  @click="isGalleryFunnlScreen = !isGalleryFunnlScreen"
+                ></el-button>
+              </el-tooltip>
+              <el-tooltip content="Click to see tips." placement="top" effect="light">
+                <el-button type="text" icon="el-icon-info" @click="tipClick('mapGallery')"></el-button>
+              </el-tooltip>
             </div>
           </div>
           <map-gallery :isFullScreen="isGalleryFunnlScreen" @closeFullScreen="toggleFullScreenVal"></map-gallery>
@@ -99,7 +111,9 @@
         <el-card class="clustering-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>SOMClusterView</span>
-            <el-button type="text" icon="el-icon-info" @click="tipClick('somView')"></el-button>
+            <el-tooltip content="Click to see tips." placement="top" effect="light">
+              <el-button type="text" icon="el-icon-info" @click="tipClick('somView')"></el-button>
+            </el-tooltip>
           </div>
           <som-view></som-view>
         </el-card>
