@@ -1,8 +1,11 @@
 import Vue from 'vue'
 // 按需引入 element-ui 组件
-import {
+/* import {
   Button, Message, Container, Header, Main, Alert, Card, Select, Option,
-  Popover, Divider, RadioGroup, Radio, Input, ColorPicker, Switch, Dialog
+  Popover, Divider, RadioGroup, Radio, Input, ColorPicker
+} from 'element-ui' */
+import {
+  Button, Message, Container, Header, Main, Alert, Card, Tooltip, Select, Option, ColorPicker, Switch, Dialog
 } from 'element-ui'
 // 国际化配置
 import enLang from 'element-ui/lib/locale/lang/en'
@@ -15,13 +18,14 @@ Vue.use(Main)
 Vue.use(Alert)
 Vue.use(Card)
 Vue.use(Button)
+Vue.use(Tooltip)
 Vue.use(Select)
 Vue.use(Option)
-Vue.use(Popover)
+/* Vue.use(Popover)
 Vue.use(Divider)
 Vue.use(RadioGroup)
 Vue.use(Radio)
-Vue.use(Input)
+Vue.use(Input) */
 Vue.use(ColorPicker)
 Vue.use(Switch)
 Vue.use(Dialog)

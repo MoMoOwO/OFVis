@@ -74,7 +74,7 @@ export default {
 						formatter: p => {
 							if (p.length < 3) {
 								// 海区
-								return p
+								return 'R' + p
 							} else {
 								const months = [
 									'Jan',
@@ -118,11 +118,11 @@ export default {
 									: (name = 'Date: ')
 								return [
 									name + param.name,
-									'upper: ' + param.data[4],
-									'Q3: ' + param.data[3],
-									'median: ' + param.data[2],
-									'Q1: ' + param.data[1],
-									'lower: ' + param.data[0]
+									'upper: ' + param.data[4] + '℃/km',
+									'Q3: ' + param.data[3] + '℃/km',
+									'median: ' + param.data[2] + '℃/km',
+									'Q1: ' + param.data[1] + '℃/km',
+									'lower: ' + param.data[0] + '℃/km'
 								].join('<br/>')
 							}
 						}
@@ -130,6 +130,15 @@ export default {
 					{
 						name: 'outlier',
 						type: 'scatter',
+						tooltip: {
+							formatter: p => {
+								let tooltip = ''
+								p.name.length <= 2
+									? (tooltip = `${p.seriesName}<br/>Region ${p.name}：${p.value[1]}℃/km`)
+									: (tooltip = `${p.seriesName}<br/>${p.name}：${p.value[1]}℃/km`)
+								return tooltip
+							}
+						},
 						data: null
 					}
 				]
@@ -209,6 +218,8 @@ export default {
 				this.getBoxplotData()
 				// 显示 restore 按钮
 				this.boxOpt.toolbox.show = true
+				// 地图显示海区
+				// this.$store.commit('changeRegionShowOnMap', [+e.name])
 			} else if (e.name.length <= 2 && e.seriesType === 'scatter') {
 				// 点击一层散点
 				// 点击散点在地图上添加标注
@@ -246,6 +257,7 @@ export default {
 		},
 		boxPlotItemMouseout() {
 			this.$store.commit('changeRegionShowOnMap', [])
+			this.$store.commit('hoverPointOnBoxplot', [])
 		},
 		// 还原箱线图数据
 		boxPlotItemsRestore() {
@@ -259,6 +271,8 @@ export default {
 				this.$store.state.barDateChoosed +
 				' ' +
 				this.$store.getters.getRegionIDLabel
+			// 取消地图显示海区
+			// this.$store.commit('changeRegionShowOnMap', [])
 			// 重新获取数据
 			this.getBoxplotData()
 		}
