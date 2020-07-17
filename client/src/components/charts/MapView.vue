@@ -1,6 +1,10 @@
 <template>
   <!-- 地图根容器 -->
-  <l-map style="height: 555px; width: 100%;" :center="[33.9, 124.2]" :options="mapOptions">
+  <l-map
+    style="height: 565px; width: 100%; margin-top: 1.5px;"
+    :center="[33.9, 124.2]"
+    :options="mapOptions"
+  >
     <!-- 地图瓦片 -->
     <l-tile-layer :url="tileUrl"></l-tile-layer>
     <!-- 图片图层 -->
