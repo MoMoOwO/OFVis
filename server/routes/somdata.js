@@ -4,6 +4,7 @@ var SOM = require('ml-som');
 // 引入可以操作数据库的 Model 模块
 const SOMDataModel = require('../modules/sommodel');
 const RegionDataModel = require('../modules/regiondata');
+const ClusterTreeModel = require('../modules/clustertree')
 // 引入工具类
 const utils = require('../modules/utils');
 
@@ -28,6 +29,37 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'som-data-api' });
 });
 
+// 获取分类树结构数据
+router.get('/clustertree', function (req, res, next) {
+  ClusterTreeModel.find({ name: 'root' }, (err, docs) => {
+    if (err) {
+      console.log('/som/clustertree err:' + err);
+      res.status(400).json({ meta: { msg: '获取 Cluster-Tree 数据失败！', status: 400 } });
+    } else {
+      const clusterTreeData = {
+        id: docs[0].id,
+        isLeaf: docs[0].isLeaf,
+        name: docs[0].name,
+        colors: docs[0].colors,
+        children: docs[0].children
+      }
+      res.status(200).json({ data: clusterTreeData, meta: { msg: '获取 Cluster-Tree 成功！', status: 200 } });
+    }
+  });
+});
+// 更新分类树结构
+router.put('/clustertree/:name', function (req, res, next) {
+  ClusterTreeModel.updateOne(req.params, req.body, (err, doc) => {
+    if (err) {
+      console.log('/som/clustertree/:name err:' + err);
+      res.status(400).json({ meta: { msg: '保存 Cluster-Tree 数据失败！', status: 400 } });
+    } else {
+      res.status(400).json({ data: 'Save Cluster Tree Data Success!', meta: { msg: '保存 Cluster-Tree 数据成功！', status: 400 } });
+    }
+  })
+});
+
+// 获取 som 结果数据集，主要包含各类图表所需数据
 router.get('/somresult', function (req, res, next) {
   SOMDataModel.find({}, (err, doc) => {
     if (err) {
@@ -72,10 +104,16 @@ router.get('/somresult', function (req, res, next) {
           console.log('/som/somresult err:' + err);
           res.status(400).json({ meta: { msg: '获取 BMUCount 数据失败！', status: 400 } });
         } else {
-          const predictSet = []
+          const predictSet = [] // 预测的数据集，只包含特征值
+          const dataSetNames = [] // 数据集名称标识
+          const dataSet = [] // 完整数据集，包含所有标识
           for (let i = 0; i < docs.length; i++) {
+            let dataSetName = docs[i].date
             // 遍历添加各海区的特征值
             for (let obj of docs[i].FeaturesData) {
+              dataSetName = dataSetName + '-' + obj.regionId
+              dataSetNames.push(dataSetName)
+              dataSetName = dataSetName.split('-')[0]
               predictSet.push(
                 {
                   MoranI: obj.MoranI,
@@ -86,20 +124,42 @@ router.get('/somresult', function (req, res, next) {
                 }
               );
             }
+            dataSetName = ''
           }
           // count 数组
           const unitCount = []; // new Array(size * size)
           for (let i = 0; i < size; i++) {
             for (let j = 0; j < size; j++) {
-              unitCount.push([i, j, 0, size * i + j]); // [x, y, count, id]
+              unitCount.push([i, j, 0, size * i + j]); // [x, y, count, unitId]
             }
           }
-          for (let obj of predictSet) {
-            let res = som.predict(obj);
+          for (let i = 0; i < predictSet.length; i++) {
+            let res = som.predict(predictSet[i]);
             unitCount[size * res[0] + res[1]][2]++; // 统计
+            dataSet.push([
+              dataSetNames[i],
+              dataSetNames[i].split('-')[0],
+              dataSetNames[i].split('-')[1],
+              predictSet[i].MoranI,
+              predictSet[i].Mode,
+              predictSet[i].Qd,
+              predictSet[i].Skewness,
+              predictSet[i].Excess_Kurtosis,
+              size * res[0] + res[1]
+            ])
+            // [dataSet, date, regionId, MI, Mo, Qd, Sk, EK]
           }
 
-          res.status(200).json({ data: { min, max, size, UMatrix, unitCount, weightsMatrix }, meta: { msg: '获取 UMatrix 成功！', status: 200 } });
+          const dataSetSchemaToParallel = [
+            { name: 'DateSetName', index: 0, text: 'Sample Name' },
+            { name: "Moran's I", index: 3, text: "Moran's I" },
+            { name: 'Mode', index: 4, text: 'Mode.5' },
+            { name: 'Qd', index: 5, text: 'Qd' },
+            { name: 'Skewness', index: 6, text: 'Skewness' },
+            { name: 'Excess_Kurtosis', index: 7, text: 'Excess_Kurtosis' }
+          ]
+
+          res.status(200).json({ data: { min, max, size, UMatrix, unitCount, weightsMatrix, dataSet, dataSetSchemaToParallel }, meta: { msg: '获取 SOM-Result 成功！', status: 200 } });
         }
       });
     }
