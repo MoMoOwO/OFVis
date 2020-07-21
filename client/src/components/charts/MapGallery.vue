@@ -5,7 +5,11 @@
       <swiper-slide v-for="(item, index) in imgList" :key="item.fileName" v-show="imgList.length">
         <div style="text-align: center; cursor:pointer" @click="selectMap(index)">{{item.fileName}}</div>
         <!-- <img :src="item.base64Str" :title="item.fileName" @click="imgItemClicked(item)" /> -->
-        <l-map style="height: 150px; width: 141px;" :center="[32.3, 126]" :options="mapOptions">
+        <l-map
+          style="height: 150px; width: 141px;"
+          :center="[32.3, 126]"
+          :options="mapSwiperOptions"
+        >
           <l-image-overlay :url="item.base64Str" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
           <!-- 海区分类 gejson 图层 -->
           <l-geo-json
@@ -23,10 +27,17 @@
       :visible.sync="isFullScreen"
       width="50%"
       :before-close="fullScreenClosed"
+      @opened="mapGalleryDialogOpened"
     >
       <div v-for="(item, index) in imgList" :key="item.fileName" v-show="imgList.length">
         <div style="text-align: center; cursor:pointer" @click="selectMap(index)">{{item.fileName}}</div>
-        <l-map style="height: 140px; width: 120px;" :center="[32, 125.9]" :options="mapOptions">
+        <l-map
+          ref="map"
+          style="height: 180px; width: 140px;"
+          :center="[32, 125.9]"
+          :options="mapGalleryOptions"
+          @ready="mapGalleryReady()"
+        >
           <l-image-overlay :url="item.base64Str" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
           <l-geo-json
             v-if="samplesData.regionId.length"
@@ -43,6 +54,8 @@
 export default {
 	data() {
 		return {
+			tileUrl:
+				'https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA',
 			queryInfo: {
 				type: '1', // 1 月份的所有天，或者年份的 12 个月，3 日期数组
 				date: this.$store.state.yearOnGallery
@@ -61,9 +74,18 @@ export default {
 					console.log(swiper)
 				}
 			},
-			mapOptions: {
+			mapSwiperOptions: {
 				zoomSnap: 0.5, // 开启小数(0.5)缩放级别
 				zoom: 3,
+				zoomControl: false,
+				scrollWheelZoom: false,
+				doubleClickZoom: false,
+				dragging: false,
+				attributionControl: false
+			},
+			mapGalleryOptions: {
+				zoomSnap: 0.5, // 开启小数(0.5)缩放级别
+				zoom: 3.5,
 				zoomControl: false,
 				scrollWheelZoom: false,
 				doubleClickZoom: false,
@@ -551,6 +573,14 @@ export default {
 		// 关闭 gallery 全屏 dialog
 		fullScreenClosed() {
 			this.$emit('closeFullScreen', false)
+		},
+		// gallery 打开了
+		mapGalleryDialogOpened() {
+			// 由于初始 div 不显示，所以 leaflet 会出现偏移
+			// 采取这种措施解决 leaflet 偏移问题
+			for (const mapRef of this.$refs.map) {
+				mapRef.mapObject._onResize()
+			}
 		}
 	}
 }
