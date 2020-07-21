@@ -632,11 +632,9 @@ export default {
 				}
 			})
 			// 平行坐标图配色改变
-			this.$refs.paralleRef.mergeOptions({
-				series: {
-					itemStyle: {}
-				}
-			})
+			// 更新平行坐标图
+			const seriesDataObj = this.getParallelAndScatterData(this.sampleDataSet)
+			this.paralleOpt.series = seriesDataObj.parallelSeries
 			// 时序散点图配色改变
 			this.$refs.scatterRef.mergeOptions({
 				series: {
