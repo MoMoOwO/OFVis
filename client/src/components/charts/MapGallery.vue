@@ -36,7 +36,6 @@
           style="height: 180px; width: 140px;"
           :center="[32, 125.9]"
           :options="mapGalleryOptions"
-          @ready="mapGalleryReady()"
         >
           <l-image-overlay :url="item.base64Str" :bounds="[[22, 117], [40.9, 135]]"></l-image-overlay>
           <l-geo-json
