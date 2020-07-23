@@ -7,7 +7,7 @@
       theme="infographic"
       :options="uMatrixOpt"
       @click="uMatrixItemClicked"
-      @dblclick="uMatrixItemdbClicked"
+      @dblclick="uMatrixItemdblClicked"
     ></v-chart>
     <!-- WeightMartix -->
     <v-chart
@@ -349,9 +349,9 @@ export default {
 					right: 45
 				},
 				parallelAxis: [
-					{ dim: 3, name: "Maoram's I" },
+					{ dim: 3, name: "Moran's I" },
 					{ dim: 4, name: 'Mode' },
-					{ dim: 5, name: 'Qd' },
+					{ dim: 5, name: 'IQR' },
 					{ dim: 6, name: 'Skewness' },
 					{ dim: 7, name: 'Ex_Kurtosis' }
 				],
@@ -525,12 +525,17 @@ export default {
 
 				this.$refs.weightMartixRef.mergeOptions({
 					tooltip: {
-						formatter: p => `${p.marker}${p.name}：${p.value.toFixed(4)}`
+						formatter: p => {
+							let name = p.name
+							if (name === 'Qd') name = 'IQR'
+							return `${p.marker}${name}：${p.value.toFixed(4)}`
+						}
 					},
 					legend: {
 						data: ["Moran's I", 'Mode', 'Qd', 'Skewness', 'Excess_Kurtosis'],
 						formatter: name => {
 							if (name === 'Excess_Kurtosis') return 'Ex_Kurtosis'
+							if (name === 'Qd') return 'IQR'
 							return name
 						},
 						selectedMode: false,
@@ -632,11 +637,9 @@ export default {
 				}
 			})
 			// 平行坐标图配色改变
-			this.$refs.paralleRef.mergeOptions({
-				series: {
-					itemStyle: {}
-				}
-			})
+			// 更新平行坐标图
+			const seriesDataObj = this.getParallelAndScatterData(this.sampleDataSet)
+			this.paralleOpt.series = seriesDataObj.parallelSeries
 			// 时序散点图配色改变
 			this.$refs.scatterRef.mergeOptions({
 				series: {
@@ -791,7 +794,7 @@ export default {
 						lineStyle: {
 							color: p => {
 								if (this.selectedUnitIdOnUMatrix.indexOf(p.data[8]) === -1) {
-									return 'rgb(204,204,204, 0.2)'
+									return 'rgb(204,204,204, 0)'
 								} else {
 									return this.clustersColors[i]
 								}
@@ -893,7 +896,7 @@ export default {
 			return resObj
 		},
 		// UMatrix 双击取消选择
-		uMatrixItemdbClicked(e) {
+		uMatrixItemdblClicked(e) {
 			// UMartix 恢复
 			for (const index of this.selectedUnitIndex) {
 				this.$refs.unitMatrixRef.dispatchAction({

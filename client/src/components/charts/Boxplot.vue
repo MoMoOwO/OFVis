@@ -42,6 +42,7 @@ export default {
 				},
 				tooltip: {
 					trigger: 'item',
+					confine: true,
 					axisPointer: {
 						type: 'shadow'
 					}
@@ -118,11 +119,11 @@ export default {
 									: (name = 'Date: ')
 								return [
 									name + param.name,
-									'upper: ' + param.data[4] + '℃/km',
-									'Q3: ' + param.data[3] + '℃/km',
-									'median: ' + param.data[2] + '℃/km',
-									'Q1: ' + param.data[1] + '℃/km',
-									'lower: ' + param.data[0] + '℃/km'
+									'upper: ' + param.data[4].toFixed(4) + '℃/km',
+									'Q3: ' + param.data[3].toFixed(4) + '℃/km',
+									'median: ' + param.data[2].toFixed(4) + '℃/km',
+									'Q1: ' + param.data[1].toFixed(4) + '℃/km',
+									'lower: ' + param.data[0].toFixed(4) + '℃/km'
 								].join('<br/>')
 							}
 						}
@@ -194,6 +195,7 @@ export default {
 			if (res.meta.status !== 200) {
 				this.$message.error('Failed to get boxplot data!')
 			} else {
+				console.log(res.data)
 				// 为图表数据赋值
 				this.boxOpt.xAxis.data = res.data.axisData
 				this.boxOpt.series[0].data = res.data.boxData
