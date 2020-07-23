@@ -99,7 +99,7 @@ export default {
 					},
 					{
 						properties: {
-							note: '2',
+							note: '3',
 							drawtype: 'polygon'
 						},
 						type: 'Feature',
@@ -122,7 +122,7 @@ export default {
 					},
 					{
 						properties: {
-							note: '3',
+							note: '2',
 							drawtype: 'polygon'
 						},
 						type: 'Feature',
@@ -189,7 +189,7 @@ export default {
 					},
 					{
 						properties: {
-							note: '6',
+							note: '7',
 							drawtype: 'polygon'
 						},
 						type: 'Feature',
@@ -208,7 +208,7 @@ export default {
 					},
 					{
 						properties: {
-							note: '7',
+							note: '8',
 							drawtype: 'polygon'
 						},
 						type: 'Feature',
@@ -231,7 +231,7 @@ export default {
 					},
 					{
 						properties: {
-							note: '8',
+							note: '10',
 							drawtype: 'polygon'
 						},
 						type: 'Feature',
@@ -252,7 +252,7 @@ export default {
 					},
 					{
 						properties: {
-							note: '9',
+							note: '11',
 							drawtype: 'polygon'
 						},
 						type: 'Feature',
@@ -273,7 +273,7 @@ export default {
 					},
 					{
 						properties: {
-							note: '10',
+							note: '9',
 							drawtype: 'polygon'
 						},
 						type: 'Feature',
@@ -296,7 +296,7 @@ export default {
 					},
 					{
 						properties: {
-							note: '11',
+							note: '6',
 							distance: '1845824.01 m',
 							drawtype: 'polygon',
 							area: '21646118.32 ha'
