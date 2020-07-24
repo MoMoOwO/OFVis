@@ -14,6 +14,10 @@
 1. [server README](https://github.com/MoMoOwO/OFVis/blob/master/server/README.md)
 2. [client README](https://github.com/MoMoOwO/OFVis/blob/master/client/README.md)
 
+## 最终效果
+
+![overview](https://i.loli.net/2020/07/24/IadOWDAQgLYe5xN.jpg)
+
 ## License
 
 [MIT](https://github.com/MoMoOwO/OFVis/LICENSE)
