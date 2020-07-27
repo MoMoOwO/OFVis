@@ -20,8 +20,7 @@ router.get('/', function (req, res, next) {
 */
 router.get('/areadata', (req, res, next) => {
   // 获取查询类型和区域 id
-  const type = req.query.type;
-  const regionId = req.query.regionId;
+  const { type, regionId } = req.query;
 
   if (type == '1') { // 请求的某一年的面积数据
     const year = req.query.year;
@@ -115,9 +114,7 @@ router.get('/areadata', (req, res, next) => {
 */
 router.get('/boxdata', (req, res, next) => {
   // 获取查询类型和区域 id
-  const type = req.query.type;
-  const regionId = req.query.regionId;
-  const date = req.query.date;
+  const { type, regionId, date } = req.query;
 
   // 箱线图所需数据
   let axisData = [];
