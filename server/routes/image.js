@@ -30,8 +30,8 @@ router.get('/', function (req, res, next) {
 }); */
 
 router.get('/oceanimg', function (req, res, next) {
-  const type = req.query.type; // 获取类型，1 获取传入日期一个月的或者某年的所有月份的所有图片，2 获取指定日期的图片，3 为获取date数组中日期的图片
-  const date = req.query.date;
+  // 获取类型，1 获取传入日期一个月的或者某年的所有月份的所有图片，2 获取指定日期的图片，3 为获取date数组中日期的图片
+  const { type, date } = req.query;
 
   if (type === '1') { // 获取给定日期整个月份或者某年的所有月份的图片
     ImgDataModel.find({ fileName: new RegExp('^' + date + '\\d{2}$') }, { _id: 0, fileName: 1, base64Str: 1 }, (err, docs) => {
