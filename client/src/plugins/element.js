@@ -5,7 +5,9 @@ import Vue from 'vue'
   Popover, Divider, RadioGroup, Radio, Input, ColorPicker
 } from 'element-ui' */
 import {
-  Button, Message, Container, Header, Main, Alert, Card, Tooltip, Select, Option, ColorPicker, Switch, Dialog
+  Button, Message, Container, Header, Main, Alert,
+  Card, Tooltip, Select, Option, ColorPicker, Switch,
+  Dialog, Form, FormItem, DatePicker, Input, Col
 } from 'element-ui'
 // 国际化配置
 import enLang from 'element-ui/lib/locale/lang/en'
@@ -29,5 +31,10 @@ Vue.use(Input) */
 Vue.use(ColorPicker)
 Vue.use(Switch)
 Vue.use(Dialog)
+Vue.use(Form)
+Vue.use(FormItem)
+Vue.use(DatePicker)
+Vue.use(Input)
+Vue.use(Col)
 // 全局挂载 message 组件
 Vue.prototype.$message = Message
