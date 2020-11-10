@@ -58,7 +58,7 @@ router.get('/oceanimg', function (req, res, next) {
         console.log('/img/oceanimg err:' + err);
         res.status(400).json({ meta: { msg: '获取 oceanimg 图片失败！', status: 400 } });
       } else {
-        console.log(date)
+        // console.log(date)
         res.status(200).json({ data: docs, meta: { msg: '获取 oceanimg 图片成功！', status: 200 } });
       }
     });
