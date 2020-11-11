@@ -14,16 +14,17 @@
           />
           <el-form
             ref="form"
-            :model="form"
+            :model="queryInfo"
             :label-position="'top'"
             label-width="80px"
           >
             <el-form-item label="Date">
               <el-date-picker
-                v-model="form.date"
+                v-model="queryInfo.date"
                 type="month"
                 value-format="yyyyMM"
                 placeholder="Select date"
+                :default-value="new Date('2015-01')"
                 :picker-options="pickerOptions"
               >
               </el-date-picker>
@@ -32,9 +33,8 @@
               <el-col v-for="index in 13" :key="index" :span="6">
                 <el-input
                   type="number"
-                  :default-value="new Date('2014')"
                   :placeholder="'Area' + index"
-                  v-model="form.threshold[index]"
+                  v-model="threshold[index]"
                   @focus="inputGetFocus(index)"
                 ></el-input>
                 <el-col></el-col>
@@ -42,8 +42,8 @@
             </el-form-item>
             <br />
             <el-form-item>
-              {{ form.threshold }}
-              <div>{{ form.date }}</div>
+              {{ threshold }}
+              <div>{{ queryInfo.date }}</div>
             </el-form-item>
             <br />
             <el-form-item>
@@ -127,34 +127,33 @@ export default {
           }
         },
 
-        series: [
-          {
-            name: 'Temp_grade',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            data: [
-              [121.15, 31.89, 0.01],
-              [109.781327, 39.608266, 0.02],
-              [120.38, 37.35, 0.03]
-            ],
+        series: {
+          name: 'Temp_grade',
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          data: [
+            [121.15, 31.89, 0.01],
+            [109.781327, 39.608266, 0.02],
+            [120.38, 37.35, 0.03]
+          ],
+          symbolSize: 3,
+          label: {
+            formatter: '{b}',
+            position: 'right',
+            show: false
+          },
+          emphasis: {
             label: {
-              formatter: '{b}',
-              position: 'right',
-              show: false
-            },
-            emphasis: {
-              label: {
-                show: true
-              }
+              show: true
             }
           }
-        ]
+        }
       },
-      form: {
-        date: '',
-        threshold: [0],
-        area: 1
-      }
+      queryInfo: {
+        date: null,
+        areaId: 1
+      },
+      threshold: [0]
     }
   },
   mounted() {},
@@ -162,8 +161,26 @@ export default {
     onSubmit() {
       alert('提交了数据！')
     },
+    // 获取数据
+    async getGradientData() {
+      const { data: res } = await this.axios.get('/gdata', {
+        params: this.queryInfo
+      })
+      this.mapOpt.visualMap.min = res.date.min
+      this.mapOpt.visualMap.max = res.data.max
+      this.mapOpt.series.data = res.data.geoData
+    },
+    // 海区阈值输入框获取焦点的时候请求梯度数据
     inputGetFocus(index) {
-      console.log('海区' + index)
+      if (this.queryInfo.date == null) {
+        // 保证已选择 date
+        this.$message.error('Please select date first!')
+        return 0
+      } else {
+        this.queryInfo.area = index
+        console.log(this.queryInfo)
+        // this.getGradientData()
+      }
     }
   }
 }
