@@ -163,10 +163,13 @@ export default {
     },
     // 获取数据
     async getGradientData() {
-      const { data: res } = await this.axios.get('/gdata', {
+      const { data: res } = await this.axios.get('/gradient/gdata', {
         params: this.queryInfo
       })
-      this.mapOpt.visualMap.min = res.date.min
+      // console.log(res)
+
+      //
+      this.mapOpt.visualMap.min = res.data.min
       this.mapOpt.visualMap.max = res.data.max
       this.mapOpt.series.data = res.data.geoData
     },
@@ -177,9 +180,9 @@ export default {
         this.$message.error('Please select date first!')
         return 0
       } else {
-        this.queryInfo.area = index
-        console.log(this.queryInfo)
-        // this.getGradientData()
+        this.queryInfo.areaId = index
+        // console.log(this.queryInfo)
+        this.getGradientData()
       }
     }
   }
