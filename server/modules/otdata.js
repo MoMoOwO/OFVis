@@ -6,9 +6,9 @@ const OTDataSchema = mongoose.Schema({
   latitude: Number,
   longitude: Number,
   regionId: Number,
-  TEMPData: [
+  TempData: [
     {
-      Date: String,
+      date: String,
       sst: Number,
       sstg: Number,
       isFront: Number
