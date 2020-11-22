@@ -9,38 +9,42 @@ router.get('/', function (req, res, next) {
 });
 
 // 获取梯度数据
-// date：请求日期，areaId：请求海区
+// date：请求日期
 router.get('/gdata', function (req, res, next) {
   // 获取查询参数
-  const { date, areaId } = req.query;
+  const { date } = req.query;
 
-  // 查找数据
-  OTDataModel.find({ regionId: areaId }, (err, docs) => {
-    // 地理信息数据
-    let geoData = [];
-    let min, max; // 梯度最值
+  OTDataModel.aggregate([
+    { "$match": {} },
+    {
+      "$project": {
+        "_id": 0,
+        "latitude": 1,
+        "longitude": 1,
+        "regionId": 1,
+        "TempData": {
+          "$filter": {
+            "input": "$TempData",
+            "as": "item",
+            "cond": { "$eq": ["$$item.date", date + ''] }
+          }
+        }
+      }
+    }
+  ], (err, docs) => {
     if (err) {
       console.log('/gradient/gdata err' + err);
       res.status(400).json({ meta: { msg: '查询温度梯度数据出错！', status: 400 } });
     } else {
-      // 遍历组织数据
-      for (let doc of docs) {
-        let geoItem = [doc.longitude, doc.latitude];
-        for (let item of doc.TempData) {
-          if (item.date == date && !Number.isNaN(item.sstg)) {
-            geoItem.push(item.sstg);
-          }
-        }
-        geoData.push(geoItem);
-      }
+      let geoData = [null, [], [], [], [], [], [], [], [], [], [], [], [], []]; // 梯度数据
+      let max = docs[0].TempData[0].sstg, min = docs[0].TempData[0].sstg; // 梯度值最大值最小值
 
-      // 计算梯度最值
-      //console.log(geoData);
-      let min = geoData[0][2];
-      let max = geoData[0][2];
-      for (let item of geoData) {
-        item[2] <= min && (min = item[2]);
-        item[2] >= max && (max = item[2]);
+      for (let doc of docs) {
+        if (!Number.isNaN(doc.TempData[0].sstg)) {
+          geoData[doc.regionId].push([doc.longitude, doc.latitude, doc.TempData[0].sstg])
+          max < doc.TempData[0].sstg && (max = doc.TempData[0].sstg)
+          min > doc.TempData[0].sstg && (min = doc.TempData[0].sstg)
+        }
       }
 
       res.status(200).json({ data: { geoData, max, min }, meta: { msg: '获取海温梯度数据成功！', status: 200 } });
