@@ -36,12 +36,12 @@ router.get('/gdata', function (req, res, next) {
       console.log('/gradient/gdata err' + err);
       res.status(400).json({ meta: { msg: '查询温度梯度数据出错！', status: 400 } });
     } else {
-      let geoData = [null, [], [], [], [], [], [], [], [], [], [], [], [], []]; // 梯度数据
+      let geoData = []; // 梯度数据
       let max = docs[0].TempData[0].sstg, min = docs[0].TempData[0].sstg; // 梯度值最大值最小值
-
+      // 遍历文档获取数据
       for (let doc of docs) {
         if (!Number.isNaN(doc.TempData[0].sstg)) {
-          geoData[doc.regionId].push([doc.longitude, doc.latitude, doc.TempData[0].sstg])
+          geoData.push([doc.longitude, doc.latitude, doc.TempData[0].sstg])
           max < doc.TempData[0].sstg && (max = doc.TempData[0].sstg)
           min > doc.TempData[0].sstg && (min = doc.TempData[0].sstg)
         }
