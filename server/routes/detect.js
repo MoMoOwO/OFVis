@@ -66,10 +66,16 @@ router.get('/gdata', async function (req, res, next) {
 
 });
 
-router.put('/thresholds/:date', async function (req, res, next) {
+router.put('/thresholds/:date', function (req, res, next) {
   // 获取查询参数
-  console.log(req.params)
-  console.log(req.body)
+  ClusterTreeModel.updateOne(req.params, req.body, (err, doc) => {
+    if (err) {
+      console.log('/thresholds/:date err:' + err);
+      res.status(400).json({ meta: { msg: 'Save thresholds failed!', status: 400 } });
+    } else {
+      res.status(200).json({ data: 'Save thresholds Success!', meta: { msg: 'Save thresholds Success!', status: 200 } });
+    }
+  });
 });
 
 module.exports = router;
