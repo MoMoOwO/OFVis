@@ -5,6 +5,10 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: { // 共享状态/数据
+    // Echarts 实例化配置项
+    echartInitOption: {
+      renderer: 'svg' // 使用 svg 渲染
+    },
     barDateChoosed: '201501', // 从面积柱状图中点击某个月份，箱线图切换到相同月份的统计，
     boxRegionChoosed: 'all', // 在箱线图上通过点击箱体选择海区
     imgShowOnMap: '20150101', // 在地图上显示的
