@@ -570,20 +570,22 @@ export default {
         this.threshold.indexOf('') !== -1 ||
         this.threshold.indexOf(null) !== -1
       ) {
+        this.$message.error('The input threshold is illegal!')
+      } else {
         // 转换为数值型数组
         const thresholds = this.threshold.map(Number)
         // 保存阈值数据
-        const { data: res } = await this.axios.put('/gradient/thresholds', {
-          date: this.queryInfo.date,
-          thresholds
-        })
+        const { data: res } = await this.axios.put(
+          `/detect/thresholds/${this.queryInfo.date}`,
+          {
+            thresholds
+          }
+        )
         if (res.meta.status !== 200) {
           this.$message.error('Save failed!')
         } else {
           this.$message.success('Save succeeded!')
         }
-      } else {
-        this.$message.error('The input threshold is illegal!')
       }
     },
     // 是否显示缓冲条
@@ -605,7 +607,7 @@ export default {
       this.isShowLoadding(true) // 显示缓冲条
 
       // 请求数据
-      const { data: res } = await this.axios.get('/gradient/gdata', {
+      const { data: res } = await this.axios.get('/detect/gdata', {
         params: this.queryInfo
       })
       // console.log(res)
@@ -620,21 +622,11 @@ export default {
         this.mapOpt.visualMap.range = [res.data.min, res.data.max]
         this.mapOpt.series[0].data = res.data.geoData
 
+        // 阈值信息
+        this.threshold = res.data.thresholds
+
         this.isSearching = false // 恢复搜索
         this.isShowLoadding(false) // 隐藏缓冲条
-      }
-    },
-    async getThresholdsData() {
-      // 请求数据
-      const { data: res } = await this.axios.get('/gradient/thresholds', {
-        params: this.queryInfo
-      })
-
-      if (res.meta.status !== 200) {
-        // 后台返回错误请求
-        this.$message.error('Failed to get thresholds data!')
-      } else {
-        this.threshold = res.data.thresholds
       }
     },
     // 搜索查询对应日期的数据
@@ -657,7 +649,6 @@ export default {
         this.areaName = null
         // 获取数据
         this.getGradientData()
-        this.getThresholdsData()
       }
     },
     // 海区阈值输入框获取焦点的时候请求梯度数据
