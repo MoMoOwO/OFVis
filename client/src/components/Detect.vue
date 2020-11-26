@@ -30,6 +30,7 @@
               </el-date-picker>
               <el-button
                 type="primary"
+                class="search-btn"
                 :loading="isSearching"
                 @click="searchBtnClicked"
                 >Search</el-button
@@ -53,8 +54,9 @@
             </el-form-item>
             <br />
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">立即创建</el-button>
-              <el-button>取消</el-button>
+              <el-button type="primary" @click="submitNewThreshold"
+                >Submit</el-button
+              >
             </el-form-item>
           </el-form>
         </div>
@@ -93,7 +95,8 @@ export default {
       // 地图配置项
       mapOpt: {
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
+          formatter: (p) => p.marker + ' ' + p.data[2]
         },
         geo: {
           show: true,
@@ -122,57 +125,114 @@ export default {
         },
         visualMap: {
           type: 'continuous', // 连续型
+          seriesIndex: 0,
           min: 0, // 范围
-          max: 0.1306,
-          // right: 750,
-          bottom: 350,
+          max: 0,
+          range: [0, 0],
+          bottom: 330,
           precision: 4,
           calculable: true, // 显示手柄
           inRange: {
-            color: ['#2B83BA', '#ABDDA4', '#FDAE61', '#D7191C'] // color
+            color: [
+              'rgb(0, 0,143.4375)',
+              'rgb(0, 0,159.375)',
+              'rgb(0, 0,175.3125)',
+              'rgb(0, 0,191.25)',
+              'rgb(0, 0,207.1875)',
+              'rgb(0, 0,223.125)',
+              'rgb(0, 0,239.0625)',
+              'rgb(0, 0,255)',
+              'rgb(0, 15.9375,255)',
+              'rgb(0, 31.875,255)',
+              'rgb(0, 47.8125,255)',
+              'rgb(0, 63.75,255)',
+              'rgb(0, 79.6875,255)',
+              'rgb(0, 95.625,255)',
+              'rgb(0, 111.5625,255)',
+              'rgb(0, 127.5,255)',
+              'rgb(0, 143.4375,255)',
+              'rgb(0, 159.375,255)',
+              'rgb(0, 175.3125,255)',
+              'rgb(0, 191.25,255)',
+              'rgb(0, 207.1875,255)',
+              'rgb(0, 223.125,255)',
+              'rgb(0, 239.0625,255)',
+              'rgb(0, 255,255)',
+              'rgb(15.9375, 255,239.0625)',
+              'rgb(31.875, 255,223.125)',
+              'rgb(47.8125, 255,207.1875)',
+              'rgb(63.75, 255,191.25)',
+              'rgb(79.6875, 255,175.3125)',
+              'rgb(95.625, 255,159.375)',
+              'rgb(111.5625, 255,143.4375)',
+              'rgb(127.5, 255,127.5)',
+              'rgb(143.4375, 255,111.5625)',
+              'rgb(159.375, 255,95.625)',
+              'rgb(175.3125, 255,79.6875)',
+              'rgb(191.25, 255,63.75)',
+              'rgb(207.1875, 255,47.8125)',
+              'rgb(223.125, 255,31.875)',
+              'rgb(239.0625, 255,15.9375)',
+              'rgb(255, 255,0)',
+              'rgb(255, 239.0625,0)',
+              'rgb(255, 223.125,0)',
+              'rgb(255, 207.1875,0)',
+              'rgb(255, 191.25,0)',
+              'rgb(255, 175.3125,0)',
+              'rgb(255, 159.375,0)',
+              'rgb(255, 143.4375,0)',
+              'rgb(255, 127.5,0)',
+              'rgb(255, 111.5625,0)',
+              'rgb(255, 95.625,0)',
+              'rgb(255, 79.6875,0)',
+              'rgb(255, 63.75,0)',
+              'rgb(255, 47.8125,0)',
+              'rgb(255, 31.875,0)',
+              'rgb(255, 15.9375,0)',
+              'rgb(255, 0,0)',
+              'rgb(239.0625, 0,0)',
+              'rgb(223.125, 0,0)',
+              'rgb(207.1875, 0,0)',
+              'rgb(191.25, 0,0)',
+              'rgb(175.3125, 0,0)',
+              'rgb(159.375, 0,0)',
+              'rgb(143.4375, 0,0)',
+              'rgb(127.5, 0,0)'
+            ]
           },
+          realtime: false, // 拖拽结束更新视图
           textStyle: {
             color: '#000'
           }
         },
-
         series: [
           {
-            name: 'Temp_grade',
             type: 'scatter',
             coordinateSystem: 'geo',
-            data: [
-              [121.15, 31.89, 0.01],
-              [109.781327, 39.608266, 0.02],
-              [120.38, 37.35, 0.03]
-            ],
+            data: [],
             symbolSize: 3,
-            label: {
-              formatter: '{b}',
-              position: 'right',
-              show: false
-            },
-            emphasis: {
-              label: {
-                show: true
-              }
-            }
+            progressive: 0, // 关闭渐进渲染
+            animation: false // 关闭动画
           },
           {
-            name: '海区',
             type: 'map',
             map: 'seaareas',
             roam: false,
             zoom: 1.5,
             center: [123.1, 31.8],
             itemStyle: {
-              areaColor: 'rgba(255, 255, 255, 0)',
-              borderColor: '#000',
-              borderType: 'dashed',
-              label: {
-                formatter: function (p) {
-                  console.log(p)
-                  return p.name
+              normal: {
+                areaColor: 'rgba(255, 255, 255, 0)',
+                borderColor: '#000',
+                borderType: 'dashed'
+              },
+              emphasis: {
+                areaColor: 'rgba(255, 255, 255, 0)',
+                borderWidth: 1,
+                borderType: 'solid',
+                borderColor: 'red',
+                label: {
+                  show: false
                 }
               }
             },
@@ -182,10 +242,13 @@ export default {
       },
       // 是否正在查询数据
       isSearching: false,
+      // 查询参数
       queryInfo: {
         date: null
       },
+      // 梯度阈值
       threshold: [0],
+      // 海区划分 geoJson 数据
       geojson: {
         type: 'FeatureCollection',
         features: [
@@ -484,7 +547,9 @@ export default {
             }
           }
         ]
-      }
+      },
+      // 高亮的海区 name
+      areaName: null
     }
   },
   mounted() {
@@ -498,24 +563,81 @@ export default {
     this.mapOpt.series[1].map = 'seaareas'
   },
   methods: {
-    onSubmit() {
-      alert('提交了数据！')
+    // 提交修改的阈值数组
+    async submitNewThreshold() {
+      // 阈值数组符合条件
+      if (
+        this.threshold.indexOf('') !== -1 ||
+        this.threshold.indexOf(null) !== -1
+      ) {
+        // 转换为数值型数组
+        const thresholds = this.threshold.map(Number)
+        // 保存阈值数据
+        const { data: res } = await this.axios.put('/gradient/thresholds', {
+          date: this.queryInfo.date,
+          thresholds
+        })
+        if (res.meta.status !== 200) {
+          this.$message.error('Save failed!')
+        } else {
+          this.$message.success('Save succeeded!')
+        }
+      } else {
+        this.$message.error('The input threshold is illegal!')
+      }
+    },
+    // 是否显示缓冲条
+    isShowLoadding(b) {
+      if (b) {
+        this.$refs.mapRef.showLoading({
+          text: 'Loading…',
+          color: '#409EFF',
+          maskColor: 'rgba(255, 255, 255, 0.4)'
+        })
+      } else {
+        this.$refs.mapRef.hideLoading()
+      }
     },
     // 获取数据
     async getGradientData() {
-      this.isSearching = true
+      this.isSearching = true // 禁用搜索
+      this.mapOpt.series[0].data = [] // 清空数据
+      this.isShowLoadding(true) // 显示缓冲条
+
+      // 请求数据
       const { data: res } = await this.axios.get('/gradient/gdata', {
         params: this.queryInfo
       })
-      console.log(res)
+      // console.log(res)
 
-      // 配置地图展示
-      this.mapOpt.visualMap.min = res.data.min
-      this.mapOpt.visualMap.max = res.data.max
-      // this.mapOpt.series[0].data = res.data.geoData
+      if (res.meta.status !== 200) {
+        // 后台返回错误请求
+        this.$message.error('Failed to get gradient data!')
+      } else {
+        // 配置地图展示
+        this.mapOpt.visualMap.min = res.data.min
+        this.mapOpt.visualMap.max = res.data.max
+        this.mapOpt.visualMap.range = [res.data.min, res.data.max]
+        this.mapOpt.series[0].data = res.data.geoData
 
-      this.isSearching = false
+        this.isSearching = false // 恢复搜索
+        this.isShowLoadding(false) // 隐藏缓冲条
+      }
     },
+    async getThresholdsData() {
+      // 请求数据
+      const { data: res } = await this.axios.get('/gradient/thresholds', {
+        params: this.queryInfo
+      })
+
+      if (res.meta.status !== 200) {
+        // 后台返回错误请求
+        this.$message.error('Failed to get thresholds data!')
+      } else {
+        this.threshold = res.data.thresholds
+      }
+    },
+    // 搜索查询对应日期的数据
     searchBtnClicked() {
       if (this.queryInfo.date == null) {
         // 保证已选择 date
@@ -525,27 +647,37 @@ export default {
       } else {
         // this.queryInfo.areaId = index
         // console.log(this.queryInfo)
+        // 将之前的高亮海区 downplay
+        this.areaName == null ||
+          this.$refs.mapRef.dispatchAction({
+            type: 'downplay',
+            seriesIndex: 1,
+            name: this.areaName
+          })
+        this.areaName = null
+        // 获取数据
         this.getGradientData()
+        this.getThresholdsData()
       }
     },
     // 海区阈值输入框获取焦点的时候请求梯度数据
     inputGetFocus(index) {
       // console.log('海区' + index)
+      // 将之前的高亮海区 downplay
+      this.areaName == null ||
+        this.$refs.mapRef.dispatchAction({
+          type: 'downplay',
+          seriesIndex: 1,
+          name: this.areaName
+        })
       // 高亮提示
       this.$refs.mapRef.dispatchAction({
         type: 'highlight',
         seriesIndex: 1,
         name: index + ''
       })
-      // 缓存 this
-      const that = this
-      setTimeout(function () {
-        that.$refs.mapRef.dispatchAction({
-          type: 'downplay',
-          seriesIndex: 1,
-          name: index + ''
-        })
-      }, 500)
+      // 保存高亮海区 areaName
+      this.areaName = index + ''
     }
   }
 }
@@ -567,7 +699,7 @@ export default {
       .el-col-6 {
         padding: 2px;
       }
-      .el-button {
+      .search-btn {
         margin-left: 4px;
       }
     }

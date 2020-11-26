@@ -2,12 +2,13 @@
   <div class="box-plot">
     <v-chart
       ref="boxPlot"
+      theme="infographic"
+      :init-options="this.$store.state.echartInitOption"
       :options="boxOpt"
       @click="boxPlotItemClicked"
       @mouseover="boxPlotItemMouseover"
       @mouseout="boxPlotItemMouseout"
       @restore="boxPlotItemsRestore"
-      theme="infographic"
     />
   </div>
 </template>

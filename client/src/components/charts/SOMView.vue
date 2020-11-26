@@ -2,18 +2,20 @@
   <div class="som-container">
     <!-- UMartix -->
     <v-chart
-      ref="unitMatrixRef"
       class="umartix-container"
       theme="infographic"
+      ref="unitMatrixRef"
+      :init-options="this.$store.state.echartInitOption"
       :options="uMatrixOpt"
       @click="uMatrixItemClicked"
       @dblclick="uMatrixItemdblClicked"
     ></v-chart>
     <!-- WeightMartix -->
     <v-chart
-      ref="weightMartixRef"
       class="wmartix-container"
       theme="infographic"
+      ref="weightMartixRef"
+      :init-options="this.$store.state.echartInitOption"
       :options="wMatrixOpt"
     ></v-chart>
     <!-- Tree-List -->
@@ -67,6 +69,7 @@
       <swiper-slide>
         <v-chart
           ref="paralleRef"
+          :init-options="this.$store.state.echartInitOption"
           :options="paralleOpt"
           @axisareaselected="selectedAreaOnParalle"
         ></v-chart>
@@ -75,6 +78,7 @@
         <v-chart
           ref="scatterRef"
           theme="infographic"
+          :init-options="this.$store.state.echartInitOption"
           :options="timeSeriesScatterOpt"
         ></v-chart>
       </swiper-slide>
@@ -794,9 +798,9 @@ export default {
         children: childrenData
       })
       if (res.meta.status !== 200) {
-        this.$message.error('保存失败！')
+        this.$message.error('Save failed!')
       } else {
-        this.$message.success('保存成功！')
+        this.$message.success('Save succeeded!')
       }
     },
     // UMatrix 点选
