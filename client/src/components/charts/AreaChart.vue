@@ -2,17 +2,19 @@
   <div class="areaContainer">
     <v-chart
       class="calendarContainer"
-      ref="calendarChartRef"
-      :options="calendarOpt"
       theme="infographic"
+      ref="calendarChartRef"
+      :init-options="this.$store.state.echartInitOption"
+      :options="calendarOpt"
       @click="calendarItemClicked"
       @dblclick="calendarItemdbClicked"
     ></v-chart>
     <v-chart
       class="barContainer"
-      ref="barChartRef"
-      :options="barOpt"
       theme="infographic"
+      ref="barChartRef"
+      :init-options="this.$store.state.echartInitOption"
+      :options="barOpt"
       @click="barItemClicked"
     ></v-chart>
   </div>

@@ -1,9 +1,10 @@
 <template>
   <div class="line-chart">
     <v-chart
-      ref="lineChart"
-      :options="this.type === 'polarOpt' ? this.polarOpt : this.lineOpt"
       theme="infographic"
+      ref="lineChart"
+      :init-options="this.$store.state.echartInitOption"
+      :options="this.type === 'polarOpt' ? this.polarOpt : this.lineOpt"
       @click="lineItemClick"
     />
   </div>
