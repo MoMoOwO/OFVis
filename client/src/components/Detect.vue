@@ -570,10 +570,12 @@ export default {
         this.threshold.indexOf('') !== -1 ||
         this.threshold.indexOf(null) !== -1
       ) {
+        // 转换为数值型数组
+        const thresholds = this.threshold.map(Number)
         // 保存阈值数据
         const { data: res } = await this.axios.put('/gradient/thresholds', {
           date: this.queryInfo.date,
-          thresholds: this.threshold
+          thresholds
         })
         if (res.meta.status !== 200) {
           this.$message.error('Save failed!')
