@@ -54,7 +54,7 @@ router.put('/clustertree/:name', function (req, res, next) {
       console.log('/som/clustertree/:name err:' + err);
       res.status(400).json({ meta: { msg: '保存 Cluster-Tree 数据失败！', status: 400 } });
     } else {
-      res.status(400).json({ data: 'Save Cluster Tree Data Success!', meta: { msg: '保存 Cluster-Tree 数据成功！', status: 400 } });
+      res.status(200).json({ data: 'Save Cluster Tree Data Success!', meta: { msg: '保存 Cluster-Tree 数据成功！', status: 200 } });
     }
   })
 });
