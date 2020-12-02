@@ -672,6 +672,7 @@ export default {
     async submitNewThreshold() {
       // 阈值数组符合条件
       if (
+        this.threshold.length !== 14 ||
         this.threshold.indexOf('') !== -1 ||
         this.threshold.indexOf(null) !== -1
       ) {
