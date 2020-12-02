@@ -11,6 +11,7 @@
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "echarts": "^4.8.0",
+    "echarts-gl": "^1.1.1",
     "element-ui": "^2.13.2",
     "leaflet": "^1.6.0",
     "vue": "^2.6.11",

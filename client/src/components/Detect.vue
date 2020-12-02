@@ -40,19 +40,30 @@
               <el-col v-for="index in 13" :key="index" :span="6">
                 <el-input
                   type="number"
-                  :placeholder="'Area' + index"
+                  :placeholder="'RGN' + index"
                   v-model="threshold[index]"
                   @focus="inputGetFocus(index)"
                 ></el-input>
-                <el-col></el-col>
               </el-col>
             </el-form-item>
-            <br />
-            <el-form-item>
-              {{ threshold }}
-              <div>{{ queryInfo.date }}</div>
+            <el-form-item label="Comfirm" v-show="isComfirmShow">
+              <div>
+                <el-tag>{{ queryInfo.date }}</el-tag>
+              </div>
+              <el-col v-for="index in 13" :key="index" :span="6">
+                <el-tag
+                  :type="
+                    threshold[index] === oldThreshold[index]
+                      ? 'success'
+                      : 'danger'
+                  "
+                  effect="dark"
+                  size="medium"
+                >
+                  RGN{{ index }}: {{ threshold[index] }}
+                </el-tag>
+              </el-col>
             </el-form-item>
-            <br />
             <el-form-item>
               <el-button type="primary" @click="submitNewThreshold"
                 >Submit</el-button
@@ -76,6 +87,9 @@ import 'echarts/lib/component/visualMap'
 import 'echarts/lib/component/tooltip'
 import 'echarts/map/js/world'
 
+// gl
+import 'echarts-gl'
+
 export default {
   components: {
     'v-chart': ECharts
@@ -94,10 +108,7 @@ export default {
       },
       // 地图配置项
       mapOpt: {
-        tooltip: {
-          trigger: 'item',
-          formatter: (p) => p.marker + ' ' + p.data[2]
-        },
+        // tooltip 不起作用
         geo: {
           show: true,
           map: 'world',
@@ -200,19 +211,19 @@ export default {
               'rgb(127.5, 0,0)'
             ]
           },
-          realtime: false, // 拖拽结束更新视图
+          // realtime: false, // 拖拽结束更新视图
           textStyle: {
             color: '#000'
           }
         },
         series: [
           {
-            type: 'scatter',
+            type: 'scatterGL',
             coordinateSystem: 'geo',
             data: [],
-            symbolSize: 3,
-            progressive: 0, // 关闭渐进渲染
-            animation: false // 关闭动画
+            symbolSize: 3
+            // progressive: 0, // 关闭渐进渲染
+            // animation: false // 关闭动画
           },
           {
             type: 'map',
@@ -247,7 +258,10 @@ export default {
         date: null
       },
       // 梯度阈值
-      threshold: [0],
+      threshold: [],
+      // 梯度阈值副本，用于比对
+      oldThreshold: [],
+      isComfirmShow: false,
       // 海区划分 geoJson 数据
       geojson: {
         type: 'FeatureCollection',
@@ -563,31 +577,6 @@ export default {
     this.mapOpt.series[1].map = 'seaareas'
   },
   methods: {
-    // 提交修改的阈值数组
-    async submitNewThreshold() {
-      // 阈值数组符合条件
-      if (
-        this.threshold.indexOf('') !== -1 ||
-        this.threshold.indexOf(null) !== -1
-      ) {
-        this.$message.error('The input threshold is illegal!')
-      } else {
-        // 转换为数值型数组
-        const thresholds = this.threshold.map(Number)
-        // 保存阈值数据
-        const { data: res } = await this.axios.put(
-          `/detect/thresholds/${this.queryInfo.date}`,
-          {
-            thresholds
-          }
-        )
-        if (res.meta.status !== 200) {
-          this.$message.error('Save failed!')
-        } else {
-          this.$message.success('Save succeeded!')
-        }
-      }
-    },
     // 是否显示缓冲条
     isShowLoadding(b) {
       if (b) {
@@ -605,6 +594,7 @@ export default {
       this.isSearching = true // 禁用搜索
       this.mapOpt.series[0].data = [] // 清空数据
       this.isShowLoadding(true) // 显示缓冲条
+      this.isComfirmShow = false // 不显示确认信息
 
       // 请求数据
       const { data: res } = await this.axios.get('/detect/gdata', {
@@ -624,9 +614,11 @@ export default {
 
         // 阈值信息
         this.threshold = res.data.thresholds
+        this.oldThreshold = JSON.parse(JSON.stringify(res.data.thresholds))
 
         this.isSearching = false // 恢复搜索
         this.isShowLoadding(false) // 隐藏缓冲条
+        this.isComfirmShow = true // 显示确认信息
       }
     },
     // 搜索查询对应日期的数据
@@ -669,6 +661,31 @@ export default {
       })
       // 保存高亮海区 areaName
       this.areaName = index + ''
+    },
+    // 提交修改的阈值数组
+    async submitNewThreshold() {
+      // 阈值数组符合条件
+      if (
+        this.threshold.indexOf('') !== -1 ||
+        this.threshold.indexOf(null) !== -1
+      ) {
+        this.$message.error('The input threshold is illegal!')
+      } else {
+        // 转换为数值型数组
+        const thresholds = this.threshold.map(Number)
+        // 保存阈值数据
+        const { data: res } = await this.axios.put(
+          `/detect/thresholds/${this.queryInfo.date}`,
+          {
+            thresholds
+          }
+        )
+        if (res.meta.status !== 200) {
+          this.$message.error('Save failed!')
+        } else {
+          this.$message.success('Save succeeded!')
+        }
+      }
     }
   }
 }
@@ -692,6 +709,9 @@ export default {
       }
       .search-btn {
         margin-left: 4px;
+      }
+      .el-tag {
+        padding: 0 5px;
       }
     }
   }
