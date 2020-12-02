@@ -3,6 +3,7 @@ var router = express.Router();
 // 引入自定义数据库操作模块
 const OTDataModel = require('../modules/otdata');
 const ThresholdModel = require('../modules/threshold');
+const ImgDataModel = require('../modules/imgdata');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -62,7 +63,16 @@ router.get('/gdata', async function (req, res, next) {
     res.status(400).json({ meta: { msg: '查询温度梯度阈值数据出错！', status: 400 } });
   }
 
-  res.status(200).json({ data: { geoData, max, min, thresholds }, meta: { msg: '获取海温梯度数据成功！', status: 200 } });
+  const imgDocs = await ImgDataModel.find({ fileName: date }, { _id: 0, fileName: 1, base64Str: 1 });
+  let base64Img = '';
+  if (imgDocs.length) {
+    base64Img = imgDocs[0].base64Str;
+  } else {
+    console.log('/gradient/gdata err' + err);
+    res.status(400).json({ meta: { msg: '查询温度梯度图片数据出错！', status: 400 } });
+  }
+
+  res.status(200).json({ data: { geoData, max, min, thresholds, base64Img }, meta: { msg: '获取海温梯度数据成功！', status: 200 } });
 
 });
 
