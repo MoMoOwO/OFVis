@@ -77,9 +77,8 @@ router.get('/gdata', async function (req, res, next) {
 });
 
 router.put('/thresholds/:date', function (req, res, next) {
-  console.log(req.params, req.body)
   // 提交修改阈值
-  ClusterTreeModel.updateOne(req.params, req.body, (err, doc) => {
+  ThresholdModel.updateOne(req.params, req.body, (err, doc) => {
     if (err) {
       console.log('/thresholds/:date err:' + err);
       res.status(400).json({ meta: { msg: 'Save thresholds failed!', status: 400 } });
