@@ -6,6 +6,7 @@
           <span>Ocean fronts detection in subdivided sea areas</span>
         </div>
         <div class="card-body">
+          <img :src="OFImg" />
           <v-chart
             ref="mapRef"
             class="map-container"
@@ -97,6 +98,7 @@ export default {
   props: [],
   data() {
     return {
+      OFImg: '',
       // 日期可选范围
       pickerOptions: {
         disabledDate(time) {
@@ -110,7 +112,6 @@ export default {
       mapOpt: {
         // tooltip 不起作用
         geo: {
-          show: true,
           map: 'world',
           label: {
             normal: {
@@ -140,9 +141,11 @@ export default {
           min: 0, // 范围
           max: 0,
           range: [0, 0],
+          text: ['High', 'Low'],
           bottom: 330,
           precision: 4,
           calculable: true, // 显示手柄
+          hoverLink: false,
           inRange: {
             color: [
               'rgb(0, 0,143.4375)',
@@ -247,7 +250,8 @@ export default {
                 }
               }
             },
-            silent: true
+            silent: true,
+            zlevel: 15
           }
         ]
       },
@@ -595,6 +599,7 @@ export default {
       this.mapOpt.series[0].data = [] // 清空数据
       this.isShowLoadding(true) // 显示缓冲条
       this.isComfirmShow = false // 不显示确认信息
+      this.OFImg = '' // 清空图片
 
       // 请求数据
       const { data: res } = await this.axios.get('/detect/gdata', {
@@ -611,6 +616,7 @@ export default {
         this.mapOpt.visualMap.max = res.data.max
         this.mapOpt.visualMap.range = [res.data.min, res.data.max]
         this.mapOpt.series[0].data = res.data.geoData
+        this.OFImg = res.data.img
 
         // 阈值信息
         this.threshold = res.data.thresholds
@@ -666,6 +672,7 @@ export default {
     async submitNewThreshold() {
       // 阈值数组符合条件
       if (
+        this.threshold.length !== 14 ||
         this.threshold.indexOf('') !== -1 ||
         this.threshold.indexOf(null) !== -1
       ) {
