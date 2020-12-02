@@ -7,7 +7,7 @@ import Vue from 'vue'
 import {
   Button, Message, Container, Header, Main, Alert,
   Card, Tooltip, Select, Option, ColorPicker, Switch,
-  Dialog, Form, FormItem, DatePicker, Input, Col
+  Dialog, Form, FormItem, DatePicker, Input, Col, Tag
 } from 'element-ui'
 // 国际化配置
 import enLang from 'element-ui/lib/locale/lang/en'
@@ -36,5 +36,6 @@ Vue.use(FormItem)
 Vue.use(DatePicker)
 Vue.use(Input)
 Vue.use(Col)
+Vue.use(Tag)
 // 全局挂载 message 组件
 Vue.prototype.$message = Message
