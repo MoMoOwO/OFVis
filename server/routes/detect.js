@@ -77,7 +77,7 @@ router.get('/gdata', async function (req, res, next) {
 });
 
 router.put('/thresholds/:date', function (req, res, next) {
-  // 获取查询参数
+  // 提交修改阈值
   ClusterTreeModel.updateOne(req.params, req.body, (err, doc) => {
     if (err) {
       console.log('/thresholds/:date err:' + err);
