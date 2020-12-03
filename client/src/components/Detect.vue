@@ -6,7 +6,7 @@
           <span>Ocean fronts detection in subdivided sea areas</span>
         </div>
         <div class="card-body">
-          <img :src="OFImg" />
+          <img :src="OFImg" class="of-img" :class="{ blur: isSearching }" />
           <v-chart
             ref="mapRef"
             class="map-container"
@@ -294,7 +294,7 @@ export default {
           },
           {
             properties: {
-              name: '2',
+              name: '3',
               drawtype: 'polygon'
             },
             type: 'Feature',
@@ -317,7 +317,7 @@ export default {
           },
           {
             properties: {
-              name: '3',
+              name: '2',
               drawtype: 'polygon'
             },
             type: 'Feature',
@@ -384,7 +384,7 @@ export default {
           },
           {
             properties: {
-              name: '6',
+              name: '7',
               drawtype: 'polygon'
             },
             type: 'Feature',
@@ -403,7 +403,7 @@ export default {
           },
           {
             properties: {
-              name: '7',
+              name: '8',
               drawtype: 'polygon'
             },
             type: 'Feature',
@@ -426,7 +426,7 @@ export default {
           },
           {
             properties: {
-              name: '8',
+              name: '10',
               drawtype: 'polygon'
             },
             type: 'Feature',
@@ -447,7 +447,7 @@ export default {
           },
           {
             properties: {
-              name: '9',
+              name: '11',
               drawtype: 'polygon'
             },
             type: 'Feature',
@@ -468,7 +468,7 @@ export default {
           },
           {
             properties: {
-              name: '10',
+              name: '9',
               drawtype: 'polygon'
             },
             type: 'Feature',
@@ -491,7 +491,7 @@ export default {
           },
           {
             properties: {
-              name: '11',
+              name: '6',
               distance: '1845824.01 m',
               drawtype: 'polygon',
               area: '21646118.32 ha'
@@ -599,7 +599,7 @@ export default {
       this.mapOpt.series[0].data = [] // 清空数据
       this.isShowLoadding(true) // 显示缓冲条
       this.isComfirmShow = false // 不显示确认信息
-      this.OFImg = '' // 清空图片
+      // this.OFImg = '' // 清空图片
 
       // 请求数据
       const { data: res } = await this.axios.get('/detect/gdata', {
@@ -616,7 +616,7 @@ export default {
         this.mapOpt.visualMap.max = res.data.max
         this.mapOpt.visualMap.range = [res.data.min, res.data.max]
         this.mapOpt.series[0].data = res.data.geoData
-        this.OFImg = res.data.img
+        this.OFImg = res.data.base64Img
 
         // 阈值信息
         this.threshold = res.data.thresholds
@@ -653,6 +653,7 @@ export default {
     inputGetFocus(index) {
       // console.log('海区' + index)
       // 将之前的高亮海区 downplay
+      console.log('海区' + index)
       this.areaName == null ||
         this.$refs.mapRef.dispatchAction({
           type: 'downplay',
@@ -690,6 +691,8 @@ export default {
         if (res.meta.status !== 200) {
           this.$message.error('Save failed!')
         } else {
+          this.threshold = []
+          this.isComfirmShow = false
           this.$message.success('Save succeeded!')
         }
       }
@@ -704,6 +707,15 @@ export default {
   justify-content: center;
   .card-body {
     display: flex;
+    .of-img {
+      height: 570px;
+      margin: 75px 10px 0px 0px;
+    }
+    .blur {
+      // 模糊样式
+      filter: blur(15px);
+      -webkit-filter: blur(15px);
+    }
     .map-container {
       width: 400px;
       height: 700px;
