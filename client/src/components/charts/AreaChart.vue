@@ -200,6 +200,12 @@ export default {
         this.getAreaData()
       },
       deep: true
+    },
+    yearChoosed: {
+      handler: function (newVal) {
+        this.queryInfo.year = newVal
+        this.getAreaData()
+      }
     }
   },
   methods: {
