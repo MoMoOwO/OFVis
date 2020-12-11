@@ -23,30 +23,40 @@
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
             <span>Area-Chart</span>
-            <el-tooltip content="Click to see tips." placement="top" effect="light">
-              <el-button type="text" icon="el-icon-info" @click="tipClick('areaChart')"></el-button>
-            </el-tooltip>
+            <div class="optPanel">
+              <el-select
+                style="width: 120px;"
+                size="mini"
+                v-model="yearChoosed"
+              >
+                <el-option
+                  v-for="item in yearList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+              <el-tooltip content="Click to see tips." placement="top" effect="light">
+                <el-button type="text" icon="el-icon-info" @click="tipClick('areaChart')"></el-button>
+              </el-tooltip>
+            </div>
+
           </div>
           <!-- 卡片内容区域，图表区域 -->
           <!-- <area-chart></area-chart> -->
           <!-- 面积图区域，可滑动切换年份 -->
-          <swiper ref="areaChartSwiperRef" :options="areaChartSwiperOptions">
-            <swiper-slide v-for="year in areaChartYearArr" :key="year">
-              <area-chart :yearChoosed="year"></area-chart>
-            </swiper-slide>
-            <div class="swiper-pagination" click="swiperPaginationClicked" slot="pagination"></div>
-          </swiper>
+          <area-chart :yearChoosed='yearChoosed'></area-chart>
         </el-card>
         <!-- 面积周期比较折线图容器 -->
         <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
             <span>Area-Periodogram</span>
             <div class="optPanel">
+              <!-- 折线图坐标系选择 -->
               <el-select
                 style="width: 120px;"
                 size="mini"
                 v-model="lineTypeChoosed"
-                placeholder="choose"
               >
                 <el-option
                   v-for="item in lineType"
@@ -144,22 +154,13 @@ import SomView from './charts/SOMView.vue'
 export default {
 	data() {
 		return {
-			// 日历柱状面积图 swiper 配置项
-			areaChartSwiperOptions: {
-				direction: 'vertical', // 垂直方向移动
-				autoHeight: true,
-				height: 825,
-				pagination: '.swiper-pagination',
-				paginationClickable: true,
-				onSlideChangeEnd: swiper => {
-					// 修改在 gallery 上显示的年份数据
-					this.$store.commit(
-						'changeYearOnGallery',
-						this.areaChartYearArr[swiper.realIndex]
-					)
-				}
-			},
-			areaChartYearArr: [2015, 2016, 2017],
+      yearList: [
+        { value: '2015', label: '2015' },
+        { value: '2016', label: '2016' },
+        { value: '2017', label: '2017' }
+      ],
+      // yearChoosed: '2015',
+      areaChartYearArr: ['2015', '2016', '2017'],
 			// 折线图类型选项数组
 			lineType: [
 				{ value: 'polarOpt', label: 'Polar' },
@@ -194,10 +195,16 @@ export default {
 		SomView
 	},
 	computed: {
-		swiper() {
-			return this.$refs.areaChartSwiperRef.swiper
-		}
-	},
+    // 双向绑定选择的年份
+    yearChoosed: {
+      get() {
+        return this.$store.state.yearOnGallery
+      },
+      set(value) {
+        this.$store.commit('changeYearOnGallery', value)
+      }
+    }
+  },
 	methods: {
 		// 点击各个图表的 tips
 		tipClick(chart) {
