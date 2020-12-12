@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var dataRouter = require('./routes/data');
 var imgRouter = require('./routes/image');
 var somRouter = require('./routes/somdata');
+var somRouter1 = require('./routes/somdata1');
 var detectRouter = require('./routes/detect')
 
 var app = express();
@@ -27,6 +28,7 @@ app.use('/', indexRouter);
 app.use('/data', dataRouter);
 app.use('/img', imgRouter);
 app.use('/som', somRouter);
+app.use('/somv', somRouter1);
 app.use('/detect', detectRouter);
 
 // catch 404 and forward to error handler
