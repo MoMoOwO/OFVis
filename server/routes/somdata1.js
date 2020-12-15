@@ -169,7 +169,7 @@ router.get('/somresult', async function (req, res, next) {
     { name: 'LALSR', index: 7, text: 'LALSR' }
   ];
 
-  res.status(200).json({ data: { min, max, size, UMatrix, unitCount, WMatrix, samplesSet, samplesSetSchemaToParallel }, meta: { msg: '获取 SOM-Result 成功！', status: 200 } });
+  res.status(200).json({ data: { min, max, size, UMatrix, unitCount, indicatorArr, WMatrix, samplesSet, samplesSetSchemaToParallel }, meta: { msg: '获取 SOM-Result 成功！', status: 200 } });
 });
 
 module.exports = router;
