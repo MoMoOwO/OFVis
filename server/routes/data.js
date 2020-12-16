@@ -34,7 +34,7 @@ router.get('/areadata', (req, res, next) => {
         for (let doc of docs) {
           // 根据区域计算面积
           let area = 0;
-          for (let obj of doc.StatisticsData) {
+          for (let obj of doc.statistics) {
             if (regionId == 'all') { // 总面积
               area += obj.Area;
             } else if (obj.regionId == +regionId) { // 某个区域面积
@@ -77,7 +77,7 @@ router.get('/areadata', (req, res, next) => {
         for (let doc of docs) {
           // 根据区域计算面积
           let area = 0;
-          for (let obj of doc.StatisticsData) {
+          for (let obj of doc.statistics) {
             if (regionId == 'all') { // 总面积
               area += obj.Area;
             } else if (obj.regionId == +regionId) { // 某个区域面积
@@ -127,7 +127,7 @@ router.get('/boxdata', (req, res, next) => {
         console.log('/data/boxdata err' + err);
         res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
       } else {
-        let statData = docs[0].StatisticsData;
+        let statData = docs[0].statistics;
         // 遍历海域添加各海域箱线图数据
         for (let obj of statData) {
           if (!isNaN(obj.Upper)) { // 存在箱线图数据
@@ -152,7 +152,7 @@ router.get('/boxdata', (req, res, next) => {
       } else {
         for (let doc of docs) {
           let index = +regionId - 1;
-          let statData = doc.StatisticsData[index];
+          let statData = doc.statistics[index];
           if (!isNaN(statData.Upper)) { // 存在箱线图数据
             axisData.push(doc.date);
             boxData.push([statData.Lower, statData.Q1, statData.Median, statData.Q3, statData.Upper]);
