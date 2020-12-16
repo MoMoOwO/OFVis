@@ -76,10 +76,10 @@
       </swiper-slide>
       <swiper-slide>
         <v-chart
-          ref="scatterRef"
+          ref="timeVariantChartRef"
           theme="infographic"
           :init-options="this.$store.state.echartInitOption"
-          :options="timeSeriesScatterOpt"
+          :options="timeVariantChartOpt"
         ></v-chart>
       </swiper-slide>
       <div class="swiper-pagination" slot="pagination"></div>
@@ -107,34 +107,25 @@ export default {
       // color: '#409EFF',
       // 提供的预选色
       predefineColors: [
-        '#a6cee3',
-        '#1f78b4',
-        '#b2df8a',
-        '#33a02c',
-        '#fb9a99',
-        '#e31a1c',
-        '#fdbf6f',
+        '#e41a1c',
+        '#377eb8',
+        '#4daf4a',
+        '#984ea3',
         '#ff7f00',
-        '#cab2d6',
-        '#6a3d9a',
-        '#ffff99',
-        '#b15928'
+        '#ffff33'
       ],
       // 聚类选用的颜色
-      clustersColors: [
-        '#1F78B4',
-        '#33A02C',
-        '#FB9A99',
-        '#FDBF6F',
-        '#6A3D9A',
-        '#FFFF99'
-      ],
+      clustersColors: ['#e41a1c', '#377eb8', '#4daf4a'],
       // unit 样本统计数据，用于刷新 series，无类别标识
       unitCountData: [],
       // 散点原数据，无类别标识
       clusterScatterData: [],
       // 样本数据原数据，无类别标识
       sampleDataSet: [],
+      // 权重矩阵的原数据
+      weightMatrixData: [],
+      // 雷达图指示器
+      indicatorArr: [],
       // UMatrix 配置项
       uMatrixOpt: {
         title: {
@@ -222,7 +213,7 @@ export default {
               color: (p) => this.clustersColors[p.data[4]]
             },
             tooltip: {
-              formatter: (p) => `Sample Count: ${p.data[2]}`
+              formatter: (p) => `Samples Count: ${p.data[2]}`
             }
           }
         ]
@@ -308,45 +299,6 @@ export default {
           editNodeDisabled: false,
           delNodeDisabled: false,
           children: []
-        },
-        {
-          id: 4,
-          isLeaf: false,
-          name: 'Cluster 4',
-          clusterId: 3,
-          pid: 0,
-          dragDisabled: true,
-          addTreeNodeDisabled: true,
-          addLeafNodeDisabled: true,
-          editNodeDisabled: false,
-          delNodeDisabled: false,
-          children: []
-        },
-        {
-          id: 5,
-          isLeaf: false,
-          name: 'Cluster 5',
-          clusterId: 4,
-          pid: 0,
-          dragDisabled: true,
-          addTreeNodeDisabled: true,
-          addLeafNodeDisabled: true,
-          editNodeDisabled: false,
-          delNodeDisabled: false,
-          children: []
-        },
-        {
-          id: 6,
-          isLeaf: false,
-          name: 'Cluster 6',
-          clusterId: 5,
-          pid: 0,
-          dragDisabled: true,
-          addTreeNodeDisabled: true,
-          addLeafNodeDisabled: true,
-          editNodeDisabled: false,
-          delNodeDisabled: false,
-          children: []
         }
       ]),
       // 平行坐标图与时序散点图切换 swiper 配置项
@@ -358,6 +310,9 @@ export default {
       },
       // 平行坐标图配置项
       paralleOpt: {
+        legend: {
+          data: []
+        },
         toolbox: {
           feature: {
             brush: {
@@ -385,15 +340,15 @@ export default {
         },
         parallelAxis: [
           { dim: 3, name: "Moran's I" },
-          { dim: 4, name: 'Mode' },
-          { dim: 5, name: 'IQR' },
-          { dim: 6, name: 'Skewness' },
-          { dim: 7, name: 'Ex_Kurtosis' }
+          { dim: 4, name: 'IQR' },
+          { dim: 5, name: 'Skewness' },
+          { dim: 6, name: 'SDD' },
+          { dim: 7, name: 'LALSR' }
         ],
         series: []
       },
       // 时序散点图配置项
-      timeSeriesScatterOpt: {
+      timeVariantChartOpt: {
         xAxis: { type: 'category' },
         yAxis: {
           type: 'category',
@@ -432,14 +387,14 @@ export default {
         series: {
           symbolSize: 10,
           data: [], // [x, y, unitId, clusterId]
-          type: 'scatter',
+          type: 'heatmap',
           itemStyle: {
             color: (p) => this.clustersColors[p.data[3]]
           }
         }
       },
       selectedUnitIndex: [], // 选中项索引
-      selectedUnitIdOnUMatrix: [], // 选中的日期
+      selectedUnitIdOnUMatrix: [], // 选中的 unitId
       timer: null, // 延时器
       itemSeriesHightlightDataIndex: [] //
     }
@@ -453,7 +408,7 @@ export default {
     this.getClusterTreeData() // 先获取该数据，因为图表要使用该数据
   },
   mounted() {
-    this.getSOMResult()
+    this.getSOMResult() // 获取 SOM 聚类信息
   },
   methods: {
     // 是否显示缓冲条
@@ -517,136 +472,180 @@ export default {
       if (res.meta.status !== 200) {
         this.$message.error('Failed to get matrix data!')
       } else {
+        this.unitCountData = res.data.unitCount // 保存原数据 备份节点样本统计数据
         // UMatrix 矩阵
-        this.uMatrixOpt.visualMap.min = res.data.min
-        this.uMatrixOpt.visualMap.max = res.data.max
-        this.uMatrixOpt.series[0].data = res.data.UMatrix // [x, y, dis, unitId]
-        this.unitCountData = res.data.unitCount // 保存原数据
-        const unitCount = res.data.unitCount
-        for (const item of unitCount) {
-          item.push(this.getClusterID(item[3])) // [x, y, count, unitId, clusterId]
-        }
-        this.uMatrixOpt.series[1].data = unitCount
+        this.setUMatrix(
+          res.data.min,
+          res.data.max,
+          res.data.UMatrix,
+          res.data.unitCount
+        )
 
+        this.weightMatrixData = res.data.WMatrix
+        this.indicatorArr = res.data.indicatorArr
         // 权重矩阵
-        this.wMatrixOpt.xAxis.max = res.data.size
-        this.wMatrixOpt.yAxis.max = res.data.size
-        const seriesData = this.getPieMartrixSeries(res.data.weightsMatrix)
-        this.$refs.weightMartixRef.mergeOptions({
-          series: [
-            {
-              name: 'cluster',
-              symbolSize: 35,
-              hoverAnimation: false,
-              type: 'scatter',
-              data: seriesData.scatterSeriesData, // [x, y, unitId, clusterId]
-              itemStyle: {
-                color: (p) => this.clustersColors[p.data[3]]
-              },
-              tooltip: {
-                formatter: (p) => `Unit ${p.data[2]}`
-              }
-            },
-            {
-              symbolSize: 30,
-              // hoverAnimation: false,
-              type: 'scatter',
-              data: seriesData.scatterSeriesData, // [x, y, unitId, clusterId]
-              itemStyle: {
-                color: '#fff',
-                opacity: 1
-              },
-              tooltip: {
-                show: false
-              },
-              slient: true,
-              animation: false,
-              z: 10
-            }
-          ]
-        })
+        this.setWeightsMatrix(res.data.WMatrix, res.data.indicatorArr)
 
-        this.$refs.weightMartixRef.mergeOptions({
-          tooltip: {
-            formatter: (p) => {
-              let name = p.name
-              if (name === 'Qd') name = 'IQR'
-              return `${p.marker}${name}：${p.value.toFixed(4)}`
-            }
-          },
-          legend: {
-            data: ["Moran's I", 'Mode', 'Qd', 'Skewness', 'Excess_Kurtosis'],
-            formatter: (name) => {
-              if (name === 'Excess_Kurtosis') return 'Ex_Kurtosis'
-              if (name === 'Qd') return 'IQR'
-              return name
-            },
-            selectedMode: false,
-            icon: 'circle',
-            itemWidth: 7,
-            itemHeight: 7,
-            textStyle: {
-              fontSize: 12,
-              color: '#ffff0'
-            },
-            top: 23
-          },
-          series: seriesData.pieSeries
-        })
+        this.sampleDataSet = res.data.samplesSet // 保存原数据 备份样本数据
+        // 平行坐标图
+        this.setParallelChart(res.data.samplesSet)
+        // 时空演变图
+        this.setTimeVariantChart(res.data.samplesSet)
 
-        // 平行坐标轴
-        this.sampleDataSet = res.data.dataSet // 保存原数据
-        const seriesDataObj = this.getParallelAndScatterData(res.data.dataSet)
-        this.paralleOpt.series = seriesDataObj.parallelSeries
-
-        // 时序散点图
-        this.timeSeriesScatterOpt.series.data = seriesDataObj.scatterData
-
-        this.showTree = true
-        this.isShowLoadding(false)
+        // 图表渲染完毕
+        this.showTree = true // 显示 TreeList
+        this.isShowLoadding(false) // 隐藏 loading
       }
     },
-    // 获取权重矩阵图数据
-    getPieMartrixSeries(weightsMatrix) {
-      const pieSeries = []
-      const scatterSeriesData = []
-      for (const item of weightsMatrix) {
-        // 获取饼图的中心点
+    // 创建 UMatrix
+    /**
+     * @param {Number} min 距离颜色映射最小值
+     * @param {Number} max 距离颜色映射最大值
+     * @param {Array} UMatrix 距离矩阵数据
+     * @param {Array} unitCount 结点样本统计数据
+     */
+    setUMatrix(min, max, UMatrix, unitCount) {
+      // 颜色映射的最大最小值
+      this.uMatrixOpt.visualMap.min = min
+      this.uMatrixOpt.visualMap.max = max
+      // UMatrix series 数据
+      this.uMatrixOpt.series[0].data = UMatrix // [x, y, dis, unitId] 添加外层聚类矩阵灰度图数据
+      // 每个结点 样本统计数据
+      for (const item of unitCount) {
+        item.push(this.getClusterID(item[3])) // [x, y, count, unitId, clusterId] 为每个结点添加类别信息
+      }
+      this.uMatrixOpt.series[1].data = unitCount // 在 UMatrix 中添加结点样本统计数据
+    },
+    // 根据数据用于创建权重矩阵图
+    /**
+     * @param {Number} size 坐标轴最大值
+     * @param {Array} WMatrix 后台返回的权重矩阵数据
+     * @param {Array} indicatorArr 用于雷达图的指标数组
+     */
+    setWeightsMatrix(WMatrix, indicatorArr) {
+      const radar = [] // 雷达图坐标系
+      const radarSeries = [] // 雷达图 series
+      const scatterData = [] // 散点图数据
+
+      // 遍历 WMatrix 获取雷达图坐标系和 series 获取散点图数据
+      for (const item of WMatrix) {
+        // item [x, y, [radarSeriesData], unitId]
+        // 获取雷达图中心点
         const center = this.$refs.weightMartixRef.convertToPixel(
           { xAxisIndex: 0, yAxisIndex: 0 },
           [item[0] + '', item[1] + '']
         )
-        pieSeries.push({
-          id: item[3],
-          type: 'pie',
+        // 设置并添加雷达图坐标系
+        radar.push({
+          indicator: indicatorArr,
           center: center,
-          animation: false,
-          label: {
+          radius: 14,
+          name: {
+            show: true,
+            textStyle: {
+              color: 'transparent'
+            }
+          },
+          axisLine: {
+            // show: false
+          },
+          splitLine: {
             show: false
           },
-          z: 99,
-          radius: 15,
-          roseType: 'radius',
-          data: item[2]
+          splitArea: {
+            show: false
+          },
+          z: 20
         })
-        // 保留原始数据
-        this.clusterScatterData.push([item[0] + '', item[1] + '', item[3]])
-        scatterSeriesData.push([
-          item[0],
-          item[1],
+        // 添加雷达图 series
+        radarSeries.push({
+          type: 'radar',
+          name: 'Unit ' + item[3],
+          radarIndex: item[3],
+          symbol: 'none',
+          areaStyle: {
+            normal: {
+              opacity: 1,
+              color: '#ccc'
+            }
+          },
+          lineStyle: {
+            color: '#ccc'
+          },
+          data: item[2],
+          z: 20
+        })
+
+        // 获取散点数据信息，用于外层圆圈
+        scatterData.push([
+          item[0] + '',
+          item[1] + '',
           item[3],
           this.getClusterID(item[3])
         ]) // [x, y, unitId, clusterId]
       }
-      return { pieSeries, scatterSeriesData }
+
+      // 散点图 series
+      const scatterSeries = [
+        {
+          name: 'cluster',
+          symbolSize: 35,
+          hoverAnimation: false,
+          type: 'scatter',
+          data: scatterData, // [x, y, unitId, clusterId]
+          itemStyle: {
+            color: (p) => this.clustersColors[p.data[3]]
+          },
+          tooltip: {
+            formatter: (p) => `Unit ${p.data[2]}`
+          }
+        },
+        {
+          symbolSize: 30,
+          // hoverAnimation: false,
+          type: 'scatter',
+          data: scatterData, // [x, y, unitId, clusterId]
+          itemStyle: {
+            color: '#fff',
+            opacity: 1
+          },
+          tooltip: {
+            show: false
+          },
+          slient: true,
+          animation: false,
+          z: 10
+        }
+      ]
+
+      // 权重矩阵图 series
+      const WMatrixSeries = [...scatterSeries, ...radarSeries]
+
+      // 创建权重矩阵图表
+      this.$refs.weightMartixRef.mergeOptions({
+        radar,
+        series: WMatrixSeries
+      })
     },
-    // 获取平行坐标轴数据，时序散点
-    getParallelAndScatterData(dataSet) {
-      const parallelSeries = []
-      const scatterData = []
+    // 创建平行坐标图和演化图
+    /**
+     * @param {Array} samplesSet 样本完整数据
+     */
+    setParallelChart(samplesSet) {
+      // 设置平行坐标图 legend
+      const legendData = []
+      // console.log(this.treeData)
+      for (const obj of this.treeData.children) {
+        legendData.push(obj.name)
+      }
+      this.paralleOpt.legend.data = legendData // 设置图例数据
+
+      const parallelSeries = [] // 平行坐标图 series
+
       // 根据类别颜色数创建数组，类别数
       for (let i = 0; i < this.clustersColors.length; i++) {
         parallelSeries.push({
+          name: legendData[i],
           type: 'parallel',
           lineStyle: {
             color: this.clustersColors[i],
@@ -655,15 +654,33 @@ export default {
           data: []
         })
       }
-      for (const item of dataSet) {
-        // item ['201501-1', '201501', '1', MI, Mo, Qd, Sk, EK, unitId]
-        const clusterId = this.getClusterID(item[8])
+
+      // 遍历样本数据
+      for (const item of samplesSet) {
+        // item ['201501-1', '201501', '1', MI, IQR, Sk, SDD, LALSR, unitId]
+        const clusterId = this.getClusterID(item[8]) // 获取类别 id
         // item.push(clusterId)
         // arr[clusterId].push(item)
-        parallelSeries[clusterId].data.push(item)
-        scatterData.push([item[1], item[2], item[8], clusterId]) // [x, y, unitId, clusterId]
+        parallelSeries[clusterId].data.push(item) // 平行坐标轴，在对应类别下添加数据
       }
-      return { parallelSeries, scatterData }
+      // 数据赋值创建两个图表
+      this.paralleOpt.series = parallelSeries
+    },
+    // 创建时空演化图
+    /**
+     * @param {Array} samplesSet 样本完整数据
+     */
+    setTimeVariantChart(samplesSet) {
+      const timeVariantChartData = [] // 时变图数据
+      // 遍历样本数据
+      for (const item of samplesSet) {
+        // item ['201501-1', '201501', '1', MI, IQR, Sk, SDD, LALSR, unitId]
+        const clusterId = this.getClusterID(item[8]) // 获取类别 id
+        // 获取时变图 data
+        timeVariantChartData.push([item[1], item[2], item[8], clusterId]) // [date(x), regionId(y), unitId, clusterId]
+      }
+      // 数据赋值创建时空演化图
+      this.timeVariantChartOpt.series.data = timeVariantChartData
     },
     // 为类选择了新的 color
     changeClusterColor() {
@@ -681,10 +698,10 @@ export default {
       })
       // 平行坐标图配色改变
       // 更新平行坐标图
-      const seriesDataObj = this.getParallelAndScatterData(this.sampleDataSet)
-      this.paralleOpt.series = seriesDataObj.parallelSeries
-      // 时序散点图配色改变
-      this.$refs.scatterRef.mergeOptions({
+      this.setParallelChart(this.sampleDataSet)
+
+      // 演化图更新配色
+      this.$refs.timeVariantChartRef.mergeOptions({
         series: {
           itemStyle: {}
         }
@@ -741,10 +758,10 @@ export default {
     },
     // 拖动修改 unit 所属的类
     /**
-     * params
-     * node 拖拽的节点
-     * src 拖拽的节点的父节点
-     * target 拖拽节点的目标节点
+     * @param {Object} params
+     * params.node 拖拽的节点
+     * params.src 拖拽的节点的父节点
+     * params.target 拖拽节点的目标节点
      */
     changeUnitClusterId(params) {
       // const moveUnitId = params.node.unitId
@@ -771,22 +788,16 @@ export default {
         }
         this.uMatrixOpt.series[1].data = newUnitCountData
 
-        this.$refs.weightMartixRef.mergeOptions({
-          series: {
-            data: newClusterScatterData, // [x, y, unitId, clusterId]
-            itemStyle: {
-              color: (p) => this.clustersColors[p.data[3]]
-            }
-          }
-        })
+        // 更新权重矩阵图
+        this.setWeightsMatrix(this.weightMatrixData, this.indicatorArr)
 
         // 更新平行坐标图
-        const seriesDataObj = this.getParallelAndScatterData(this.sampleDataSet)
-        this.paralleOpt.series = seriesDataObj.parallelSeries
+        this.setParallelChart(this.sampleDataSet)
 
         // 更新时序散点图
-        this.timeSeriesScatterOpt.series.data = seriesDataObj.scatterData
+        this.setTimeVariantChart(this.sampleDataSet)
       } else {
+        this.$message.error('Moved Error!')
         return 0
       }
     },
@@ -854,22 +865,23 @@ export default {
         // 修改平行坐标图
         this.paralleOpt.series = parallelSeries
 
-        for (let i = 0; i < this.timeSeriesScatterOpt.series.data.length; i++) {
+        for (let i = 0; i < this.timeVariantChartOpt.series.data.length; i++) {
           if (
             this.selectedUnitIdOnUMatrix.indexOf(
-              this.timeSeriesScatterOpt.series.data[i][2]
+              this.timeVariantChartOpt.series.data[i][2]
             ) !== -1
           ) {
             this.itemSeriesHightlightDataIndex.push(i)
           }
         }
         // 时序散点图高亮
-        this.$refs.scatterRef.dispatchAction({
+        this.$refs.timeVariantChartRef.dispatchAction({
           type: 'highlight',
           dataIndex: this.itemSeriesHightlightDataIndex
         })
 
         // 延时更改，以支持多选
+        clearTimeout(this.timer)
         this.timer = setTimeout(() => {
           // 获取 gallery 中需要的数据 dateArr regionIDArr clolors
           this.$store.commit(
@@ -948,12 +960,11 @@ export default {
         })
       }
 
-      this.paralleOpt.series = this.getParallelAndScatterData(
-        this.sampleDataSet
-      ).parallelSeries
+      // 恢复平行坐标图
+      this.setParallelChart(this.sampleDataSet)
 
       // timescatter 恢复
-      this.$refs.scatterRef.dispatchAction({
+      this.$refs.timeVariantChartRef.dispatchAction({
         type: 'downplay',
         dataIndex: this.itemSeriesHightlightDataIndex
       })
