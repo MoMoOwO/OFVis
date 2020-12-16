@@ -171,8 +171,7 @@
               ></el-button>
             </el-tooltip>
           </div>
-          <!-- <som-view></som-view> -->
-          <som-view1></som-view1>
+          <som-view></som-view>
         </el-card>
         <!-- <el-card class="card-placeholder2" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
