@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 // 引入自定义数据库操作模块
-const StatDataModel = require('../modules/statdata');
 const StatsDataModel = require('../modules/stats-data-model');
 // 引入工具类
 const utils = require('../modules/utils');
