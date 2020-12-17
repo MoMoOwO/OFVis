@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 // 引入自定义数据库操作模块
-const OTDataModel = require('../modules/otdata');
-const ThresholdModel = require('../modules/threshold');
+const OTDataModel = require('../modules/ot-data-model');
+const ThresholdModel = require('../modules/threshold-model');
 const ImgDataModel = require('../modules/img-data-model');
 
 /* GET home page. */
