@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 // 引入自定义数据库操作模块
 const StatDataModel = require('../modules/statdata');
-const RegionDataModel = require('../modules/regiondata');
+const StatsDataModel = require('../modules/stats-data-model');
 // 引入工具类
 const utils = require('../modules/utils');
 
@@ -24,7 +24,7 @@ router.get('/areadata', (req, res, next) => {
 
   if (type == '1') { // 请求的某一年的面积数据
     const year = req.query.year;
-    StatDataModel.find({ date: new RegExp('^' + year) }, (err, docs) => {
+    StatsDataModel.find({ date: new RegExp('^' + year) }, (err, docs) => {
       if (err) { // 获取数据库出错
         console.log('/data/areadata err:' + err);
         res.status(400).json({ meta: { msg: '获取面积数据失败！', status: 400 } });
@@ -34,7 +34,7 @@ router.get('/areadata', (req, res, next) => {
         for (let doc of docs) {
           // 根据区域计算面积
           let area = 0;
-          for (let obj of doc.StatisticsData) {
+          for (let obj of doc.statistics) {
             if (regionId == 'all') { // 总面积
               area += obj.Area;
             } else if (obj.regionId == +regionId) { // 某个区域面积
@@ -55,7 +55,7 @@ router.get('/areadata', (req, res, next) => {
     });
   } else if (type == '2') { // 请求三年的月份的面积数据，用于折线图
     // console.log(type, regionId, year); // 2 all
-    StatDataModel.find({ date: /^(2016|2015|2017)\d{2}$/ }, (err, docs) => {
+    StatsDataModel.find({ date: /^(2016|2015|2017)\d{2}$/ }, (err, docs) => {
       if (err) {
         console.log('/data/areadata err:' + err);
         res.status(400).json({ meta: { msg: '获取面积数据失败！', status: 400 } });
@@ -77,7 +77,7 @@ router.get('/areadata', (req, res, next) => {
         for (let doc of docs) {
           // 根据区域计算面积
           let area = 0;
-          for (let obj of doc.StatisticsData) {
+          for (let obj of doc.statistics) {
             if (regionId == 'all') { // 总面积
               area += obj.Area;
             } else if (obj.regionId == +regionId) { // 某个区域面积
@@ -122,12 +122,12 @@ router.get('/boxdata', (req, res, next) => {
   let outliers = [];
 
   if (type == '1') { // 查询某个年月份所有海区的梯度分布情况
-    StatDataModel.find({ date: date }, (err, docs) => {
+    StatsDataModel.find({ date: date }, (err, docs) => {
       if (err) {
         console.log('/data/boxdata err' + err);
         res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
       } else {
-        let statData = docs[0].StatisticsData;
+        let statData = docs[0].statistics;
         // 遍历海域添加各海域箱线图数据
         for (let obj of statData) {
           if (!isNaN(obj.Upper)) { // 存在箱线图数据
@@ -145,14 +145,14 @@ router.get('/boxdata', (req, res, next) => {
       }
     });
   } else if (type == '2') {
-    StatDataModel.find({ date: new RegExp('^' + date + '\\d{2}$') }, (err, docs) => {
+    StatsDataModel.find({ date: new RegExp('^' + date + '\\d{2}$') }, (err, docs) => {
       if (err) {
         console.log('/data/boxdata err' + err);
         res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
       } else {
         for (let doc of docs) {
           let index = +regionId - 1;
-          let statData = doc.StatisticsData[index];
+          let statData = doc.statistics[index];
           if (!isNaN(statData.Upper)) { // 存在箱线图数据
             axisData.push(doc.date);
             boxData.push([statData.Lower, statData.Q1, statData.Median, statData.Q3, statData.Upper]);

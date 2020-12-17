@@ -1,4 +1,4 @@
-const SOMDataModel = require('./sommodel');
+const SOMDataModel = require('./som-model-model');
 const RegionDataModel = require('./regiondata');
 
 const utils = {}; // 工具类

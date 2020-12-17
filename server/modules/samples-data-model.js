@@ -2,19 +2,19 @@
 const mongoose = require('./db.js');
 
 // 定义文档 RegionData 的 Schema
-const RegionDataSchema = mongoose.Schema({
+const SamplesDataSchema = mongoose.Schema({
   date: Number,
-  FeaturesData: [
+  features: [
     {
       regionId: Number,
-      RipleyK: Number,
-      MoranI: Number,
+      IQR: Number,
+      Skewness: Number,
+      MoransI: Number,
+      SDD: Number,
+      LALSR: Number,
       Mean: Number,
       Mode: Number,
       Median: Number,
-      Range: Number,
-      Qd: Number,
-      Skewness: Number,
       Excess_Kurtosis: Number,
       Area: Number
     }
@@ -22,4 +22,4 @@ const RegionDataSchema = mongoose.Schema({
 });
 
 // 使用 Schema 创建可以操做改文档的 Model 并暴漏出去
-module.exports = mongoose.model("RegionData", RegionDataSchema, "RegionData");
+module.exports = mongoose.model("SamplesData", SamplesDataSchema, "SamplesData");

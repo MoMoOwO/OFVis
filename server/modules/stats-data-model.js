@@ -2,9 +2,9 @@
 const mongoose = require('./db.js');
 
 // 定义文档 StatData 的 Schema
-const StatDataSchema = mongoose.Schema({
+const StatsDataSchema = mongoose.Schema({
   date: String,
-  StatisticsData: [
+  statistics: [
     {
       regionId: Number,
       Max: Number,
@@ -27,4 +27,4 @@ const StatDataSchema = mongoose.Schema({
 });
 
 // 使用 Schema 创建可以操做改文档的 Model 并暴漏出去
-module.exports = mongoose.model("StatData", StatDataSchema, "StatData");
+module.exports = mongoose.model("StatsData", StatsDataSchema, "StatsData");

@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 // 引入可以操作数据库的 Model 模块
-const ImgDataModel = require('../modules/imgdata');
+const ImgDataModel = require('../modules/img-data-model');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
