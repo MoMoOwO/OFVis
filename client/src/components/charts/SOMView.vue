@@ -12,11 +12,12 @@
     ></v-chart>
     <!-- WeightMartix -->
     <v-chart
-      class="wmartix-container"
+      class="wmatrix-container"
       theme="infographic"
-      ref="weightMartixRef"
+      ref="weightMatrixRef"
       :init-options="this.$store.state.echartInitOption"
       :options="wMatrixOpt"
+      @restore="wMatrixTiled"
     ></v-chart>
     <!-- Tree-List -->
     <v-chart class="tree-chart" ref="treeChartRef" v-if="!showTree"></v-chart>
@@ -84,6 +85,34 @@
       </swiper-slide>
       <div class="swiper-pagination" slot="pagination"></div>
     </swiper>
+
+    <!-- 矩阵图平铺 -->
+    <el-dialog
+      title="U-Matrix & Component Planes"
+      ref="matrixDialogRef"
+      :visible.sync="isFullScreen"
+      width="70%"
+    >
+      <div>
+        <!-- U-Matrix -->
+        <div v-if="matrixData.length === 6">
+          <heat-map-chart
+            :title="matrixData[0].title"
+            :matrixData="matrixData[0].data"
+          ></heat-map-chart>
+        </div>
+        <!-- Component Planes -->
+        <div class="component-planes-container" v-if="matrixData.length === 6">
+          <heat-map-chart
+            v-for="index in 5"
+            :key="index"
+            :title="index === 1 ? matrixData[index].title : '  '"
+            :subTitle="matrixData[index].subTitle"
+            :matrixData="matrixData[index].data"
+          ></heat-map-chart>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -100,6 +129,9 @@ import 'echarts/lib/component/parallel'
 import 'echarts/lib/component/dataZoom'
 // tree-list 组件
 import { VueTreeList, Tree, TreeNode } from 'vue-tree-list'
+
+// 引入热力图
+import HeatMapChart from './HeatMapChart.vue'
 
 export default {
   data() {
@@ -126,6 +158,10 @@ export default {
       weightMatrixData: [],
       // 雷达图指示器
       indicatorArr: [],
+      // 矩阵图数据，用于平铺显示
+      matrixData: [],
+      // 是否平铺显示
+      isFullScreen: false,
       // UMatrix 配置项
       uMatrixOpt: {
         title: {
@@ -196,7 +232,7 @@ export default {
             },
             tooltip: {
               formatter: (p) =>
-                `Unit ${p.data[3]}<br/>distances: ${p.data[2].toFixed(4)}`
+                `Unit ${p.data[3]}<br/>distance: ${p.data[2].toFixed(4)}`
             }
           },
           // unitCout
@@ -231,6 +267,20 @@ export default {
           top: 45,
           bottom: 1
           // containLabel: true
+        },
+        toolbox: {
+          feature: {
+            restore: {
+              title: 'tile',
+              icon:
+                'path://M32 0h-13l5 5-6 6 3 3 6-6 5 5z M32 32v-13l-5 5-6-6-3 3 6 6-5 5z M0 32h13l-5-5 6-6-3-3-6 6-5-5z M0 0v13l5-5 6 6 3-3-6-6 5-5z',
+              iconStyle: {
+                borderColor: '#666'
+              }
+            }
+          },
+          right: 10,
+          top: 0
         },
         xAxis: {
           type: 'category',
@@ -401,7 +451,8 @@ export default {
   },
   components: {
     'v-chart': ECharts,
-    VueTreeList
+    VueTreeList,
+    HeatMapChart
   },
   props: [],
   created() {
@@ -419,7 +470,7 @@ export default {
           color: '#409EFF',
           maskColor: 'rgba(255, 255, 255, 0.4)'
         })
-        this.$refs.weightMartixRef.showLoading({
+        this.$refs.weightMatrixRef.showLoading({
           text: 'Loading…',
           color: '#409EFF',
           maskColor: 'rgba(255, 255, 255, 0.4)'
@@ -436,7 +487,7 @@ export default {
         })
       } else {
         this.$refs.unitMatrixRef.hideLoading()
-        this.$refs.weightMartixRef.hideLoading()
+        this.$refs.weightMatrixRef.hideLoading()
         this.$refs.paralleRef.hideLoading()
         this.$refs.treeChartRef.hideLoading()
       }
@@ -473,6 +524,7 @@ export default {
         this.$message.error('Failed to get matrix data!')
       } else {
         this.unitCountData = res.data.unitCount // 保存原数据 备份节点样本统计数据
+        this.matrixData.push({ title: 'U Matrix', data: res.data.UMatrix }) // 为平铺添加数据
         // UMatrix 矩阵
         this.setUMatrix(
           res.data.min,
@@ -527,11 +579,20 @@ export default {
       const radarSeries = [] // 雷达图 series
       const scatterData = [] // 散点图数据
 
+      // 遍历特征值 指标数组
+      for (const obj of indicatorArr) {
+        this.matrixData.push({
+          title: 'Component Planes',
+          subTitle: obj.text,
+          data: []
+        })
+      }
+
       // 遍历 WMatrix 获取雷达图坐标系和 series 获取散点图数据
       for (const item of WMatrix) {
         // item [x, y, [radarSeriesData], unitId]
         // 获取雷达图中心点
-        const center = this.$refs.weightMartixRef.convertToPixel(
+        const center = this.$refs.weightMatrixRef.convertToPixel(
           { xAxisIndex: 0, yAxisIndex: 0 },
           [item[0] + '', item[1] + '']
         )
@@ -557,6 +618,7 @@ export default {
           },
           z: 20
         })
+
         // 添加雷达图 series
         radarSeries.push({
           type: 'radar',
@@ -583,6 +645,17 @@ export default {
           item[3],
           this.getClusterID(item[3])
         ]) // [x, y, unitId, clusterId]
+
+        // 为 matrixData 添加数据
+        const weightsArr = item[2][0].value
+        for (let i = 0; i < weightsArr.length; i++) {
+          this.matrixData[i + 1].data.push([
+            item[0],
+            item[1],
+            weightsArr[i],
+            item[3]
+          ]) // [x, y, weight, unitId]
+        }
       }
 
       // 散点图 series
@@ -618,11 +691,36 @@ export default {
         }
       ]
 
+      // 在左上角添加一个雷达图坐标轴标识
+      radar.push({
+        indicator: indicatorArr,
+        center: ['60%', '6.5%'],
+        radius: 14,
+        shape: 'circle',
+        name: {
+          show: true,
+          textStyle: {
+            fontSize: 10,
+            color: '#636363'
+          }
+        },
+        nameGap: 1,
+        splitNumber: 1,
+        splitLine: {
+          show: true
+        },
+        splitArea: {
+          show: false
+        },
+        silent: false,
+        z: 20
+      })
+
       // 权重矩阵图 series
       const WMatrixSeries = [...scatterSeries, ...radarSeries]
 
       // 创建权重矩阵图表
-      this.$refs.weightMartixRef.mergeOptions({
+      this.$refs.weightMatrixRef.mergeOptions({
         radar,
         series: WMatrixSeries
       })
@@ -691,7 +789,7 @@ export default {
         }
       })
       // 权重矩阵配色改变
-      this.$refs.weightMartixRef.mergeOptions({
+      this.$refs.weightMatrixRef.mergeOptions({
         series: {
           itemStyle: {}
         }
@@ -891,6 +989,10 @@ export default {
         }, 2000)
       }
     },
+    wMatrixTiled() {
+      this.isFullScreen = true
+      console.log('矩阵图展开！')
+    },
     // 根据选中的 unitID 数组获取日期、海区、分类颜色等数组
     getSampleDetailData(unitIDArr) {
       // 初始化样本数组，并赋空值
@@ -999,6 +1101,10 @@ export default {
 			const indices0 = series0.getRawIndicesByActiveState('active')
 			const indices1 = series1.getRawIndicesByActiveState('active')
 			console.log(indices0, indices1) */
+    },
+    fullScreenClosed() {
+      this.isFullScreen = false
+      console.log('即将关闭')
     }
   }
 }
@@ -1014,7 +1120,7 @@ export default {
     width: 365px;
     height: 390px;
   }
-  .wmartix-container {
+  .wmatrix-container {
     width: 365px;
     height: 390px; /*  */
   }
@@ -1040,6 +1146,13 @@ export default {
     margin-top: 10px;
     height: 420px;
     width: 500px;
+  }
+  .u-matrix-container {
+    align-items: center;
+  }
+  .component-planes-container {
+    display: flex;
+    justify-content: space-evenly;
   }
 }
 </style>
