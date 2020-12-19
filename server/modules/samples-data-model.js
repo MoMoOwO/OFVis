@@ -3,7 +3,7 @@ const mongoose = require('./db.js');
 
 // 定义文档 RegionData 的 Schema
 const SamplesDataSchema = mongoose.Schema({
-  date: Number,
+  date: String,
   features: [
     {
       regionId: Number,

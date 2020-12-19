@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 // 引入自定义数据库操作模块
 const StatsDataModel = require('../modules/stats-data-model');
+const SamplesDataModel = require('../modules/samples-data-model');
 // 引入工具类
 const utils = require('../modules/utils');
 
@@ -168,6 +169,41 @@ router.get('/boxdata', (req, res, next) => {
   } else {
     res.status(400).json({ meta: { msg: 'type 参数有误！', status: 400 } });
   }
+});
+
+// 请求特征数据
+/**
+ * params
+ * feature 特征值类型
+ * year 年份
+ */
+router.get('/featuredata', async (req, res, next) => {
+  const { feature, year } = req.query; // 特征类型
+
+  // 月份数组
+  const monthArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // 特征值数据
+  let featureData = [{ regionId: 1, data: [] }, { regionId: 2, data: [] }, { regionId: 3, data: [] }, { regionId: 4, data: [] }, { regionId: 5, data: [] }, { regionId: 6, data: [] }, { regionId: 7, data: [] }, { regionId: 8, data: [] }, { regionId: 9, data: [] }, { regionId: 10, data: [] }, { regionId: 11, data: [] }, { regionId: 12, data: [] }, { regionId: 13, data: [] }];
+
+  const samplesDocs = await SamplesDataModel.find({ date: new RegExp('^' + year + '\\d{2}$') });
+  if (!samplesDocs.length) {
+    res.status(400).json({ meta: { msg: '获取 Samples-Data 数据失败！', status: 400 } });
+  }
+
+  // 按月份遍历
+  for (let item of samplesDocs) {
+    let month = monthArr[+(item.date + '').slice(-2) - 1]; // 月份  x 轴
+    // 按海区遍历，获取特征值数据
+    for (let regionData of item.features) {
+      let featureItem = [month, 'R' + regionData.regionId, +regionData[feature].toFixed(4)]; // 组装数据 [x, y, data]
+      featureData[regionData.regionId - 1].data.push(featureItem); // 获取特征值并添加到特征值数组中 保留四位
+    }
+  }
+
+  // 返回数据
+  res.status(200).json({ data: { featureData }, meta: { msg: '获取特征值数据成功！', status: 200 } });
+
 });
 
 module.exports = router;

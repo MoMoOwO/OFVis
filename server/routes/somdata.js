@@ -103,6 +103,9 @@ router.get('/somresult', async function (req, res, next) {
 
   // 获取样本数据，使用 SOM 模型开始预测
   const samplesDocs = await SamplesDataModel.find({});
+  if (!samplesDocs.length) {
+    res.status(400).json({ meta: { msg: '获取 Samples-Data 数据失败！', status: 400 } });
+  }
 
   const predictSet = []; // 用于预测的数据集，是只包含样本特征值的数组
   const samplesNameSet = []; // 样本数据集名称标识
