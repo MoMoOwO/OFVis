@@ -58,12 +58,14 @@ export default {
         },
         toolbox: {
           show: false,
+          showTitle: false,
           feature: {
             restore: {
-              title: 'restore'
+              icon:
+                'path://M23.808 32c3.554-6.439 4.153-16.26-9.808-15.932v7.932l-12-12 12-12v7.762c16.718-0.436 18.58 14.757 9.808 24.238z'
             }
           },
-          left: 70,
+          left: 0,
           top: 0
         },
         grid: {
@@ -120,13 +122,13 @@ export default {
           {
             type: 'boxplot',
             data: null,
-            itemStyle: {
+            /* itemStyle: {
               normal: {
                 borderColor: '#4B96F3',
                 borderWidth: 2,
                 color: '#D9EAFF'
               }
-            },
+            }, */
             tooltip: {
               formatter: function (param) {
                 let name = ''
@@ -147,11 +149,11 @@ export default {
           {
             name: 'outlier',
             type: 'scatter',
-            itemStyle: {
+            /* itemStyle: {
               normal: {
                 color: 'rgba(75,150,243,.7)'
               }
-            },
+            }, */
             tooltip: {
               formatter: (p) => {
                 let tooltip = ''
@@ -192,6 +194,16 @@ export default {
         this.getBoxplotData()
       },
       deep: true
+    },
+    '$store.state.yearOnGallery': {
+      // 联动，监听年份变化
+      handler: function (newVal) {
+        this.queryInfo.date = newVal + '01'
+        this.boxOpt.title.text =
+          newVal + '01' + ' ' + this.$store.getters.getRegionIDLabel
+        this.getBoxplotData()
+      },
+      deep: true
     }
   },
   methods: {
@@ -216,7 +228,7 @@ export default {
       if (res.meta.status !== 200) {
         this.$message.error('Failed to get boxplot data!')
       } else {
-        console.log(res.data)
+        // console.log(res.data)
         // 为图表数据赋值
         this.boxOpt.xAxis.data = res.data.axisData
         this.boxOpt.series[0].data = res.data.boxData
@@ -231,7 +243,7 @@ export default {
         // 修改查询条件
         this.queryInfo.type = '2'
         // 通过箱线图点击箱体选择一个海区，面积图和面积折线图调正显示为选择海区的面积统计
-        this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持其他图表联动更新
+        this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持面积图表联动更新
         this.queryInfo.date = this.queryInfo.date.slice(0, 4)
         this.boxOpt.title.text =
           this.queryInfo.date.slice(0, 4) +
@@ -252,6 +264,7 @@ export default {
         console.log(`点击了点，日期${e.name}，数据${e.data}`)
       } else {
         // 其他情况
+        console.log('点击了其他情况：' + e)
         return 0
       }
     },
