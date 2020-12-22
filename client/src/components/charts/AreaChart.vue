@@ -91,7 +91,7 @@ export default {
             normal: {},
             emphasis: {
               borderWidth: 1,
-              borderColor: 'black'
+              borderColor: '#333'
             }
           },
           data: null
@@ -204,6 +204,8 @@ export default {
     yearChoosed: {
       handler: function (newVal) {
         this.queryInfo.year = newVal
+        // 修改地图的显示
+        this.$store.commit('selectedDateOnBar', this.yearChoosed + '01')
         this.getAreaData()
       }
     }
