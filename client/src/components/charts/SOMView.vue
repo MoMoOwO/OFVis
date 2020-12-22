@@ -227,7 +227,7 @@ export default {
               normal: {},
               emphasis: {
                 borderWidth: 1,
-                borderColor: 'black'
+                borderColor: '#333'
               }
             },
             tooltip: {
