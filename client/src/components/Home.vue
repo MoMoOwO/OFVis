@@ -22,7 +22,7 @@
         <el-card class="area-chart-card" :body-style="{ padding: '0px' }">
           <!-- 卡片头部区域 -->
           <div class="card-header" slot="header">
-            <span>Area-Chart</span>
+            <span>Area-View</span>
             <div class="optPanel">
               <el-select style="width: 120px" size="mini" v-model="yearChoosed">
                 <el-option
@@ -53,21 +53,8 @@
         <!-- 面积周期比较折线图容器 -->
         <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>Area-Periodogram</span>
+            <span>Features-Variation-View</span>
             <div class="optPanel">
-              <!-- 折线图坐标系选择 -->
-              <!-- <el-select
-                style="width: 120px"
-                size="mini"
-                v-model="lineTypeChoosed"
-              >
-                <el-option
-                  v-for="item in lineType"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select> -->
               <!-- 特征值选择 -->
               <el-select
                 style="width: 120px"
@@ -94,13 +81,12 @@
               </el-tooltip>
             </div>
           </div>
-          <!-- <line-chart :type="lineTypeChoosed" regionChoosed="all"></line-chart> -->
           <scatter-line-chart :feature="featureChoosed"></scatter-line-chart>
         </el-card>
         <!-- 梯度分布图容器 -->
         <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>Gradient-Distribution-Chart</span>
+            <span>Intensity-View</span>
             <el-tooltip
               content="Click to see tips."
               placement="top"
@@ -207,7 +193,6 @@
 import AreaChart from './charts/AreaChart.vue'
 import BoxPlot from './charts/Boxplot.vue'
 import ScatterLineChart from './charts/ScatterLineChart.vue'
-// import LineChart from './charts/LineChart.vue'
 import MapView from './charts/MapView.vue'
 import MapGallery from './charts/MapGallery.vue'
 import SomView from './charts/SOMView.vue'
@@ -220,18 +205,8 @@ export default {
         { value: '2016', label: '2016' },
         { value: '2017', label: '2017' }
       ],
-      // yearChoosed: '2015',
-      // areaChartYearArr: ['2015', '2016', '2017'],
-      // 折线图类型选项数组
-      lineType: [
-        { value: 'polarOpt', label: 'Polar' },
-        { value: 'lineOpt', label: 'Cartesian' }
-      ],
-      // 选中的折线图类型
-      lineTypeChoosed: 'polarOpt',
       // 特征值选项列表
       features: [
-        { value: 'Area', label: 'Area' },
         { value: 'MoransI', label: "Moran's I" },
         { value: 'IQR', label: 'IQR (Interquartile Range)' },
         { value: 'Skewness', label: 'Skewness' },
@@ -241,8 +216,7 @@ export default {
           label: 'LALSR (Longitude and Latitude Dimension Span Ratio)'
         }
       ],
-      featureChoosed: 'Skewness',
-
+      featureChoosed: 'MoransI',
       // Gallery 是否最大化
       isGalleryFunnlScreen: false,
       tips: {
@@ -265,7 +239,6 @@ export default {
     AreaChart,
     BoxPlot,
     ScatterLineChart,
-    // LineChart,
     MapView,
     MapGallery,
     SomView
