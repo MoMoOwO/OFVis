@@ -71,13 +71,6 @@ export default {
           extraCssText:
             'box-shadow: 0px 2px 8px 0px #cacaca;border-radius: 4px;opacity: 0.8;max-height: 100%;',
           formatter: (p) => {
-            /* let res = p[0].name + '<br/>'
-            p.forEach((item) => {
-              res += `${item.marker}${item.seriesName}：${item.value.toFixed(
-                2
-              )}km²<br/>`
-            })
-            return res */
             let res = p[0].name + '<br/>'
             if (p[0].componentSubType === 'scatter') {
               // 散点图上鼠标悬浮的 tooltip
@@ -132,6 +125,7 @@ export default {
         },
         series: []
       },
+      isClickSelectRegion: false, // 标记是悬浮交互显示海区，还是点击交互显示海区
       lineOpt: {
         title: {
           text: '',
@@ -354,9 +348,17 @@ export default {
       this.scatterLineOpt.yAxis.triggerEvent = false // 关闭 y 轴点击事件
       this.scatterLineOpt.series = lineSeries
     },
-    // 主要是 y 轴的标签点击某个海区，然后以折线图的形式显示该海区特征值的时变特性
+    // 图表点击事件
     scatterLineChartClick(e) {
+      // y 轴的标签点击某个海区，然后以折线图的形式显示该海区特征值的时变特性
       if (e.componentType === 'yAxis') {
+        // 是点击交互显示海区，mouseout 不隐藏海区范围
+        this.isClickSelectRegion = true
+        // 在 y 轴上选择海区，联动面积图显示该海区的面积
+        this.$store.commit('selectedRegionIDOnBox', e.value.slice(1)) // 修改状态管理器中的数据，保持面积图表联动更新
+
+        // 图表 title 修改
+        this.scatterLineOpt.title.text = `${this.$store.state.yearOnGallery} ${this.$store.getters.getRegionIDLabel}`
         // 在 y 轴标签上进行点击
         const regionId = +e.value.slice(1)
         const scatterData = this.rowData[regionId - 1]
@@ -376,7 +378,7 @@ export default {
     // 鼠标在 y 轴海区标签悬浮时在地图上显示海区范围
     scatterLineChartMouseover(e) {
       if (e.componentType === 'yAxis') {
-        // 在 y 轴标签上进行点击
+        // 在 y 轴标签上进行鼠标悬浮
         // 显示对应年份的海洋锋空间情况
         this.$store.commit(
           'selectImgShowOnMap',
@@ -384,6 +386,8 @@ export default {
         )
         // 显示对应海区的范围
         this.$store.commit('changeRegionShowOnMap', [+e.value.slice(1)])
+        // 在地图上显示 geojson 图层
+        this.$store.commit('changeStateOfGeoJsonOnMap', true)
       } else {
         console.log(e)
       }
@@ -391,14 +395,28 @@ export default {
     // 鼠标从 y 轴还去标签离开时地图上的海区范围显示消失
     scatterLineChartMouseout(e) {
       if (e.componentType === 'yAxis') {
-        // 在 y 轴标签上进行点击
-        this.$store.commit('changeRegionShowOnMap', []) // 隐藏对应海区范围
+        // 在 y 轴标签上进行点击，点击状态下的话不隐藏已经显示的海区范围
+        if (!this.isClickSelectRegion) {
+          this.$store.commit('changeRegionShowOnMap', []) // 隐藏对应海区范围
+          // 在地图上不显示 geojson 图层
+          this.$store.commit('changeStateOfGeoJsonOnMap', false)
+        }
       }
     },
     // 用于折线图返回到原来的散点图
     scatterLineChartRestore() {
       // 设置散点图
       this.setScatterChart(this.rowData)
+      // 面积图复原
+      this.$store.commit('selectedRegionIDOnBox', 'all')
+      // title 复原
+      this.scatterLineOpt.title.text = `${this.$store.state.yearOnGallery} ${this.$store.getters.getRegionIDLabel}`
+      // 隐藏海区
+      this.$store.commit('changeRegionShowOnMap', [])
+      // 在地图上不显示 geojson 图层
+      this.$store.commit('changeStateOfGeoJsonOnMap', false)
+      // 还原标志位
+      this.isClickSelectRegion = false
     },
     /*
 		将数字取整为10的倍数

@@ -32,6 +32,7 @@ export default {
         regionId: this.$store.state.boxRegionChoosed, // 默认初始请求所有海区数据
         date: this.$store.state.barDateChoosed
       },
+      isClickSelectRegion: false,
       boxOpt: {
         title: {
           text:
@@ -132,7 +133,7 @@ export default {
             tooltip: {
               formatter: function (param) {
                 let name = ''
-                param.name.length === 1
+                param.name.length <= 2
                   ? (name = 'RegionID: ')
                   : (name = 'Date: ')
                 return [
@@ -240,6 +241,8 @@ export default {
     boxPlotItemClicked(e) {
       if (e.name.length <= 2 && e.seriesType === 'boxplot') {
         // 点击一层箱体
+        // 标记是点击触发显示海区联动
+        this.isClickSelectRegion = true
         // 修改查询条件
         this.queryInfo.type = '2'
         // 通过箱线图点击箱体选择一个海区，面积图和面积折线图调正显示为选择海区的面积统计
@@ -284,6 +287,8 @@ export default {
           this.$store.state.barDateChoosed
         )
         this.$store.commit('changeRegionShowOnMap', [+e.name])
+        // 在地图上显示 geojson 图层
+        this.$store.commit('changeStateOfGeoJsonOnMap', true)
       } else if (e.name.length === 6 && e.seriesType === 'scatter') {
         // 二层散点
         // console.log(e)
@@ -292,7 +297,11 @@ export default {
       }
     },
     boxPlotItemMouseout() {
-      this.$store.commit('changeRegionShowOnMap', [])
+      if (!this.isClickSelectRegion) {
+        this.$store.commit('changeRegionShowOnMap', []) // 隐藏对应海区范围
+        // 在地图上不显示 geojson 图层
+        this.$store.commit('changeStateOfGeoJsonOnMap', false)
+      }
       this.$store.commit('hoverPointOnBoxplot', [])
     },
     // 还原箱线图数据
@@ -311,6 +320,13 @@ export default {
       // this.$store.commit('changeRegionShowOnMap', [])
       // 重新获取数据
       this.getBoxplotData()
+
+      // 隐藏海区
+      this.$store.commit('changeRegionShowOnMap', [])
+      // 在地图上不显示 geojson 图层
+      this.$store.commit('changeStateOfGeoJsonOnMap', false)
+      // 还原标志位
+      this.isClickSelectRegion = false
     }
   }
 }

@@ -9,6 +9,7 @@ const store = new Vuex.Store({
     echartInitOption: {
       renderer: 'svg' // 使用 svg 渲染
     },
+    statsControlGeoJsonOnMap: false,
     barDateChoosed: '201501', // 从面积柱状图中点击某个月份，箱线图切换到相同月份的统计，
     boxRegionChoosed: 'all', // 在箱线图上通过点击箱体选择海区
     imgShowOnMap: '20150101', // 在地图上显示的
@@ -21,7 +22,13 @@ const store = new Vuex.Store({
     sampleDataSelectedOnSOM: {} // 在 SOMView 中选择的样本数据 {dateArr, regionIDArr, color}
   },
   mutations: { // 对外提供修改 state 中数据的接口
+    changeStateOfGeoJsonOnMap(state, newState) {
+      state.statsControlGeoJsonOnMap = newState
+    },
     selectedRegionIDOnBox(state, newID) {
+      state.boxRegionChoosed = newID
+    },
+    selectedRegionIDOnYAxis(state, newID) {
       state.boxRegionChoosed = newID
     },
     selectedDateOnBar(state, newVal) {
