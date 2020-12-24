@@ -109,10 +109,10 @@ router.get('/areadata', (req, res, next) => {
 /*
   params
   type: 1/2 // 1 或 2，1为请求某个个月份所有海区梯度分布情况，2 为查询某海区三年所有月份的情况
-  date: '201501'/’2015' // 当 type=1 时用来查询该年改月所有海区数据，type=2时用来查询该年
+  date: '201501'/’2015' // 当 type=1 时用来查询该年该月所有海区数据，type=2时用来查询该年
   regionId: 1 // 当 type = 2 的时候根据该 id 查询对应海区数据
 */
-router.get('/boxdata', (req, res, next) => {
+router.get('/boxdata', async (req, res, next) => {
   // 获取查询类型和区域 id
   const { type, regionId, date } = req.query;
 
@@ -120,52 +120,56 @@ router.get('/boxdata', (req, res, next) => {
   let axisData = [];
   let boxData = [];
   let outliers = [];
+  let meanData = [];
 
   if (type == '1') { // 查询某个年月份所有海区的梯度分布情况
-    StatsDataModel.find({ date: date }, (err, docs) => {
-      if (err) {
-        console.log('/data/boxdata err' + err);
-        res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
-      } else {
-        let statData = docs[0].statistics;
-        // 遍历海域添加各海域箱线图数据
-        for (let obj of statData) {
-          if (!isNaN(obj.Upper)) { // 存在箱线图数据
-            axisData.push(obj.regionId);
-            boxData.push([obj.Lower, obj.Q1, obj.Median, obj.Q3, obj.Upper]);
-            for (let i = 0; i < obj.Outliers.length; i++) {
-              let outIdx = boxData.length - 1;
+    const statsDocs = await StatsDataModel.find({ date: date });
 
-              obj.Outliers[i].unshift(outIdx);
-              outliers.push(obj.Outliers[i]);
-            }
+    if (statsDocs.length) { // 查询到数据
+      let statData = statsDocs[0].statistics;
+      // 遍历海域添加各海域箱线图数据
+      for (let obj of statData) {
+        if (!isNaN(obj.Upper)) { // 存在箱线图数据
+          axisData.push(obj.regionId); // 坐标轴数据
+          boxData.push([obj.Lower, obj.Q1, obj.Median, obj.Q3, obj.Upper]); // 箱体数据
+          // 异常值数据
+          for (let i = 0; i < obj.Outliers.length; i++) {
+            let outIdx = boxData.length - 1;
+            obj.Outliers[i].unshift(outIdx);
+            outliers.push(obj.Outliers[i]);
           }
+          // 平均值数据
+          meanData.push(obj.Mean)
         }
-        res.status(200).json({ data: { axisData, boxData, outliers }, meta: { msg: '获取箱线图数据成功！', status: 200 } });
       }
-    });
-  } else if (type == '2') {
-    StatsDataModel.find({ date: new RegExp('^' + date + '\\d{2}$') }, (err, docs) => {
-      if (err) {
-        console.log('/data/boxdata err' + err);
-        res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
-      } else {
-        for (let doc of docs) {
-          let index = +regionId - 1;
-          let statData = doc.statistics[index];
-          if (!isNaN(statData.Upper)) { // 存在箱线图数据
-            axisData.push(doc.date);
-            boxData.push([statData.Lower, statData.Q1, statData.Median, statData.Q3, statData.Upper]);
-            for (let i = 0; i < statData.Outliers.length; i++) {
-              let outIdx = boxData.length - 1;
-              statData.Outliers[i].unshift(outIdx);
-              outliers.push(statData.Outliers[i]);
-            }
+      res.status(200).json({ data: { axisData, boxData, outliers, meanData }, meta: { msg: '获取箱线图数据成功！', status: 200 } });
+    } else {
+      console.log('/data/boxdata err' + err);
+      res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
+    }
+  } else if (type == '2') { // 查询该年
+    const statsDocs = await StatsDataModel.find({ date: new RegExp('^' + date + '\\d{2}$') });
+
+    if (statsDocs.length) { // 查询到数据
+      for (let doc of statsDocs) {
+        let index = +regionId - 1;
+        let statData = doc.statistics[index];
+        if (!isNaN(statData.Upper)) { // 存在箱线图数据
+          axisData.push(doc.date);
+          boxData.push([statData.Lower, statData.Q1, statData.Median, statData.Q3, statData.Upper]);
+          for (let i = 0; i < statData.Outliers.length; i++) {
+            let outIdx = boxData.length - 1;
+            statData.Outliers[i].unshift(outIdx);
+            outliers.push(statData.Outliers[i]);
           }
+          meanData.push(statData.Mean)
         }
-        res.status(200).json({ data: { axisData, boxData, outliers }, meta: { msg: '获取箱线图数据成功！', status: 200 } });
       }
-    });
+      res.status(200).json({ data: { axisData, boxData, outliers, meanData }, meta: { msg: '获取箱线图数据成功！', status: 200 } });
+    } else {
+      console.log('/data/boxdata err' + err);
+      res.status(400).json({ meta: { msg: '查询箱线图数据出错！', status: 400 } });
+    }
   } else {
     res.status(400).json({ meta: { msg: 'type 参数有误！', status: 400 } });
   }
