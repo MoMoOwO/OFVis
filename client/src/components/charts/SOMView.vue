@@ -81,6 +81,8 @@
           theme="infographic"
           :init-options="this.$store.state.echartInitOption"
           :options="timeVariantChartOpt"
+          @click="timeVariantItemClicked"
+          @dblclick="timeVariantItemdblClicked"
         ></v-chart>
       </swiper-slide>
       <div class="swiper-pagination" slot="pagination"></div>
@@ -227,7 +229,7 @@ export default {
               normal: {},
               emphasis: {
                 borderWidth: 1,
-                borderColor: 'black'
+                borderColor: '#333'
               }
             },
             tooltip: {
@@ -405,9 +407,13 @@ export default {
           name: 'regionID',
           nameTextStyle: {
             padding: [0, 0, 0, 20]
+          },
+          axisLabel: {
+            formatter: (val) => 'R' + val
           }
         },
         grid: {
+          top: 10,
           left: 35,
           right: 25,
           bottom: 80
@@ -439,12 +445,18 @@ export default {
           data: [], // [x, y, unitId, clusterId]
           type: 'heatmap',
           itemStyle: {
-            color: (p) => this.clustersColors[p.data[3]]
+            normal: {
+              color: (p) => this.clustersColors[p.data[3]]
+            },
+            emphasis: {
+              borderWidth: 1,
+              borderColor: '#333'
+            }
           }
         }
       },
       selectedUnitIndex: [], // 选中项索引
-      selectedUnitIdOnUMatrix: [], // 选中的 unitId
+      selectedUnitID: [], // 选中的 unitId
       timer: null, // 延时器
       itemSeriesHightlightDataIndex: [] //
     }
@@ -917,27 +929,13 @@ export default {
       if (e.seriesType === 'heatmap') {
         // 响应 heatmap 的 item 项
         this.selectedUnitIndex.push(e.dataIndex)
-        this.selectedUnitIdOnUMatrix.push(e.data[3])
+        this.selectedUnitID.push(e.data[3])
         this.$refs.unitMatrixRef.dispatchAction({
           type: 'highlight',
           dataIndex: e.dataIndex
         })
 
-        // 同步筛选平行坐标轴
-        /* this.$refs.paralleRef.mergeOptions({
-					// todo bug in here
-					series: {
-						lineStyle: {
-							color: p => {
-								console.log(p.data)
-								if (this.selectedUnitIdOnUMatrix.indexOf(p.data[8]) === -1) {
-									return '#ccc'
-								}
-							}
-						}
-					}
-				}) */
-
+        // 筛选平行坐标图的
         const parallelSeries = []
         // 根据类别颜色数创建数组，类别数
         for (let i = 0; i < this.clustersColors.length; i++) {
@@ -945,7 +943,7 @@ export default {
             type: 'parallel',
             lineStyle: {
               color: (p) => {
-                if (this.selectedUnitIdOnUMatrix.indexOf(p.data[8]) === -1) {
+                if (this.selectedUnitID.indexOf(p.data[8]) === -1) {
                   return 'rgb(204,204,204, 0)'
                 } else {
                   return this.clustersColors[i]
@@ -963,9 +961,10 @@ export default {
         // 修改平行坐标图
         this.paralleOpt.series = parallelSeries
 
+        // 筛选时变图
         for (let i = 0; i < this.timeVariantChartOpt.series.data.length; i++) {
           if (
-            this.selectedUnitIdOnUMatrix.indexOf(
+            this.selectedUnitID.indexOf(
               this.timeVariantChartOpt.series.data[i][2]
             ) !== -1
           ) {
@@ -984,14 +983,109 @@ export default {
           // 获取 gallery 中需要的数据 dateArr regionIDArr clolors
           this.$store.commit(
             'selectSampleDataOnSom',
-            this.getSampleDetailData(this.selectedUnitIdOnUMatrix)
+            this.getSampleDetailData(this.selectedUnitID)
           )
         }, 2000)
       }
     },
-    wMatrixTiled() {
-      this.isFullScreen = true
-      console.log('矩阵图展开！')
+    // UMatrix 双击取消选择
+    uMatrixItemdblClicked(e) {
+      // UMartix 恢复
+      for (const index of this.selectedUnitIndex) {
+        this.$refs.unitMatrixRef.dispatchAction({
+          type: 'downplay',
+          dataIndex: index
+        })
+      }
+
+      // 恢复平行坐标图
+      this.setParallelChart(this.sampleDataSet)
+
+      // timescatter 恢复
+      this.$refs.timeVariantChartRef.dispatchAction({
+        type: 'downplay',
+        dataIndex: this.itemSeriesHightlightDataIndex
+      })
+      // 置空
+      this.itemSeriesHightlightDataIndex = []
+      this.timer = null
+      this.selectedUnitIndex = []
+      this.selectedUnitID = []
+      this.$store.commit('selectSampleDataOnSom', {
+        date: [],
+        regionId: [],
+        color: []
+      })
+    },
+    // 时变图中选中样本
+    timeVariantItemClicked(e) {
+      // 记录点选的数据信息
+      this.selectedUnitIndex.push(e.dataIndex)
+      this.selectedUnitID.push(e.data[2])
+      // 点选的保持高亮
+      this.$refs.timeVariantChartRef.dispatchAction({
+        type: 'highlight',
+        dataIndex: e.dataIndex
+      })
+
+      // 筛选平行坐标图的
+      const parallelSeries = []
+      // 根据类别颜色数创建数组，类别数
+      for (let i = 0; i < this.clustersColors.length; i++) {
+        parallelSeries.push({
+          type: 'parallel',
+          lineStyle: {
+            color: (p) => {
+              if (this.selectedUnitID.indexOf(p.data[8]) === -1) {
+                return 'rgb(204,204,204, 0)'
+              } else {
+                return this.clustersColors[i]
+              }
+            },
+            width: 2
+          },
+          data: []
+        })
+      }
+      for (const item of this.sampleDataSet) {
+        const clusterId = this.getClusterID(item[8])
+        parallelSeries[clusterId].data.push(item)
+      }
+      // 修改平行坐标图
+      this.paralleOpt.series = parallelSeries
+
+      // 延时更改，以支持多选
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        // 获取 gallery 中需要的数据 dateArr regionIDArr clolors
+        this.$store.commit(
+          'selectSampleDataOnSom',
+          this.getSampleDetailData(this.selectedUnitID)
+        )
+      }, 2000)
+    },
+    // 时变图中取消选中样本
+    timeVariantItemdblClicked(e) {
+      // 时序图高亮取消
+      for (const index of this.selectedUnitIndex) {
+        this.$refs.timeVariantChartRef.dispatchAction({
+          type: 'downplay',
+          dataIndex: index
+        })
+      }
+
+      // 恢复平行坐标图
+      this.setParallelChart(this.sampleDataSet)
+
+      // 置空
+      this.timer = null
+      this.selectedUnitIndex = []
+      this.selectedUnitID = []
+      this.$store.commit('selectSampleDataOnSom', {
+        date: [],
+        regionId: [],
+        color: []
+      })
     },
     // 根据选中的 unitID 数组获取日期、海区、分类颜色等数组
     getSampleDetailData(unitIDArr) {
@@ -1052,35 +1146,6 @@ export default {
       }
       return resObj
     },
-    // UMatrix 双击取消选择
-    uMatrixItemdblClicked(e) {
-      // UMartix 恢复
-      for (const index of this.selectedUnitIndex) {
-        this.$refs.unitMatrixRef.dispatchAction({
-          type: 'downplay',
-          dataIndex: index
-        })
-      }
-
-      // 恢复平行坐标图
-      this.setParallelChart(this.sampleDataSet)
-
-      // timescatter 恢复
-      this.$refs.timeVariantChartRef.dispatchAction({
-        type: 'downplay',
-        dataIndex: this.itemSeriesHightlightDataIndex
-      })
-      // 置空
-      this.itemSeriesHightlightDataIndex = []
-      this.timer = null
-      this.selectedUnitIndex = []
-      this.selectedUnitIdOnUMatrix = []
-      this.$store.commit('selectSampleDataOnSom', {
-        date: [],
-        regionId: [],
-        color: []
-      })
-    },
     // 在时序散点图上 datazoom 的时候保持高亮
     dataRangeOnTimeScatter(e) {
       console.log(e)
@@ -1102,6 +1167,12 @@ export default {
 			const indices1 = series1.getRawIndicesByActiveState('active')
 			console.log(indices0, indices1) */
     },
+    // 展开权重矩阵平面
+    wMatrixTiled() {
+      this.isFullScreen = true
+      console.log('矩阵图展开！')
+    },
+    // 全屏关闭
     fullScreenClosed() {
       this.isFullScreen = false
       console.log('即将关闭')
