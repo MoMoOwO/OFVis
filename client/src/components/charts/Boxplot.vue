@@ -83,6 +83,7 @@ export default {
           splitArea: {
             show: false
           },
+          triggerEvent: true,
           axisLabel: {
             formatter: (p) => {
               if (p.length < 3) {
@@ -131,7 +132,7 @@ export default {
               }
             }, */
             tooltip: {
-              formatter: function (param) {
+              formatter: (param) => {
                 let name = ''
                 param.name.length <= 2
                   ? (name = 'RegionID: ')
@@ -162,6 +163,28 @@ export default {
                   ? (tooltip = `${p.seriesName}<br/>Region ${p.name}：${p.value[1]}℃/km`)
                   : (tooltip = `${p.seriesName}<br/>${p.name}：${p.value[1]}℃/km`)
                 return tooltip
+              }
+            },
+            data: null
+          },
+          {
+            name: 'mean',
+            type: 'scatter',
+            symbol: 'triangle',
+            z: 5,
+            symbolSize: 10,
+            itemStyle: {
+              color: '#FFB569'
+            },
+            tooltip: {
+              // show: false
+              formatter: (p) => {
+                let name = ''
+                p.name.length <= 2 ? (name = 'RegionID: ') : (name = 'Date: ')
+                const res = `${name}${p.name}</br>mean: ${p.value.toFixed(
+                  4
+                )}℃/km`
+                return res
               }
             },
             data: null
@@ -234,19 +257,23 @@ export default {
         this.boxOpt.xAxis.data = res.data.axisData
         this.boxOpt.series[0].data = res.data.boxData
         this.boxOpt.series[1].data = res.data.outliers
+        this.boxOpt.series[2].data = res.data.meanData
         this.isShowLoadding(false)
       }
     },
     // 点击箱线图数据项
     boxPlotItemClicked(e) {
-      if (e.name.length <= 2 && e.seriesType === 'boxplot') {
-        // 点击一层箱体
+      if (e.componentType === 'xAxis') {
+        // 点击一层海域标签
+        // 点击一层海域标签
         // 标记是点击触发显示海区联动
         this.isClickSelectRegion = true
+        // 关闭 x 轴交互
+        this.boxOpt.xAxis.triggerEvent = false
         // 修改查询条件
         this.queryInfo.type = '2'
         // 通过箱线图点击箱体选择一个海区，面积图和面积折线图调正显示为选择海区的面积统计
-        this.$store.commit('selectedRegionIDOnBox', e.name) // 修改状态管理器中的数据，保持面积图表联动更新
+        this.$store.commit('selectedRegionIDOnAxis', +e.value) // 修改状态管理器中的数据，保持面积图表联动更新
         this.queryInfo.date = this.queryInfo.date.slice(0, 4)
         this.boxOpt.title.text =
           this.queryInfo.date.slice(0, 4) +
@@ -272,23 +299,23 @@ export default {
       }
     },
     boxPlotItemMouseover(e) {
-      if (e.name.length <= 2 && e.seriesType === 'scatter') {
-        // 一层散点
-        this.$store.commit(
-          'selectImgShowOnMap',
-          this.$store.state.barDateChoosed
-        )
-        this.$store.commit('hoverPointOnBoxplot', e.data)
-      } else if (e.name.length <= 2 && e.seriesType === 'boxplot') {
+      if (e.componentType === 'xAxis') {
         // 一层箱线图，海区
         // console.log(e.name + 1) // 海区 id
         this.$store.commit(
           'selectImgShowOnMap',
           this.$store.state.barDateChoosed
         )
-        this.$store.commit('changeRegionShowOnMap', [+e.name])
+        this.$store.commit('changeRegionShowOnMap', [+e.value])
         // 在地图上显示 geojson 图层
         this.$store.commit('changeStateOfGeoJsonOnMap', true)
+      } else if (e.name.length <= 2 && e.seriesType === 'scatter') {
+        // 一层散点
+        this.$store.commit(
+          'selectImgShowOnMap',
+          this.$store.state.barDateChoosed
+        )
+        this.$store.commit('hoverPointOnBoxplot', e.data)
       } else if (e.name.length === 6 && e.seriesType === 'scatter') {
         // 二层散点
         // console.log(e)
@@ -296,8 +323,8 @@ export default {
         this.$store.commit('hoverPointOnBoxplot', e.data)
       }
     },
-    boxPlotItemMouseout() {
-      if (!this.isClickSelectRegion) {
+    boxPlotItemMouseout(e) {
+      if (e.componentType === 'xAxis' && !this.isClickSelectRegion) {
         this.$store.commit('changeRegionShowOnMap', []) // 隐藏对应海区范围
         // 在地图上不显示 geojson 图层
         this.$store.commit('changeStateOfGeoJsonOnMap', false)
@@ -310,7 +337,7 @@ export default {
       this.boxOpt.toolbox.show = false
       this.queryInfo.type = '1'
       // 改变选择区域的
-      this.$store.commit('selectedRegionIDOnBox', 'all') // 修改状态管理器中的数据，保持其他图表联动更新
+      this.$store.commit('selectedRegionIDOnAxis', 'all') // 修改状态管理器中的数据，保持其他图表联动更新
       this.queryInfo.date = this.$store.state.barDateChoosed // 还原为之前选择的日期
       this.boxOpt.title.text =
         this.$store.state.barDateChoosed +
@@ -327,6 +354,8 @@ export default {
       this.$store.commit('changeStateOfGeoJsonOnMap', false)
       // 还原标志位
       this.isClickSelectRegion = false
+      // 开启 x 轴交互
+      this.boxOpt.xAxis.triggerEvent = true
     }
   }
 }
