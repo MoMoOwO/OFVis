@@ -11,7 +11,7 @@ const store = new Vuex.Store({
     },
     statsControlGeoJsonOnMap: false,
     barDateChoosed: '201501', // 从面积柱状图中点击某个月份，箱线图切换到相同月份的统计，
-    boxRegionChoosed: 'all', // 在箱线图上通过点击箱体选择海区
+    boxRegionChoosed: 'all', // 在箱线图上通过点击箱体选择海区，保持面积图联动
     imgShowOnMap: '20150101', // 在地图上显示的
     yearOnGallery: '2015', // 在 MapGallery 中显示哪一年十二个月的空间状态
     dateArrOnGallery: [], // 通过日历图，折线图修改该数组，显示在 gallery 中
@@ -25,10 +25,7 @@ const store = new Vuex.Store({
     changeStateOfGeoJsonOnMap(state, newState) {
       state.statsControlGeoJsonOnMap = newState
     },
-    selectedRegionIDOnBox(state, newID) {
-      state.boxRegionChoosed = newID
-    },
-    selectedRegionIDOnYAxis(state, newID) {
+    selectedRegionIDOnAxis(state, newID) {
       state.boxRegionChoosed = newID
     },
     selectedDateOnBar(state, newVal) {

@@ -126,75 +126,6 @@ export default {
         series: []
       },
       isClickSelectRegion: false, // 标记是悬浮交互显示海区，还是点击交互显示海区
-      lineOpt: {
-        title: {
-          text: '',
-          right: 0,
-          top: 10
-        },
-        color: ['#123dac', '#73e2e2', '#ff7e85', '#9b52ff', '#fac524'],
-        tooltip: {
-          trigger: 'axis',
-          confine: true,
-          backgroundColor: '#fff',
-          textStyle: {
-            color: '#565656',
-            lineHeight: 28
-          },
-          padding: 12,
-          extraCssText:
-            'box-shadow: 0px 2px 8px 0px #cacaca;border-radius: 4px;opacity: 0.8;max-height: 100%;',
-          formatter: (p) => {
-            let res = p[0].name + '<br/>'
-            p.forEach((item) => {
-              res += `${item.marker}${item.seriesName}：${item.value.toFixed(
-                2
-              )}km²<br/>`
-            })
-            return res
-          }
-        },
-        legend: {
-          data: null
-        },
-        grid: {
-          left: 10,
-          right: 10,
-          bottom: 15,
-          containLabel: true
-        },
-        xAxis: {
-          type: 'category',
-          data: [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec'
-          ],
-          axisLabel: {
-            interval: 0
-          }
-        },
-        yAxis: {
-          type: 'value',
-          name: '',
-          nameTextStyle: {
-            padding: [0, 0, 0, 60]
-          },
-          axisLabel: {
-            formatter: (value) => value.toString()[0]
-          }
-        },
-        series: null
-      },
       rowData: []
     }
   },
@@ -355,7 +286,7 @@ export default {
         // 是点击交互显示海区，mouseout 不隐藏海区范围
         this.isClickSelectRegion = true
         // 在 y 轴上选择海区，联动面积图显示该海区的面积
-        this.$store.commit('selectedRegionIDOnBox', e.value.slice(1)) // 修改状态管理器中的数据，保持面积图表联动更新
+        this.$store.commit('selectedRegionIDOnAxis', e.value.slice(1)) // 修改状态管理器中的数据，保持面积图表联动更新
 
         // 图表 title 修改
         this.scatterLineOpt.title.text = `${this.$store.state.yearOnGallery} ${this.$store.getters.getRegionIDLabel}`
@@ -408,7 +339,7 @@ export default {
       // 设置散点图
       this.setScatterChart(this.rowData)
       // 面积图复原
-      this.$store.commit('selectedRegionIDOnBox', 'all')
+      this.$store.commit('selectedRegionIDOnAxis', 'all')
       // title 复原
       this.scatterLineOpt.title.text = `${this.$store.state.yearOnGallery} ${this.$store.getters.getRegionIDLabel}`
       // 隐藏海区
