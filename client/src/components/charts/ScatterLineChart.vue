@@ -96,7 +96,7 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: [
+          /* data: [
             'Jan',
             'Feb',
             'Mar',
@@ -109,7 +109,7 @@ export default {
             'Oct',
             'Nov',
             'Dec'
-          ],
+          ] , */
           axisLabel: {
             interval: 0
           }
@@ -244,7 +244,7 @@ export default {
       this.scatterLineOpt.title.text = `${this.$store.state.yearOnGallery} ${this.$store.getters.getRegionIDLabel}`
       this.scatterLineOpt.legend.show = true // 显示图例
       this.scatterLineOpt.toolbox.show = false // 隐藏返回按钮
-      this.scatterLineOpt.xAxis.data = [
+      /* this.scatterLineOpt.xAxis.data = [
         'Jan',
         'Feb',
         'Mar',
@@ -257,7 +257,7 @@ export default {
         'Oct',
         'Nov',
         'Dec'
-      ]
+      ] */
       this.scatterLineOpt.yAxis.type = 'category' // y 轴类型 类目型
       this.scatterLineOpt.yAxis.triggerEvent = true // 开启 y 轴点击事件
       this.scatterLineOpt.series = scatterSeries // series 赋值
@@ -270,14 +270,14 @@ export default {
         itemStyle: {
           color: '#fac524'
         },
-        connectNulls: true,
+        connectNulls: false,
         data: lineData.data
       }
 
       // 显示返回按钮
       this.scatterLineOpt.toolbox.show = true
       this.scatterLineOpt.legend.show = false // 隐藏图例
-      this.scatterLineOpt.xAxis.data = lineData.xAxisData // 修改 x 轴数据
+      // this.scatterLineOpt.xAxis.data = lineData.xAxisData // 修改 x 轴数据
       this.scatterLineOpt.yAxis.type = 'value' // y 轴类型 数值型
       this.scatterLineOpt.yAxis.triggerEvent = false // 关闭 y 轴点击事件
       this.scatterLineOpt.series = lineSeries
@@ -296,12 +296,63 @@ export default {
         // 在 y 轴标签上进行点击
         const regionId = +e.value.slice(1)
         const scatterData = this.rowData[regionId - 1]
-        const lineData = { regionId, data: [], xAxisData: [] }
+        const monthlyData = [
+          ['Jan', null],
+          ['Feb', null],
+          ['Mar', null],
+          ['Apr', null],
+          ['May', null],
+          ['Jun', null],
+          ['Jul', null],
+          ['Aug', null],
+          ['Sep', null],
+          ['Oct', null],
+          ['Nov', null],
+          ['Dec', null]
+        ]
+        const lineData = { regionId, data: [] }
         // 装配折线图数据
         for (const item of scatterData.data) {
-          lineData.data.push([item[0], item[2]])
-          lineData.xAxisData.push(item[0])
+          switch (item[0]) {
+            case 'Jan':
+              monthlyData[0][1] = item[2]
+              break
+            case 'Feb':
+              monthlyData[1][1] = item[2]
+              break
+            case 'Mar':
+              monthlyData[2][1] = item[2]
+              break
+            case 'Apr':
+              monthlyData[3][1] = item[2]
+              break
+            case 'May':
+              monthlyData[4][1] = item[2]
+              break
+            case 'Jun':
+              monthlyData[5][1] = item[2]
+              break
+            case 'Jul':
+              monthlyData[6][1] = item[2]
+              break
+            case 'Aug':
+              monthlyData[7][1] = item[2]
+              break
+            case 'Sep':
+              monthlyData[8][1] = item[2]
+              break
+            case 'Oct':
+              monthlyData[9][1] = item[2]
+              break
+            case 'Nov':
+              monthlyData[10][1] = item[2]
+              break
+            case 'Dec':
+              monthlyData[11][1] = item[2]
+              break
+          }
         }
+        lineData.data = monthlyData
         // console.log(lineData)
         this.setLineChart(lineData)
       } else {
