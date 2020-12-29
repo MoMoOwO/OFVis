@@ -118,8 +118,11 @@ export default {
           axisLine: {
             show: false
           },
-          splitArea: {
-            show: true
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed'
+            }
           }
           // type: 'category'
         },
