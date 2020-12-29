@@ -158,7 +158,7 @@
         <!-- 聚类容器 -->
         <el-card class="clustering-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>SOMClusterView</span>
+            <span>Clustering-View</span>
             <el-tooltip
               content="Click to see tips."
               placement="top"
