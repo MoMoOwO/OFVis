@@ -37,7 +37,7 @@
                 >Search</el-button
               >
             </el-form-item>
-            <el-form-item label="Threshold values">
+            <el-form-item label="Threshold values (℃/km)">
               <el-col v-for="index in 13" :key="index" :span="6">
                 <el-input
                   type="number"
@@ -238,7 +238,10 @@ export default {
               normal: {
                 areaColor: 'rgba(255, 255, 255, 0)',
                 borderColor: '#000',
-                borderType: 'dashed'
+                borderType: 'dashed',
+                label: {
+                  show: false
+                }
               },
               emphasis: {
                 areaColor: 'rgba(255, 255, 255, 0)',
@@ -246,11 +249,23 @@ export default {
                 borderType: 'solid',
                 borderColor: 'red',
                 label: {
-                  show: false
+                  show: true,
+                  backgroundColor: '#ccc',
+                  borderWidth: 10,
+                  borderColor: '#ccc',
+                  borderRadius: 1,
+                  formatter: (p) => `RGN-ID: ${p.name}`,
+                  color: '#000'
                 }
               }
             },
-            silent: true,
+            /* tooltip: {
+              formatter: (p) => {
+                console.log(p)
+                return p.name
+              }
+            }, */
+            // silent: true,
             zlevel: 15
           }
         ]
