@@ -96,20 +96,6 @@ export default {
         },
         xAxis: {
           type: 'category',
-          /* data: [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec'
-          ] , */
           axisLabel: {
             interval: 0
           }
@@ -244,20 +230,6 @@ export default {
       this.scatterLineOpt.title.text = `${this.$store.state.yearOnGallery} ${this.$store.getters.getRegionIDLabel}`
       this.scatterLineOpt.legend.show = true // 显示图例
       this.scatterLineOpt.toolbox.show = false // 隐藏返回按钮
-      /* this.scatterLineOpt.xAxis.data = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec'
-      ] */
       this.scatterLineOpt.yAxis.type = 'category' // y 轴类型 类目型
       this.scatterLineOpt.yAxis.triggerEvent = true // 开启 y 轴点击事件
       this.scatterLineOpt.series = scatterSeries // series 赋值
@@ -277,7 +249,6 @@ export default {
       // 显示返回按钮
       this.scatterLineOpt.toolbox.show = true
       this.scatterLineOpt.legend.show = false // 隐藏图例
-      // this.scatterLineOpt.xAxis.data = lineData.xAxisData // 修改 x 轴数据
       this.scatterLineOpt.yAxis.type = 'value' // y 轴类型 数值型
       this.scatterLineOpt.yAxis.triggerEvent = false // 关闭 y 轴点击事件
       this.scatterLineOpt.series = lineSeries
