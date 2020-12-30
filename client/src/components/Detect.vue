@@ -37,13 +37,14 @@
                 >Search</el-button
               >
             </el-form-item>
-            <el-form-item label="Threshold values">
+            <el-form-item label="Threshold values (℃/km)">
               <el-col v-for="index in 13" :key="index" :span="6">
                 <el-input
                   type="number"
                   :placeholder="'RGN' + index"
                   v-model="threshold[index]"
                   @focus="inputGetFocus(index)"
+                  @blur="inputLostFocus(index)"
                 ></el-input>
               </el-col>
             </el-form-item>
@@ -136,6 +137,7 @@ export default {
           silent: true
         },
         visualMap: {
+          show: false,
           type: 'continuous', // 连续型
           seriesIndex: 0,
           min: 0, // 范围
@@ -238,7 +240,10 @@ export default {
               normal: {
                 areaColor: 'rgba(255, 255, 255, 0)',
                 borderColor: '#000',
-                borderType: 'dashed'
+                borderType: 'dashed',
+                label: {
+                  show: false
+                }
               },
               emphasis: {
                 areaColor: 'rgba(255, 255, 255, 0)',
@@ -246,11 +251,23 @@ export default {
                 borderType: 'solid',
                 borderColor: 'red',
                 label: {
-                  show: false
+                  show: true,
+                  backgroundColor: '#ccc',
+                  borderWidth: 10,
+                  borderColor: '#ccc',
+                  borderRadius: 1,
+                  formatter: (p) => `RGN-ID: ${p.name}`,
+                  color: '#000'
                 }
               }
             },
-            silent: true,
+            /* tooltip: {
+              formatter: (p) => {
+                console.log(p)
+                return p.name
+              }
+            }, */
+            // silent: true,
             zlevel: 15
           }
         ]
@@ -625,6 +642,8 @@ export default {
         this.isSearching = false // 恢复搜索
         this.isShowLoadding(false) // 隐藏缓冲条
         this.isComfirmShow = true // 显示确认信息
+        this.mapOpt.series[1].itemStyle.emphasis.label.show = false // 地图海区高亮不显示 label
+        this.mapOpt.visualMap.show = true
       }
     },
     // 搜索查询对应日期的数据
@@ -651,15 +670,16 @@ export default {
     },
     // 海区阈值输入框获取焦点的时候请求梯度数据
     inputGetFocus(index) {
-      // console.log('海区' + index)
       // 将之前的高亮海区 downplay
-      console.log('海区' + index)
+      // console.log('海区' + index)
       this.areaName == null ||
         this.$refs.mapRef.dispatchAction({
           type: 'downplay',
           seriesIndex: 1,
           name: this.areaName
         })
+      // this.mapOpt.series[1].itemStyle.emphasis.label.show = false // 输入联动高亮不显示 label
+      // console.log(this.mapOpt.series[1].itemStyle.emphasis.label.show)
       // 高亮提示
       this.$refs.mapRef.dispatchAction({
         type: 'highlight',
@@ -668,6 +688,14 @@ export default {
       })
       // 保存高亮海区 areaName
       this.areaName = index + ''
+    },
+    inputLostFocus(index) {
+      // 获取焦点时高亮显示区域取消高亮
+      this.$refs.mapRef.dispatchAction({
+        type: 'downplay',
+        seriesIndex: 1,
+        name: index + ''
+      })
     },
     // 提交修改的阈值数组
     async submitNewThreshold() {

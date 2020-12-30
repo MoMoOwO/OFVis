@@ -126,10 +126,20 @@ export default {
         xAxis: {
           type: 'value',
           axisTick: {
-            show: false // 轴刻度
+            // show: false // 轴刻度
           },
           axisLabel: {
-            show: false // 轴刻度标签
+            // show: false // 轴刻度标签
+            formatter: (val) => {
+              if (val >= 100000) {
+                return `${val / 100000}×10⁵km²`
+              } else if (val === 0) {
+                return '0km²'
+              } else {
+                return `${val / 10000}×10⁴km²`
+              }
+            },
+            rotate: -90
           }
         },
         yAxis: {
