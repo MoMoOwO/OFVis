@@ -42,6 +42,17 @@ export default {
           right: 0,
           top: 15
         },
+        legend: {
+          left: 5,
+          top: 5,
+          data: ['Outliers', 'Distribution', 'Mean'],
+          itemGap: 5,
+          itemWidth: 10,
+          itemHeight: 10,
+          borderWidth: 1,
+          borderType: 'solid',
+          borderRadius: 5
+        },
         tooltip: {
           trigger: 'item',
           confine: true,
@@ -113,6 +124,7 @@ export default {
         yAxis: {
           type: 'value',
           name: '℃/km',
+          // scale: true,
           /* splitArea: {
 						show: true
 					} */
@@ -122,15 +134,16 @@ export default {
         },
         series: [
           {
+            name: 'Distribution',
             type: 'boxplot',
             data: null,
-            /* itemStyle: {
+            itemStyle: {
               normal: {
                 borderColor: '#4B96F3',
-                borderWidth: 2,
+                borderWidth: 1,
                 color: '#D9EAFF'
               }
-            }, */
+            },
             tooltip: {
               formatter: (param) => {
                 let name = ''
@@ -149,13 +162,14 @@ export default {
             }
           },
           {
-            name: 'outlier',
+            name: 'Outliers',
             type: 'scatter',
             /* itemStyle: {
               normal: {
                 color: 'rgba(75,150,243,.7)'
               }
             }, */
+            symbolSize: 7,
             tooltip: {
               formatter: (p) => {
                 let tooltip = ''
@@ -168,7 +182,7 @@ export default {
             data: null
           },
           {
-            name: 'mean',
+            name: 'Mean',
             type: 'scatter',
             symbol: 'triangle',
             z: 5,
@@ -264,7 +278,6 @@ export default {
     // 点击箱线图数据项
     boxPlotItemClicked(e) {
       if (e.componentType === 'xAxis') {
-        // 点击一层海域标签
         // 点击一层海域标签
         // 标记是点击触发显示海区联动
         this.isClickSelectRegion = true
