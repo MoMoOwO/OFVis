@@ -58,8 +58,11 @@ export default {
           orient: 'horizontal',
           color: ['#F03B20', '#FEB24C', '#FFEDA0'],
           left: 'center',
-          bottom: 15,
-          itemHeight: '100%'
+          text: ['H', 'L'],
+          textGap: 4,
+          bottom: 8,
+          itemHeight: '85%',
+          itemWidth: 18
         },
         calendar: {
           // 热力图容器

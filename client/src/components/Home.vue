@@ -50,10 +50,32 @@
           <!-- 面积图区域，可滑动切换年份 -->
           <area-chart :yearChoosed="yearChoosed"></area-chart>
         </el-card>
-        <!-- 面积周期比较折线图容器 -->
-        <el-card class="line-chart-card" :body-style="{ padding: '0px' }">
+        <!-- 梯度分布图容器 -->
+        <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
           <div class="card-header" slot="header">
-            <span>Features-Variation-View</span>
+            <span>Intensity-View</span>
+            <el-tooltip
+              content="Click to see tips."
+              placement="top"
+              effect="light"
+            >
+              <el-button
+                type="text"
+                icon="el-icon-info"
+                @click="tipClick('boxplot')"
+              ></el-button>
+            </el-tooltip>
+          </div>
+          <box-plot></box-plot>
+        </el-card>
+        <!-- 多特征视图 -->
+        <el-card class="features-chart-card" :body-style="{ padding: '0px' }">
+          <div class="card-header" slot="header">
+            <span>Features-View</span>
+            <!-- <el-divider direction="vertical"></el-divider>
+            <el-radio v-model="radio" label="1">Polar</el-radio>
+            <el-radio v-model="radio" label="2">Cartesian</el-radio>
+            <el-divider direction="vertical"></el-divider> -->
             <div class="optPanel">
               <!-- 特征值选择 -->
               <el-select
@@ -82,24 +104,6 @@
             </div>
           </div>
           <scatter-line-chart :feature="featureChoosed"></scatter-line-chart>
-        </el-card>
-        <!-- 梯度分布图容器 -->
-        <el-card class="box-chart-card" :body-style="{ padding: '0px' }">
-          <div class="card-header" slot="header">
-            <span>Intensity-View</span>
-            <el-tooltip
-              content="Click to see tips."
-              placement="top"
-              effect="light"
-            >
-              <el-button
-                type="text"
-                icon="el-icon-info"
-                @click="tipClick('boxplot')"
-              ></el-button>
-            </el-tooltip>
-          </div>
-          <box-plot></box-plot>
         </el-card>
       </el-main>
       <!-- 中部 -->
@@ -205,6 +209,7 @@ export default {
         { value: '2016', label: '2016' },
         { value: '2017', label: '2017' }
       ],
+      radio: 1, // 坐标系选择
       // 特征值选项列表
       features: [
         { value: 'MoransI', label: "Moran's I" },
@@ -306,14 +311,14 @@ export default {
       height: 100%;
       margin-right: 5px;
     }
-    .line-chart-card,
+    .features-chart-card,
     .box-chart-card {
       width: 58.5%;
       height: 49.42%;
       margin-right: 2.5px;
     }
-    .line-chart-card {
-      margin-bottom: 5px;
+    .features-chart-card {
+      margin-top: 4px;
     }
   }
   .mid-panel {
@@ -356,6 +361,7 @@ export default {
 .card-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   line-height: 28px;
   .el-button {
     padding: 0;
@@ -369,5 +375,9 @@ export default {
 }
 .el-alert {
   padding: 3px 16px;
+}
+.el-radio {
+  margin-right: 0;
+  line-height: inherit;
 }
 </style>

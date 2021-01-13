@@ -45,7 +45,8 @@ export default {
           borderWidth: 1,
           borderType: 'solid',
           borderRadius: 5,
-          right: '55%'
+          left: 5,
+          width: '45%'
         },
         toolbox: {
           show: false,

@@ -5,7 +5,7 @@ import Vue from 'vue'
   Popover, Divider, RadioGroup, Radio, Input, ColorPicker
 } from 'element-ui' */
 import {
-  Button, Message, Container, Header, Main, Alert,
+  Button, Message, Container, Header, Main, Alert, Radio, Divider,
   Card, Tooltip, Select, Option, ColorPicker, Switch,
   Dialog, Form, FormItem, DatePicker, Input, Col, Tag
 } from 'element-ui'
@@ -20,13 +20,14 @@ Vue.use(Main)
 Vue.use(Alert)
 Vue.use(Card)
 Vue.use(Button)
+Vue.use(Radio)
+Vue.use(Divider)
 Vue.use(Tooltip)
 Vue.use(Select)
 Vue.use(Option)
 /* Vue.use(Popover)
 Vue.use(Divider)
 Vue.use(RadioGroup)
-Vue.use(Radio)
 Vue.use(Input) */
 Vue.use(ColorPicker)
 Vue.use(Switch)
