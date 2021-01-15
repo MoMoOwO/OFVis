@@ -166,9 +166,9 @@ router.get('/somresult', async function (req, res, next) {
   const samplesSetSchemaToParallel = [
     { name: 'samplesName', index: 0, text: 'Sample Name' },
     { name: 'Mean', index: 7, text: 'Mean' },
+    { name: "Moran's I", index: 3, text: "Moran's I" },
     { name: 'IQR', index: 4, text: 'IQR' },
     { name: 'Skewness', index: 5, text: 'Skewness' },
-    { name: "Moran's I", index: 3, text: "Moran's I" },
     { name: 'SDD', index: 6, text: 'SDD' }
   ];
 
