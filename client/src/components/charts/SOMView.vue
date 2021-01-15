@@ -22,6 +22,8 @@
     <!-- Tree-List -->
     <v-chart class="tree-chart" ref="treeChartRef" v-if="!showTree"></v-chart>
     <div class="tree-list" v-if="showTree">
+      <span><font color="#166369" size="4">Cluster Tree List</font></span>
+      <br />
       <el-button
         type="primary"
         size="mini"
@@ -362,8 +364,24 @@ export default {
       },
       // 平行坐标图配置项
       paralleOpt: {
+        title: {
+          text: 'Samples-View',
+          textStyle: {
+            color: '#166369'
+          },
+          left: 7,
+          top: 3
+        },
         legend: {
-          data: []
+          data: [],
+          right: '15%',
+          top: 3,
+          itemGap: 5,
+          itemWidth: 10,
+          itemHeight: 10,
+          borderWidth: 1,
+          borderType: 'solid',
+          borderRadius: 5
         },
         toolbox: {
           feature: {
@@ -401,6 +419,11 @@ export default {
       },
       // 时序散点图配置项
       timeVariantChartOpt: {
+        title: {
+          text: 'Pattern-View',
+          left: 'center',
+          top: 3
+        },
         xAxis: { type: 'category' },
         yAxis: {
           type: 'category',
@@ -413,7 +436,7 @@ export default {
           }
         },
         grid: {
-          top: 10,
+          top: 40,
           left: 35,
           right: 25,
           bottom: 80
@@ -1019,9 +1042,12 @@ export default {
     },
     // 时变图中选中样本
     timeVariantItemClicked(e) {
+      console.log('暂时取消！')
       // 记录点选的数据信息
-      this.selectedUnitIndex.push(e.dataIndex)
+      /* this.selectedUnitIndex.push(e.dataIndex)
       this.selectedUnitID.push(e.data[2])
+      console.log(e)
+
       // 点选的保持高亮
       this.$refs.timeVariantChartRef.dispatchAction({
         type: 'highlight',
@@ -1050,6 +1076,7 @@ export default {
       for (const item of this.sampleDataSet) {
         const clusterId = this.getClusterID(item[8])
         parallelSeries[clusterId].data.push(item)
+        console.log(item)
       }
       // 修改平行坐标图
       this.paralleOpt.series = parallelSeries
@@ -1062,12 +1089,13 @@ export default {
           'selectSampleDataOnSom',
           this.getSampleDetailData(this.selectedUnitID)
         )
-      }, 2000)
+      }, 2000) */
     },
     // 时变图中取消选中样本
     timeVariantItemdblClicked(e) {
+      console.log('暂时取消！')
       // 时序图高亮取消
-      for (const index of this.selectedUnitIndex) {
+      /* for (const index of this.selectedUnitIndex) {
         this.$refs.timeVariantChartRef.dispatchAction({
           type: 'downplay',
           dataIndex: index
@@ -1085,7 +1113,7 @@ export default {
         date: [],
         regionId: [],
         color: []
-      })
+      }) */
     },
     // 根据选中的 unitID 数组获取日期、海区、分类颜色等数组
     getSampleDetailData(unitIDArr) {
@@ -1214,9 +1242,10 @@ export default {
     margin-right: 5px;
   }
   .swiper {
-    margin-top: 10px;
+    margin-top: 5px;
     height: 420px;
     width: 500px;
+    border: 1px #ccc dashed;
   }
   .u-matrix-container {
     align-items: center;
