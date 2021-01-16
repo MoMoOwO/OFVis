@@ -44,7 +44,7 @@ router.put('/clustertree/:name', function (req, res, next) {
 // 获取 som 结果数据集，主要包含各类图表所需数据
 router.get('/somresult', async function (req, res, next) {
   // 获取 SOMModel 数据
-  const somDocs = await SOMDataModel.find({}, { '_id': 0, 'options': 1, 'data': 1, 'name': 1 });
+  const somDocs = await SOMDataModel.find({ name: 'SOM' }, { '_id': 0, 'options': 1, 'data': 1, 'name': 1 });
   let som = null; // SOM对象
   if (somDocs.length) {
     som = SOM.load(somDocs[0]); // 加载 SOMMOdel，之后得到 som 网络模型
@@ -120,11 +120,11 @@ router.get('/somresult', async function (req, res, next) {
       samplesNameSet.push(sampleName);
       // 添加预测集数据
       predictSet.push({
+        Mean: obj.Mean,
         MoransI: obj.MoransI,
         IQR: obj.IQR,
         Skewness: obj.Skewness,
-        SDD: obj.SDD,
-        LALSR: obj.LALSR
+        SDD: obj.SDD
       });
       sampleName = sampleName.split('-')[0]; // 遍历到下一个海区，先恢复到只是 日期 的状态
     }
@@ -153,11 +153,11 @@ router.get('/somresult', async function (req, res, next) {
       samplesNameSet[i], // 'date-regionId'
       samplesNameSet[i].split('-')[0], // date
       samplesNameSet[i].split('-')[1], // regionId,
+      predictData.Mean,
       predictData.MoransI,
       predictData.IQR,
       predictData.Skewness,
       predictData.SDD,
-      predictData.LALSR,
       unitId
     ]);
   }
@@ -165,11 +165,11 @@ router.get('/somresult', async function (req, res, next) {
   // 平行坐标轴 每个坐标轴与数据 series 之间的 Schema 映射
   const samplesSetSchemaToParallel = [
     { name: 'samplesName', index: 0, text: 'Sample Name' },
+    { name: 'Mean', index: 7, text: 'Mean' },
     { name: "Moran's I", index: 3, text: "Moran's I" },
     { name: 'IQR', index: 4, text: 'IQR' },
     { name: 'Skewness', index: 5, text: 'Skewness' },
-    { name: 'SDD', index: 6, text: 'SDD' },
-    { name: 'LALSR', index: 7, text: 'LALSR' }
+    { name: 'SDD', index: 6, text: 'SDD' }
   ];
 
   res.status(200).json({ data: { min, max, size, UMatrix, unitCount, indicatorArr, WMatrix, samplesSet, samplesSetSchemaToParallel }, meta: { msg: '获取 SOM-Result 成功！', status: 200 } });
