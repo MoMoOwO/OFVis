@@ -22,8 +22,9 @@
     <!-- Tree-List -->
     <v-chart class="tree-chart" ref="treeChartRef" v-if="!showTree"></v-chart>
     <div class="tree-list" v-if="showTree">
-      <span><font color="#166369" size="4">Cluster Tree List</font></span>
-      <br />
+      <span class="title-label"
+        ><font color="#166369" size="4">Cluster Tree List</font></span
+      >
       <el-button
         type="primary"
         size="mini"
@@ -72,6 +73,7 @@
       <swiper-slide>
         <v-chart
           ref="paralleRef"
+          theme="infographic"
           :init-options="this.$store.state.echartInitOption"
           :options="paralleOpt"
           @axisareaselected="selectedAreaOnParalle"
@@ -151,7 +153,7 @@ export default {
         '#ffff33'
       ],
       // 聚类选用的颜色
-      clustersColors: ['#e41a1c', '#377eb8', '#4daf4a'],
+      clustersColors: ['#E41A1C', '#377EB8', '#4DAF4A', '#984EA3'],
       // unit 样本统计数据，用于刷新 series，无类别标识
       unitCountData: [],
       // 散点原数据，无类别标识
@@ -171,7 +173,7 @@ export default {
         title: {
           text: 'U-Matrix',
           left: 7,
-          top: 3
+          top: 5
         },
         xAxis: {
           type: 'category',
@@ -243,7 +245,7 @@ export default {
           {
             name: 'Sample Count',
             symbolSize: function (data) {
-              return data[2] * 2
+              return Math.sqrt(data[2]) * 8
             },
             hoverAnimation: false,
             type: 'scatter',
@@ -263,7 +265,7 @@ export default {
         title: {
           text: 'Component Plane',
           left: 7,
-          top: 3
+          top: 5
         },
         grid: {
           left: 7,
@@ -288,12 +290,12 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+          data: ['0', '1', '2', '3', '4', '5', '6'],
           show: false
         },
         yAxis: {
           type: 'category',
-          data: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+          data: ['0', '1', '2', '3', '4', '5', '6'],
           show: false
         },
         tooltip: {
@@ -366,15 +368,16 @@ export default {
       paralleOpt: {
         title: {
           text: 'Samples-View',
-          textStyle: {
-            color: '#166369'
-          },
+          /* textStyle: {
+            color: '#166369',
+            fontWeight: 'normal'
+          }, */
           left: 7,
           top: 3
         },
         legend: {
           data: [],
-          right: '15%',
+          right: '14%',
           top: 3,
           itemGap: 5,
           itemWidth: 10,
@@ -409,11 +412,11 @@ export default {
           right: 45
         },
         parallelAxis: [
-          { dim: 3, name: "Moran's I" },
-          { dim: 4, name: 'IQR' },
-          { dim: 5, name: 'Skewness' },
-          { dim: 6, name: 'SDD' },
-          { dim: 7, name: 'LALSR' }
+          { dim: 3, name: 'Mean', nameGap: 10, axisLine: { show: true } },
+          { dim: 4, name: "Moran's I", nameGap: 10, axisLine: { show: true } },
+          { dim: 5, name: 'IQR', nameGap: 10, axisLine: { show: true } },
+          { dim: 6, name: 'Skewness', nameGap: 10, axisLine: { show: true } },
+          { dim: 7, name: 'SDD', nameGap: 10, axisLine: { show: true } }
         ],
         series: []
       },
@@ -635,7 +638,7 @@ export default {
         radar.push({
           indicator: indicatorArr,
           center: center,
-          radius: 14,
+          radius: 22,
           name: {
             show: true,
             textStyle: {
@@ -697,7 +700,7 @@ export default {
       const scatterSeries = [
         {
           name: 'cluster',
-          symbolSize: 35,
+          symbolSize: 50,
           hoverAnimation: false,
           type: 'scatter',
           data: scatterData, // [x, y, unitId, clusterId]
@@ -709,7 +712,7 @@ export default {
           }
         },
         {
-          symbolSize: 30,
+          symbolSize: 45,
           // hoverAnimation: false,
           type: 'scatter',
           data: scatterData, // [x, y, unitId, clusterId]
@@ -737,6 +740,23 @@ export default {
           textStyle: {
             fontSize: 10,
             color: '#636363'
+          },
+          formatter: (name) => {
+            let res = ''
+            switch (name) {
+              case 'Mean':
+                res = 'Me'
+                break
+              case 'Skewness':
+                res = 'Sk'
+                break
+              case 'MoransI':
+                res = 'MI'
+                break
+              default:
+                res = name
+            }
+            return res
           }
         },
         nameGap: 1,
@@ -1234,6 +1254,10 @@ export default {
       margin-bottom: 3px;
     }
     border: 1px #ccc dashed;
+    .title-label {
+      display: block;
+      margin-bottom: 5px;
+    }
   }
   .icon {
     &:hover {
