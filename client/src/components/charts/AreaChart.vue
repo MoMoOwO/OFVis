@@ -69,6 +69,7 @@ export default {
           orient: 'vertical', // 排列方向，默认horizontal
           left: 'center',
           // right: 5,
+          top: 30,
           bottom: 50,
           yearLabel: {
             // 年份标签边距
@@ -103,13 +104,14 @@ export default {
       barOpt: {
         title: {
           text: '',
-          right: 0,
-          top: 15,
+          right: 10,
+          top: 4,
           textStyle: {
             fontSize: 17
           }
         },
         grid: {
+          top: 30,
           left: 20,
           right: 20
         },
