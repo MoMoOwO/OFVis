@@ -367,7 +367,7 @@ export default {
       // 平行坐标图配置项
       paralleOpt: {
         title: {
-          text: 'Samples-View',
+          text: 'Samples View',
           /* textStyle: {
             color: '#166369',
             fontWeight: 'normal'
@@ -377,8 +377,10 @@ export default {
         },
         legend: {
           data: [],
-          right: '14%',
-          top: 3,
+          // right: '14%',
+          // top: 3,
+          bottom: 28,
+          left: 'center',
           itemGap: 5,
           itemWidth: 10,
           itemHeight: 10,
@@ -423,14 +425,16 @@ export default {
       // 时序散点图配置项
       timeVariantChartOpt: {
         title: {
-          text: 'Pattern-View',
-          left: 'center',
+          text: 'Pattern View',
+          left: 7,
           top: 3
         },
-        xAxis: { type: 'category' },
+        xAxis: {
+          type: 'category'
+        },
         yAxis: {
           type: 'category',
-          name: 'regionID',
+          // name: 'regionID',
           nameTextStyle: {
             padding: [0, 0, 0, 20]
           },
@@ -473,11 +477,11 @@ export default {
           itemStyle: {
             normal: {
               color: (p) => this.clustersColors[p.data[3]]
-            },
-            emphasis: {
+            }
+            /* emphasis: {
               borderWidth: 1,
               borderColor: '#333'
-            }
+            } */
           }
         }
       },
