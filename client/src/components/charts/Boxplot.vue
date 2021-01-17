@@ -39,7 +39,7 @@ export default {
             this.$store.state.barDateChoosed +
             ' ' +
             this.$store.getters.getRegionIDLabel,
-          right: 0,
+          right: 8,
           top: 15
         },
         legend: {
@@ -294,6 +294,8 @@ export default {
           this.$store.getters.getRegionIDLabel
         // 请求新数据
         this.getBoxplotData()
+        // 左移 legend
+        this.boxOpt.legend.left = 27
         // 显示 restore 按钮
         this.boxOpt.toolbox.show = true
         // 地图显示海区
@@ -334,6 +336,9 @@ export default {
         // console.log(e)
         this.$store.commit('selectImgShowOnMap', e.name)
         this.$store.commit('hoverPointOnBoxplot', e.data)
+      } else if (e.name.length === 6 && e.seriesType === 'boxplot') {
+        // 二层箱体，在地图中显示对应日期
+        this.$store.commit('selectImgShowOnMap', e.name)
       }
     },
     boxPlotItemMouseout(e) {
@@ -348,6 +353,8 @@ export default {
     boxPlotItemsRestore() {
       // 隐藏 restore 按钮
       this.boxOpt.toolbox.show = false
+      // 右移 legend
+      this.boxOpt.legend.left = 5
       this.queryInfo.type = '1'
       // 改变选择区域的
       this.$store.commit('selectedRegionIDOnAxis', 'all') // 修改状态管理器中的数据，保持其他图表联动更新
