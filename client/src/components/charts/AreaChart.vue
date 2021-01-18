@@ -6,6 +6,7 @@
       ref="calendarChartRef"
       :init-options="this.$store.state.echartInitOption"
       :options="calendarOpt"
+      @mouseover="calendarItemMouseover"
       @click="calendarItemClicked"
       @dblclick="calendarItemdbClicked"
     ></v-chart>
@@ -15,6 +16,7 @@
       ref="barChartRef"
       :init-options="this.$store.state.echartInitOption"
       :options="barOpt"
+      @mouseover="barItemMouseover"
       @click="barItemClicked"
     ></v-chart>
   </div>
@@ -69,6 +71,7 @@ export default {
           orient: 'vertical', // 排列方向，默认horizontal
           left: 'center',
           // right: 5,
+          top: 30,
           bottom: 50,
           yearLabel: {
             // 年份标签边距
@@ -103,13 +106,14 @@ export default {
       barOpt: {
         title: {
           text: '',
-          right: 0,
-          top: 15,
+          right: 10,
+          top: 4,
           textStyle: {
             fontSize: 17
           }
         },
         grid: {
+          top: 30,
           left: 20,
           right: 20
         },
@@ -281,6 +285,17 @@ export default {
           this.yearChoosed + (e.dataIndex + 1 + '').padStart(2, '0')
         )
       }
+    },
+    // 悬浮联动地图概览空间情形
+    barItemMouseover(e) {
+      const date =
+        this.yearChoosed + (e.dataIndex + 1).toString().padStart(2, '0')
+      this.$store.commit('selectImgShowOnMap', date)
+    },
+    // 在日历上悬浮联动地图概览空间情形
+    calendarItemMouseover(e) {
+      const date = e.data[0].split('-').join('')
+      this.$store.commit('selectImgShowOnMap', date)
     },
     // 日历图单项点击
     calendarItemClicked(e) {

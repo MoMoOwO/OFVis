@@ -4,7 +4,7 @@
     <el-header>
       <div>
         <img src="../assets/logo.jpg" />
-        <span>OFViser</span>
+        <span>OF-Explorer</span>
       </div>
       <el-alert
         title="Tips："
@@ -212,14 +212,11 @@ export default {
       radio: 1, // 坐标系选择
       // 特征值选项列表
       features: [
+        { value: 'Mean', label: 'Mean' },
         { value: 'MoransI', label: "Moran's I" },
-        { value: 'IQR', label: 'IQR (Interquartile Range)' },
+        { value: 'IQR', label: 'IQR' },
         { value: 'Skewness', label: 'Skewness' },
-        { value: 'SDD', label: 'SDD (Spatial Distribution Density)' },
-        {
-          value: 'LALSR',
-          label: 'LALSR (Longitude and Latitude Dimension Span Ratio)'
-        }
+        { value: 'SDD', label: 'SDD' }
       ],
       featureChoosed: 'MoransI',
       // Gallery 是否最大化
@@ -288,6 +285,7 @@ export default {
     display: flex;
     align-items: center;
     span {
+      width: 115px;
       margin: 0px 15px;
     }
     img {

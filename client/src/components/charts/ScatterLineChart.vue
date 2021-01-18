@@ -33,7 +33,7 @@ export default {
       scatterLineOpt: {
         title: {
           text: '',
-          right: 0,
+          right: 10,
           top: 10
         },
         legend: {
@@ -181,6 +181,9 @@ export default {
     getSymbolSize(val) {
       let res
       switch (this.feature) {
+        case 'Mean':
+          res = Math.sqrt(val * 70) * 10
+          break
         case 'MoransI':
           res = Math.sqrt(val * 10) * 10
           break
@@ -192,9 +195,6 @@ export default {
           break
         case 'SDD':
           res = Math.sqrt(val * 10) * 8
-          break
-        case 'LALSR':
-          res = Math.sqrt(val) * 10
           break
         default:
           alert('时变散点图半径计算出错！')
@@ -240,6 +240,9 @@ export default {
       const lineSeries = {
         name: lineData.regionId,
         type: 'line',
+        symbol: 'circle',
+        symbolSize: 10,
+        showSymbol: true,
         itemStyle: {
           color: '#fac524'
         },
@@ -328,7 +331,7 @@ export default {
         // console.log(lineData)
         this.setLineChart(lineData)
       } else {
-        console.log(e)
+        console.log('在 Features-View 中出现其他鼠标点击情况！')
       }
       // console.log(e)
     },
@@ -345,8 +348,14 @@ export default {
         this.$store.commit('changeRegionShowOnMap', [+e.value.slice(1)])
         // 在地图上显示 geojson 图层
         this.$store.commit('changeStateOfGeoJsonOnMap', true)
+      } else if (e.seriesType === 'scatter' || e.seriesType === 'line') {
+        // 悬浮显示在地图上显示对应日期空间形态
+        const date =
+          this.$store.state.yearOnGallery +
+          (e.dataIndex + 1).toString().padStart(2, '0')
+        this.$store.commit('selectImgShowOnMap', date)
       } else {
-        console.log(e)
+        console.log('在 Features-View 中出现其他鼠标悬浮情况！')
       }
     },
     // 鼠标从 y 轴还去标签离开时地图上的海区范围显示消失
