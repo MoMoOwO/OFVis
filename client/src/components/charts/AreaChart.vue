@@ -6,6 +6,7 @@
       ref="calendarChartRef"
       :init-options="this.$store.state.echartInitOption"
       :options="calendarOpt"
+      @mouseover="calendarItemMouseover"
       @click="calendarItemClicked"
       @dblclick="calendarItemdbClicked"
     ></v-chart>
@@ -15,6 +16,7 @@
       ref="barChartRef"
       :init-options="this.$store.state.echartInitOption"
       :options="barOpt"
+      @mouseover="barItemMouseover"
       @click="barItemClicked"
     ></v-chart>
   </div>
@@ -283,6 +285,17 @@ export default {
           this.yearChoosed + (e.dataIndex + 1 + '').padStart(2, '0')
         )
       }
+    },
+    // 悬浮联动地图概览空间情形
+    barItemMouseover(e) {
+      const date =
+        this.yearChoosed + (e.dataIndex + 1).toString().padStart(2, '0')
+      this.$store.commit('selectImgShowOnMap', date)
+    },
+    // 在日历上悬浮联动地图概览空间情形
+    calendarItemMouseover(e) {
+      const date = e.data[0].split('-').join('')
+      this.$store.commit('selectImgShowOnMap', date)
     },
     // 日历图单项点击
     calendarItemClicked(e) {

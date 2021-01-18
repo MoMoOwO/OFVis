@@ -331,7 +331,7 @@ export default {
         // console.log(lineData)
         this.setLineChart(lineData)
       } else {
-        console.log(e)
+        console.log('在 Features-View 中出现其他鼠标点击情况！')
       }
       // console.log(e)
     },
