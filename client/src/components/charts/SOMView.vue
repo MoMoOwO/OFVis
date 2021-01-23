@@ -23,7 +23,7 @@
     <v-chart class="tree-chart" ref="treeChartRef" v-if="!showTree"></v-chart>
     <div class="tree-list" v-if="showTree">
       <span class="title-label"
-        ><font color="#166369" size="4">Cluster Tree List</font></span
+        ><font color="#166369" size="4">Cluster-Tree-List</font></span
       >
       <el-button
         type="primary"
@@ -263,7 +263,7 @@ export default {
       // 权重矩阵配置项
       wMatrixOpt: {
         title: {
-          text: 'Component Plane',
+          text: 'Component-Plane',
           left: 7,
           top: 5
         },
@@ -367,7 +367,7 @@ export default {
       // 平行坐标图配置项
       paralleOpt: {
         title: {
-          text: 'Samples View',
+          text: 'Samples-View',
           /* textStyle: {
             color: '#166369',
             fontWeight: 'normal'
@@ -425,7 +425,7 @@ export default {
       // 时序散点图配置项
       timeVariantChartOpt: {
         title: {
-          text: 'Pattern View',
+          text: 'Sequence-View',
           left: 7,
           top: 3
         },
@@ -673,6 +673,16 @@ export default {
               color: '#ccc'
             }
           },
+          tooltip: {
+            formatter: (p) => {
+              let res = p.seriesName + '<br />'
+              const featues = ['Mean', "Morans'I", 'IQR', 'Skewness', 'SDD']
+              for (let i = 0; i < p.value.length; i++) {
+                res += featues[i] + '：' + p.value[i].toFixed(2) + '<br />'
+              }
+              return res
+            }
+          },
           lineStyle: {
             color: '#ccc'
           },
@@ -736,8 +746,8 @@ export default {
       // 在左上角添加一个雷达图坐标轴标识
       radar.push({
         indicator: indicatorArr,
-        center: ['60%', '6.5%'],
-        radius: 14,
+        center: ['77%', '6.5%'],
+        radius: 10,
         shape: 'circle',
         name: {
           show: true,
