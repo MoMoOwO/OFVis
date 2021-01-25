@@ -650,7 +650,7 @@ export default {
       }
     },
 
-    // 来自 SOM-View 的协同狡猾
+    // 来自 SOM-View 的协同交互
     // 获取对应的 geojson 数据
     getShowRegionJson(index) {
       // console.log(this.samplesData.regionId.length)
