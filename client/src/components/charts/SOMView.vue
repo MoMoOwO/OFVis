@@ -87,6 +87,8 @@
           :options="timeVariantChartOpt"
           @click="timeVariantItemClicked"
           @dblclick="timeVariantItemdblClicked"
+          @datazoom="timeVariantDataZoom"
+          @restore="timeVariantRestore"
         ></v-chart>
       </swiper-slide>
       <div class="swiper-pagination" slot="pagination"></div>
@@ -429,6 +431,15 @@ export default {
           left: 7,
           top: 3
         },
+        toolbox: {
+          feature: {
+            restore: {
+              title: 'restore'
+            }
+          },
+          right: 30,
+          top: 0
+        },
         xAxis: {
           type: 'category'
         },
@@ -488,6 +499,7 @@ export default {
       selectedUnitIndex: [], // 选中项索引
       selectedUnitID: [], // 选中的 unitId
       timer: null, // 延时器
+      brushTimer: null, // 刷选延时器
       itemSeriesHightlightDataIndex: [] //
     }
   },
@@ -1018,7 +1030,8 @@ export default {
         // 修改平行坐标图
         this.paralleOpt.series = parallelSeries
 
-        // 筛选时变图
+        // 取消了时序图联动
+        /* // 筛选时变图
         for (let i = 0; i < this.timeVariantChartOpt.series.data.length; i++) {
           if (
             this.selectedUnitID.indexOf(
@@ -1032,7 +1045,7 @@ export default {
         this.$refs.timeVariantChartRef.dispatchAction({
           type: 'highlight',
           dataIndex: this.itemSeriesHightlightDataIndex
-        })
+        }) */
 
         // 延时更改，以支持多选
         clearTimeout(this.timer)
@@ -1058,11 +1071,12 @@ export default {
       // 恢复平行坐标图
       this.setParallelChart(this.sampleDataSet)
 
-      // timescatter 恢复
+      // 取消了时序图联动
+      /* // timescatter 恢复
       this.$refs.timeVariantChartRef.dispatchAction({
         type: 'downplay',
         dataIndex: this.itemSeriesHightlightDataIndex
-      })
+      }) */
       // 置空
       this.itemSeriesHightlightDataIndex = []
       this.timer = null
@@ -1149,6 +1163,33 @@ export default {
         color: []
       }) */
     },
+    // 时变图上 datazoom
+    timeVariantDataZoom(e) {
+      clearTimeout(this.brushTimer)
+      this.brushTimer = setTimeout(() => {
+        let dateArr = [] // 日期数组
+        // 获取日期数据
+        for (let i = 0; i < this.sampleDataSet.length; i++) {
+          dateArr.push(this.sampleDataSet[i][1])
+        }
+        dateArr = Array.from(new Set(dateArr)) // 去重
+        const start = parseInt((dateArr.length * e.start) / 100) // 开始位置
+        const end = parseInt((dateArr.length * e.end) / 100 + 1) // 结束位置
+        const selectDate = dateArr.slice(start, end)
+
+        const res = this.getSampleDataFromBrush(selectDate)
+        this.$store.commit('selectSampleDataOnSom', res)
+      }, 2000)
+    },
+    // 刷选复原
+    timeVariantRestore() {
+      this.brushTimer = null
+      this.$store.commit('selectSampleDataOnSom', {
+        date: [],
+        regionId: [],
+        color: []
+      })
+    },
     // 根据选中的 unitID 数组获取日期、海区、分类颜色等数组
     getSampleDetailData(unitIDArr) {
       // 初始化样本数组，并赋空值
@@ -1174,19 +1215,6 @@ export default {
         regionId: [],
         color: []
       }
-      // 初始化空长度的 regionId、color 数组
-      /* const tempArr = []
-			for(let i = 0; i< sampleDateRegionData.length; i++){
-				for(let j =0; j< sampleDateRegionData[i].length; j++){
-					const date = sampleDateRegionData[i][j].split('-')[0]
-					tempArr.push(date)
-				}
-			}
-			const len = Array.from(new Set(tempArr)).length
-			for(let i = 0; i< len; i++){
-				resObj.regionId.push([])
-				resObj.color.push([])
-			} */
 
       // 遍历获取最终数据
       for (let i = 0; i < sampleDateRegionData.length; i++) {
@@ -1206,6 +1234,35 @@ export default {
           }
         }
       }
+      return resObj
+    },
+    /**
+     * @param {dateArr} 刷选的日期数组
+     */
+    // 时变图中刷选得到的样本数据
+    getSampleDataFromBrush(dateArr) {
+      // console.log(this.sampleDataSet)
+      // 返回的数据
+      const resObj = {
+        date: dateArr,
+        regionId: [],
+        color: []
+      }
+
+      const samplesLen = this.sampleDataSet.length
+      for (let i = 0; i < samplesLen; i++) {
+        const sampleItem = this.sampleDataSet[i]
+        if (resObj.date.indexOf(sampleItem[1]) !== -1) {
+          // 时间数组中有该日期数据
+          const index = resObj.date.indexOf(sampleItem[1])
+          resObj.regionId[index] === undefined && (resObj.regionId[index] = [])
+          resObj.regionId[index].push(sampleItem[2])
+          resObj.color[index] === undefined && (resObj.color[index] = [])
+          const clusterID = this.getClusterID(sampleItem[8])
+          resObj.color[index].push(this.clustersColors[clusterID])
+        }
+      }
+
       return resObj
     },
     // 在时序散点图上 datazoom 的时候保持高亮
