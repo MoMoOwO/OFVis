@@ -71,6 +71,7 @@
     <!-- 平行坐标图和散点图 -->
     <swiper class="swiper" :options="chartSwiperOptions">
       <swiper-slide>
+        <!-- 平行坐标图 -->
         <v-chart
           ref="paralleRef"
           theme="infographic"
@@ -80,6 +81,7 @@
         ></v-chart>
       </swiper-slide>
       <swiper-slide>
+        <!-- 序列图 -->
         <v-chart
           ref="timeVariantChartRef"
           theme="infographic"
@@ -416,11 +418,11 @@ export default {
           right: 45
         },
         parallelAxis: [
-          { dim: 3, name: 'Mean', nameGap: 10, axisLine: { show: true } },
-          { dim: 4, name: "Moran's I", nameGap: 10, axisLine: { show: true } },
-          { dim: 5, name: 'IQR', nameGap: 10, axisLine: { show: true } },
-          { dim: 6, name: 'Skewness', nameGap: 10, axisLine: { show: true } },
-          { dim: 7, name: 'SDD', nameGap: 10, axisLine: { show: true } }
+          { dim: 0, name: 'Mean', nameGap: 10, axisLine: { show: true } },
+          { dim: 1, name: "Moran's I", nameGap: 10, axisLine: { show: true } },
+          { dim: 2, name: 'IQR', nameGap: 10, axisLine: { show: true } },
+          { dim: 3, name: 'Skewness', nameGap: 10, axisLine: { show: true } },
+          { dim: 4, name: 'SDD', nameGap: 10, axisLine: { show: true } }
         ],
         series: []
       },
@@ -594,7 +596,7 @@ export default {
 
         this.sampleDataSet = res.data.samplesSet // 保存原数据 备份样本数据
         // 平行坐标图
-        this.setParallelChart(res.data.samplesSet)
+        this.setParallelChart(res.data.samplesSet, false)
         // 时空演变图
         this.setTimeVariantChart(res.data.samplesSet)
 
@@ -810,7 +812,7 @@ export default {
     /**
      * @param {Array} samplesSet 样本完整数据
      */
-    setParallelChart(samplesSet) {
+    setParallelChart(samplesSet, linked) {
       // 设置平行坐标图 legend
       const legendData = []
       // console.log(this.treeData)
@@ -828,20 +830,63 @@ export default {
           type: 'parallel',
           lineStyle: {
             color: this.clustersColors[i],
-            width: 2
+            opacity: 0.8
           },
           data: []
         })
       }
 
-      // 遍历样本数据
+      // 每个 BMU 结点的样本
+      const samplesBMUData = []
+
+      // 遍历样本数组，添加到对应的 BMU 中
       for (const item of samplesSet) {
-        // item ['201501-1', '201501', '1', MI, IQR, Sk, SDD, LALSR, unitId]
-        const clusterId = this.getClusterID(item[8]) // 获取类别 id
-        // item.push(clusterId)
-        // arr[clusterId].push(item)
-        parallelSeries[clusterId].data.push(item) // 平行坐标轴，在对应类别下添加数据
+        if (linked && this.selectedUnitID.indexOf(item[8]) === -1) {
+          // 联动，且不是选中的 BMU 单元，则跳过
+          continue
+        }
+        // item ['201501-1', '201501', '1', Me, MI, IQR, Sk, SDD, unitId]
+        samplesBMUData[item[8]] === undefined && (samplesBMUData[item[8]] = []) // 如果 BMU 尚未有空间先添加空间
+
+        samplesBMUData[item[8]].push(item)
       }
+
+      // 遍历 BMU 数组，统计每个 BMU 中样本特征值的平均值
+      for (const item of samplesBMUData) {
+        if (item !== undefined) {
+          const len = item.length
+          const avgFeaturesData = [0, 0, 0, 0, 0] // 先统计特征值，再计算平均
+          for (let i = 0; i < len; i++) {
+            // item[i] ['201501-1', '201501', '1', Me, MI, IQR, Sk, SDD, unitId]
+            avgFeaturesData[0] += item[i][3]
+            avgFeaturesData[1] += item[i][4]
+            avgFeaturesData[2] += item[i][5]
+            avgFeaturesData[3] += item[i][6]
+            avgFeaturesData[4] += item[i][7]
+          }
+          // 求平均
+          avgFeaturesData[0] /= len
+          avgFeaturesData[1] /= len
+          avgFeaturesData[2] /= len
+          avgFeaturesData[3] /= len
+          avgFeaturesData[4] /= len
+
+          avgFeaturesData.push(item[0][8]) // [Me, MI, IQR, Sk, SDD, unitId] 特征值平均值和 unitId
+
+          const parallelData = {
+            value: avgFeaturesData,
+            lineStyle: {
+              width: len
+            }
+          }
+
+          const clusterId = this.getClusterID(item[0][8]) // 获取类别 id
+          // item.push(clusterId)
+          // arr[clusterId].push(item)
+          parallelSeries[clusterId].data.push(parallelData) // 平行坐标轴，在对应类别下添加数据
+        }
+      }
+
       // 数据赋值创建两个图表
       this.paralleOpt.series = parallelSeries
     },
@@ -877,7 +922,7 @@ export default {
       })
       // 平行坐标图配色改变
       // 更新平行坐标图
-      this.setParallelChart(this.sampleDataSet)
+      this.setParallelChart(this.sampleDataSet, false)
 
       // 演化图更新配色
       this.$refs.timeVariantChartRef.mergeOptions({
@@ -971,7 +1016,7 @@ export default {
         this.setWeightsMatrix(this.weightMatrixData, this.indicatorArr)
 
         // 更新平行坐标图
-        this.setParallelChart(this.sampleDataSet)
+        this.setParallelChart(this.sampleDataSet, false)
 
         // 更新时序散点图
         this.setTimeVariantChart(this.sampleDataSet)
@@ -1004,7 +1049,7 @@ export default {
           dataIndex: e.dataIndex
         })
 
-        // 筛选平行坐标图的
+        /* // 筛选平行坐标图的
         const parallelSeries = []
         // 根据类别颜色数创建数组，类别数
         for (let i = 0; i < this.clustersColors.length; i++) {
@@ -1028,7 +1073,9 @@ export default {
           parallelSeries[clusterId].data.push(item)
         }
         // 修改平行坐标图
-        this.paralleOpt.series = parallelSeries
+        this.paralleOpt.series = parallelSeries */
+
+        this.setParallelChart(this.sampleDataSet, true)
 
         // 取消了时序图联动
         /* // 筛选时变图
@@ -1069,7 +1116,7 @@ export default {
       }
 
       // 恢复平行坐标图
-      this.setParallelChart(this.sampleDataSet)
+      this.setParallelChart(this.sampleDataSet, false)
 
       // 取消了时序图联动
       /* // timescatter 恢复
@@ -1329,6 +1376,23 @@ export default {
       display: block;
       margin-bottom: 5px;
     }
+  }
+  /* 滚动条整体样式(高宽分别对应横竖滚动条的尺寸) */
+  .tree-list::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  /* 滚动条里面小方块 */
+  .tree-list::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.2);
+  }
+  /* 滚动条里面轨道 */
+  .tree-list::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.1);
   }
   .icon {
     &:hover {

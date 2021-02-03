@@ -1,6 +1,7 @@
 <template>
   <!-- 地图根容器 -->
   <l-map
+    ref="myMap"
     style="height: 565px; width: 100%; margin-top: 1.5px"
     :center="[33.9, 124.2]"
     :options="mapOptions"
@@ -18,9 +19,24 @@
         [22, 117],
         [40.9, 135]
       ]"
+      :zIndex="-5"
     ></l-image-overlay>
     <!-- 是否显示海区图层 -->
     <l-control class="control-panel" position="bottomleft">
+      <span>Graticule:</span>
+      <br />
+      <el-switch
+        style="
+           {
+            margin-top: 5px;
+          }
+        "
+        size="mini"
+        v-model="isShowGraticule"
+        active-color="#13ce66"
+        @change="changeShowGraticule"
+      ></el-switch>
+      <br />
       <span>Region:</span>
       <br />
       <el-switch
@@ -67,6 +83,7 @@
 // 导入 leaflet 地图插件的样式
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import 'leaflet-graticule'
 
 export default {
   data() {
@@ -76,7 +93,8 @@ export default {
         'https://api.mapbox.com/styles/v1/momoowo/cjzzc245d0hpc1cnts2lnwtwe/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9tb293byIsImEiOiJjanp5enEyenIxbnl6M2JtdjJib3B5cmJrIn0.THgFXKBewGaYauwvYLy5bA',
       // 地图配置项
       mapOptions: {
-        zoomSnap: 0.5, // 开启小数(0.5)缩放级别
+        zoomSnap: 0, // 开启小数(0.25)缩放级别
+        zoomDelta: 0.25,
         zoom: 5.5,
         zoomControl: true,
         scrollWheelZoom: true,
@@ -93,6 +111,8 @@ export default {
       imgUrl: '', // 图片
       // 是否显示 Region
       isShowRegion: false,
+      // 是否显示经纬标线
+      isShowGraticule: false,
       // geojson数据
       geojson: {
         type: 'FeatureCollection',
@@ -477,7 +497,8 @@ export default {
         ]
       },
       // geojson 样式
-      showRegionJsonOptions: {}
+      showRegionJsonOptions: {},
+      graticule: null
     }
   },
   created() {
@@ -487,6 +508,9 @@ export default {
   mounted() {
     // this.marker = [0, 0.1068, [40.475, 120.975]]
     this.getImg()
+    /* this.$nextTick(() => {
+      this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD()
+    }) */
   },
   watch: {
     '$store.state.imgShowOnMap': {
@@ -586,7 +610,29 @@ export default {
           }
         }
       }
-    }
+    },
+    changeShowGraticule(isShow) {
+      if (isShow) {
+        this.graticule = L.latlngGraticule({
+          showLabel: true,
+          fontColor: '#000',
+          zoomInterval: [
+            { start: 0, end: 3, interval: 10 },
+            { start: 3, end: 6, interval: 1 },
+            { start: 5, end: 9, interval: 1 / 2 },
+            { start: 9, end: 12, interval: 1 / 4 },
+            { start: 12, end: 14, interval: 1 / 24 },
+            { start: 14, end: 16, interval: 1 / 120 },
+            { start: 16, end: 18, interval: 1 / 130 },
+            { start: 18, end: 20, interval: 1 / 140 }
+          ]
+        }).addTo(this.$refs.myMap.mapObject)
+      } else {
+        this.$refs.myMap.mapObject.removeLayer(this.graticule)
+      }
+    },
+    // 设置经纬度线
+    setlatlngGraticule(isShow) {}
   }
 }
 </script>
