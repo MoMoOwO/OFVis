@@ -458,7 +458,7 @@ export default {
         grid: {
           top: 40,
           left: 35,
-          right: 25,
+          right: 20,
           bottom: 80
         },
         tooltip: {
