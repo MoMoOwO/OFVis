@@ -152,11 +152,11 @@ export default {
                   : (name = 'Date: ')
                 return [
                   name + param.name,
-                  'upper: ' + param.data[4].toFixed(4) + '℃/km',
-                  'Q3: ' + param.data[3].toFixed(4) + '℃/km',
-                  'median: ' + param.data[2].toFixed(4) + '℃/km',
-                  'Q1: ' + param.data[1].toFixed(4) + '℃/km',
-                  'lower: ' + param.data[0].toFixed(4) + '℃/km'
+                  'upper: ' + param.data[5].toFixed(4) + '℃/km',
+                  'Q3: ' + param.data[4].toFixed(4) + '℃/km',
+                  'median: ' + param.data[3].toFixed(4) + '℃/km',
+                  'Q1: ' + param.data[2].toFixed(4) + '℃/km',
+                  'lower: ' + param.data[1].toFixed(4) + '℃/km'
                 ].join('<br/>')
               }
             }
