@@ -13,7 +13,7 @@ router.get('/', function (req, res, next) {
 
 // 获取分类树结构数据
 router.get('/clustertree', function (req, res, next) {
-  ClusterTreeListModel.find({ name: 'root' }, (err, docs) => {
+  ClusterTreeListModel.find({ name: 'root-21/4' }, (err, docs) => {
     if (err) {
       console.log('/som/clustertree err:' + err);
       res.status(400).json({ meta: { msg: '获取 Cluster-Tree-List 数据失败！', status: 400 } });
