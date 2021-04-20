@@ -176,6 +176,7 @@ export default {
         series: {
           // barchart 的 series
           type: 'bar',
+          color: '#E8684A',
           data: null
           // barWidth: 10,
           /* itemStyle: {

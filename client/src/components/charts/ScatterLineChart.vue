@@ -6,10 +6,11 @@
       :init-options="this.$store.state.echartInitOption"
       :options="scatterLineOpt"
       @click="scatterLineChartClick"
-      @mouseover="scatterLineChartMouseover"
-      @mouseout="scatterLineChartMouseout"
       @restore="scatterLineChartRestore"
     />
+    <!-- 鼠标悬浮与移除事件 -->
+    <!-- @mouseover="scatterLineChartMouseover"
+    @mouseout="scatterLineChartMouseout" -->
   </div>
 </template>
 
@@ -215,12 +216,10 @@ export default {
           },
           itemStyle: {
             color: (p) => {
-              if (p.data[2] >= 0) {
-                return 'red'
-              } else {
-                return 'blue'
-              }
-            }
+              const color = p.data[2] >= 0 ? '#E8684A' : '#5B8FF9'
+              return color
+            },
+            opacity: 1
           },
           hoverAnimation: false,
           data: obj.data
@@ -244,8 +243,16 @@ export default {
         symbolSize: 10,
         showSymbol: true,
         itemStyle: {
-          color: '#fac524'
+          color: (p) => {
+            const color = p.data[1] >= 0 ? '#E8684A' : '#5B8FF9'
+            return color
+          },
+          opacity: 1
         },
+        lineStyle: {
+          color: '#65789B'
+        },
+        smooth: true,
         connectNulls: false,
         data: lineData.data
       }

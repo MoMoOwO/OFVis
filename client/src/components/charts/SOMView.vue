@@ -148,13 +148,19 @@ export default {
     return {
       // color: '#409EFF',
       // 提供的预选色
+      // ['#5B8FF9', '#61DDAA', '#E8684A', '#F6BD16', '#7262fd', '#78D3F8', '#9661BC', '#F6903D', '#008685', '#F08BB4']
+      // [ '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33' ]
       predefineColors: [
-        '#e41a1c',
-        '#377eb8',
-        '#4daf4a',
-        '#984ea3',
-        '#ff7f00',
-        '#ffff33'
+        '#5B8FF9',
+        '#61DDAA',
+        '#E8684A',
+        '#F6BD16',
+        '#7262fd',
+        '#78D3F8',
+        '#9661BC',
+        '#F6903D',
+        '#008685',
+        '#F08BB4'
       ],
       // 聚类选用的颜色
       clustersColors: ['#E41A1C', '#377EB8', '#4DAF4A', '#984EA3'],

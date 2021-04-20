@@ -6,10 +6,11 @@
       :init-options="this.$store.state.echartInitOption"
       :options="boxOpt"
       @click="boxPlotItemClicked"
-      @mouseover="boxPlotItemMouseover"
-      @mouseout="boxPlotItemMouseout"
       @restore="boxPlotItemsRestore"
     />
+    <!-- 暂时删除鼠标悬浮与移出事件 -->
+    <!-- @mouseover="boxPlotItemMouseover"
+    @mouseout="boxPlotItemMouseout" -->
   </div>
 </template>
 
@@ -139,7 +140,7 @@ export default {
             data: null,
             itemStyle: {
               normal: {
-                borderColor: '#4B96F3',
+                borderColor: '#5B8FF9',
                 borderWidth: 1,
                 color: '#D9EAFF'
               }
@@ -164,11 +165,11 @@ export default {
           {
             name: 'Outliers',
             type: 'scatter',
-            /* itemStyle: {
+            itemStyle: {
               normal: {
-                color: 'rgba(75,150,243,.7)'
+                color: '#E8684A'
               }
-            }, */
+            },
             symbolSize: 7,
             tooltip: {
               formatter: (p) => {
@@ -188,7 +189,7 @@ export default {
             z: 5,
             symbolSize: 10,
             itemStyle: {
-              color: '#FFB569'
+              color: '#F6BD16'
             },
             tooltip: {
               // show: false
