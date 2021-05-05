@@ -340,6 +340,12 @@ export default {
       } else {
         console.log('在 Features-View 中出现其他鼠标点击情况！')
       }
+
+      // 地图显示对应海区
+      // 显示对应海区的范围
+      this.$store.commit('changeRegionShowOnMap', [+e.value.slice(1)])
+      // 在地图上显示 geojson 图层
+      this.$store.commit('changeStateOfGeoJsonOnMap', true)
       // console.log(e)
     },
     // 鼠标在 y 轴海区标签悬浮时在地图上显示海区范围
