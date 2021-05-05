@@ -6,10 +6,11 @@
       :init-options="this.$store.state.echartInitOption"
       :options="scatterLineOpt"
       @click="scatterLineChartClick"
-      @mouseover="scatterLineChartMouseover"
-      @mouseout="scatterLineChartMouseout"
       @restore="scatterLineChartRestore"
     />
+    <!-- 鼠标悬浮与移除事件 -->
+    <!-- @mouseover="scatterLineChartMouseover"
+    @mouseout="scatterLineChartMouseout" -->
   </div>
 </template>
 
@@ -215,12 +216,10 @@ export default {
           },
           itemStyle: {
             color: (p) => {
-              if (p.data[2] >= 0) {
-                return 'red'
-              } else {
-                return 'blue'
-              }
-            }
+              const color = p.data[2] >= 0 ? '#E8684A' : '#5B8FF9'
+              return color
+            },
+            opacity: 1
           },
           hoverAnimation: false,
           data: obj.data
@@ -244,8 +243,16 @@ export default {
         symbolSize: 10,
         showSymbol: true,
         itemStyle: {
-          color: '#fac524'
+          color: (p) => {
+            const color = p.data[1] >= 0 ? '#E8684A' : '#5B8FF9'
+            return color
+          },
+          opacity: 1
         },
+        lineStyle: {
+          color: '#65789B'
+        },
+        smooth: true,
         connectNulls: false,
         data: lineData.data
       }
@@ -333,6 +340,12 @@ export default {
       } else {
         console.log('在 Features-View 中出现其他鼠标点击情况！')
       }
+
+      // 地图显示对应海区
+      // 显示对应海区的范围
+      this.$store.commit('changeRegionShowOnMap', [+e.value.slice(1)])
+      // 在地图上显示 geojson 图层
+      this.$store.commit('changeStateOfGeoJsonOnMap', true)
       // console.log(e)
     },
     // 鼠标在 y 轴海区标签悬浮时在地图上显示海区范围

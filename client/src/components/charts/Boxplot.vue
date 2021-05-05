@@ -6,10 +6,11 @@
       :init-options="this.$store.state.echartInitOption"
       :options="boxOpt"
       @click="boxPlotItemClicked"
-      @mouseover="boxPlotItemMouseover"
-      @mouseout="boxPlotItemMouseout"
       @restore="boxPlotItemsRestore"
     />
+    <!-- 暂时删除鼠标悬浮与移出事件 -->
+    <!-- @mouseover="boxPlotItemMouseover"
+    @mouseout="boxPlotItemMouseout" -->
   </div>
 </template>
 
@@ -139,9 +140,9 @@ export default {
             data: null,
             itemStyle: {
               normal: {
-                borderColor: '#4B96F3',
-                borderWidth: 1,
-                color: '#D9EAFF'
+                borderColor: '#5B8FF9',
+                borderWidth: 1
+                // color: '#D9EAFF'
               }
             },
             tooltip: {
@@ -152,11 +153,11 @@ export default {
                   : (name = 'Date: ')
                 return [
                   name + param.name,
-                  'upper: ' + param.data[4].toFixed(4) + '℃/km',
-                  'Q3: ' + param.data[3].toFixed(4) + '℃/km',
-                  'median: ' + param.data[2].toFixed(4) + '℃/km',
-                  'Q1: ' + param.data[1].toFixed(4) + '℃/km',
-                  'lower: ' + param.data[0].toFixed(4) + '℃/km'
+                  'upper: ' + param.data[5].toFixed(4) + '℃/km',
+                  'Q3: ' + param.data[4].toFixed(4) + '℃/km',
+                  'median: ' + param.data[3].toFixed(4) + '℃/km',
+                  'Q1: ' + param.data[2].toFixed(4) + '℃/km',
+                  'lower: ' + param.data[1].toFixed(4) + '℃/km'
                 ].join('<br/>')
               }
             }
@@ -164,11 +165,11 @@ export default {
           {
             name: 'Outliers',
             type: 'scatter',
-            /* itemStyle: {
+            itemStyle: {
               normal: {
-                color: 'rgba(75,150,243,.7)'
+                color: '#E8684A'
               }
-            }, */
+            },
             symbolSize: 7,
             tooltip: {
               formatter: (p) => {
@@ -188,7 +189,7 @@ export default {
             z: 5,
             symbolSize: 10,
             itemStyle: {
-              color: '#FFB569'
+              color: '#F6BD16'
             },
             tooltip: {
               // show: false
@@ -299,6 +300,10 @@ export default {
         // 显示 restore 按钮
         this.boxOpt.toolbox.show = true
         // 地图显示海区
+        // 显示对应海区
+        this.$store.commit('changeRegionShowOnMap', [+e.value])
+        // 在地图上显示 geojson 图层
+        this.$store.commit('changeStateOfGeoJsonOnMap', true)
         // this.$store.commit('changeRegionShowOnMap', [+e.name])
       } else if (e.name.length <= 2 && e.seriesType === 'scatter') {
         // 点击一层散点
@@ -321,6 +326,7 @@ export default {
           'selectImgShowOnMap',
           this.$store.state.barDateChoosed
         )
+        // 显示对应海区
         this.$store.commit('changeRegionShowOnMap', [+e.value])
         // 在地图上显示 geojson 图层
         this.$store.commit('changeStateOfGeoJsonOnMap', true)
