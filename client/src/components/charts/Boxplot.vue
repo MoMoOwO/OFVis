@@ -141,8 +141,8 @@ export default {
             itemStyle: {
               normal: {
                 borderColor: '#5B8FF9',
-                borderWidth: 1,
-                color: '#D9EAFF'
+                borderWidth: 1
+                // color: '#D9EAFF'
               }
             },
             tooltip: {
@@ -300,6 +300,10 @@ export default {
         // 显示 restore 按钮
         this.boxOpt.toolbox.show = true
         // 地图显示海区
+        // 显示对应海区
+        this.$store.commit('changeRegionShowOnMap', [+e.value])
+        // 在地图上显示 geojson 图层
+        this.$store.commit('changeStateOfGeoJsonOnMap', true)
         // this.$store.commit('changeRegionShowOnMap', [+e.name])
       } else if (e.name.length <= 2 && e.seriesType === 'scatter') {
         // 点击一层散点
@@ -322,6 +326,7 @@ export default {
           'selectImgShowOnMap',
           this.$store.state.barDateChoosed
         )
+        // 显示对应海区
         this.$store.commit('changeRegionShowOnMap', [+e.value])
         // 在地图上显示 geojson 图层
         this.$store.commit('changeStateOfGeoJsonOnMap', true)
