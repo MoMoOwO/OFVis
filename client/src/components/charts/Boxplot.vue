@@ -7,10 +7,9 @@
       :options="boxOpt"
       @click="boxPlotItemClicked"
       @restore="boxPlotItemsRestore"
+      @mouseover="boxPlotItemMouseover"
+      @mouseout="boxPlotItemMouseout"
     />
-    <!-- 暂时删除鼠标悬浮与移出事件 -->
-    <!-- @mouseover="boxPlotItemMouseover"
-    @mouseout="boxPlotItemMouseout" -->
   </div>
 </template>
 
@@ -141,7 +140,7 @@ export default {
             itemStyle: {
               normal: {
                 borderColor: '#5B8FF9',
-                borderWidth: 1
+                borderWidth: 1.5
                 // color: '#D9EAFF'
               }
             },
@@ -322,14 +321,16 @@ export default {
       if (e.componentType === 'xAxis') {
         // 一层箱线图，海区
         // console.log(e.name + 1) // 海区 id
-        this.$store.commit(
+        // 性能考虑，暂时取消悬浮与移除导致海区范围的显示与隐藏
+        /* this.$store.commit(
           'selectImgShowOnMap',
           this.$store.state.barDateChoosed
         )
         // 显示对应海区
         this.$store.commit('changeRegionShowOnMap', [+e.value])
         // 在地图上显示 geojson 图层
-        this.$store.commit('changeStateOfGeoJsonOnMap', true)
+        this.$store.commit('changeStateOfGeoJsonOnMap', true) */
+        console.log('性能考虑，暂时取消悬浮与移除导致海区范围的显示与隐藏')
       } else if (e.name.length <= 2 && e.seriesType === 'scatter') {
         // 一层散点
         this.$store.commit(
@@ -348,10 +349,12 @@ export default {
       }
     },
     boxPlotItemMouseout(e) {
+      // 性能考虑，暂时取消悬浮与移除导致海区范围的显示与隐藏
       if (e.componentType === 'xAxis' && !this.isClickSelectRegion) {
-        this.$store.commit('changeRegionShowOnMap', []) // 隐藏对应海区范围
+        /* this.$store.commit('changeRegionShowOnMap', []) // 隐藏对应海区范围
         // 在地图上不显示 geojson 图层
-        this.$store.commit('changeStateOfGeoJsonOnMap', false)
+        this.$store.commit('changeStateOfGeoJsonOnMap', false) */
+        console.log('性能考虑，暂时取消悬浮与移除导致海区范围的显示与隐藏')
       }
       this.$store.commit('hoverPointOnBoxplot', [])
     },
