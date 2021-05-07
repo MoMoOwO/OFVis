@@ -7,10 +7,9 @@
       :options="scatterLineOpt"
       @click="scatterLineChartClick"
       @restore="scatterLineChartRestore"
+      @mouseover="scatterLineChartMouseover"
+      @mouseout="scatterLineChartMouseout"
     />
-    <!-- 鼠标悬浮与移除事件 -->
-    <!-- @mouseover="scatterLineChartMouseover"
-    @mouseout="scatterLineChartMouseout" -->
   </div>
 </template>
 
@@ -273,6 +272,12 @@ export default {
         // 在 y 轴上选择海区，联动面积图显示该海区的面积
         this.$store.commit('selectedRegionIDOnAxis', e.value.slice(1)) // 修改状态管理器中的数据，保持面积图表联动更新
 
+        // 地图显示对应海区
+        // 显示对应海区的范围
+        this.$store.commit('changeRegionShowOnMap', [+e.value.slice(1)])
+        // 在地图上显示 geojson 图层
+        this.$store.commit('changeStateOfGeoJsonOnMap', true)
+
         // 图表 title 修改
         this.scatterLineOpt.title.text = `${this.$store.state.yearOnGallery} ${this.$store.getters.getRegionIDLabel}`
         // 在 y 轴标签上进行点击
@@ -340,12 +345,6 @@ export default {
       } else {
         console.log('在 Features-View 中出现其他鼠标点击情况！')
       }
-
-      // 地图显示对应海区
-      // 显示对应海区的范围
-      this.$store.commit('changeRegionShowOnMap', [+e.value.slice(1)])
-      // 在地图上显示 geojson 图层
-      this.$store.commit('changeStateOfGeoJsonOnMap', true)
       // console.log(e)
     },
     // 鼠标在 y 轴海区标签悬浮时在地图上显示海区范围
@@ -353,14 +352,16 @@ export default {
       if (e.componentType === 'yAxis') {
         // 在 y 轴标签上进行鼠标悬浮
         // 显示对应年份的海洋锋空间情况
-        this.$store.commit(
+        // 性能考虑，暂时取消悬浮与移除导致海区范围的显示与隐藏
+        /* this.$store.commit(
           'selectImgShowOnMap',
           this.$store.state.yearOnGallery + '01'
         )
         // 显示对应海区的范围
         this.$store.commit('changeRegionShowOnMap', [+e.value.slice(1)])
         // 在地图上显示 geojson 图层
-        this.$store.commit('changeStateOfGeoJsonOnMap', true)
+        this.$store.commit('changeStateOfGeoJsonOnMap', true) */
+        console.log('性能考虑，暂时取消悬浮与移除导致海区范围的显示与隐藏')
       } else if (e.seriesType === 'scatter' || e.seriesType === 'line') {
         // 悬浮显示在地图上显示对应日期空间形态
         const date =
@@ -375,11 +376,13 @@ export default {
     scatterLineChartMouseout(e) {
       if (e.componentType === 'yAxis') {
         // 在 y 轴标签上进行点击，点击状态下的话不隐藏已经显示的海区范围
-        if (!this.isClickSelectRegion) {
+        // 性能考虑，暂时取消悬浮与移除导致海区范围的显示与隐藏
+        /* if (!this.isClickSelectRegion) {
           this.$store.commit('changeRegionShowOnMap', []) // 隐藏对应海区范围
           // 在地图上不显示 geojson 图层
           this.$store.commit('changeStateOfGeoJsonOnMap', false)
-        }
+        } */
+        console.log('性能考虑，暂时取消悬浮与移除导致海区范围的显示与隐藏')
       }
     },
     // 用于折线图返回到原来的散点图
