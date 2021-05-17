@@ -34,14 +34,13 @@ body,
 }
 
 /* el-dialog 弹出对话框窗体内布局 */
-.el-dialog__body {
+.el-dialog .el-dialog__body {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
 }
 
-/* el-radio 单选按钮文字与点的距离 */
-.el-radio__label {
-  padding-left: 1px !important;
-  font-size: 12px !important;
+/* form 表单 label 粗体 */
+.el-form .el-form-item__label {
+  font-weight: bold;
 }
