@@ -1,9 +1,12 @@
 <template>
-  <div>
+  <div class="detect-container">
     <el-container>
       <el-card>
         <div slot="header" class="card-header">
-          <span>Ocean fronts detection in subdivided sea areas</span>
+          <span
+            >Ocean fronts detection in subdivided sea areas & Features
+            derivation</span
+          >
         </div>
         <div class="card-body">
           <img :src="OFImg" class="of-img" :class="{ blur: isSearching }" />
@@ -18,6 +21,10 @@
             :model="queryInfo"
             :label-position="'top'"
             label-width="80px"
+            v-loading="isDerivate"
+            element-loading-text="Calculating..."
+            element-loading-spinner="el-icon-loading"
+            element-loading-background="rgba(255, 255, 255, 0.8)"
           >
             <el-form-item label="Date">
               <el-date-picker
@@ -37,7 +44,7 @@
                 >Search</el-button
               >
             </el-form-item>
-            <el-form-item label="Threshold values (℃/km)">
+            <el-form-item label="Threshold Values (℃/km)">
               <el-col v-for="index in 13" :key="index" :span="6">
                 <el-input
                   type="number"
@@ -48,9 +55,13 @@
                 ></el-input>
               </el-col>
             </el-form-item>
-            <el-form-item label="Comfirm" v-show="isComfirmShow">
-              <div>
+            <!--  -->
+            <el-form-item label="Threshold Comfirm" v-show="isComfirmShow">
+              <div class="comfirm_fl">
                 <el-tag>{{ queryInfo.date }}</el-tag>
+                <el-button type="primary" @click="submitNewThreshold"
+                  >Submit</el-button
+                >
               </div>
               <el-col v-for="index in 13" :key="index" :span="6">
                 <el-tag
@@ -66,9 +77,10 @@
                 </el-tag>
               </el-col>
             </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="submitNewThreshold"
-                >Submit</el-button
+            <el-divider content-position="center"></el-divider>
+            <el-form-item class="fd_item" v-show="isComfirmShow">
+              <el-button type="primary" @click="featuresDerivation"
+                >Features Derivation</el-button
               >
             </el-form-item>
           </el-form>
@@ -584,7 +596,11 @@ export default {
         ]
       },
       // 高亮的海区 name
-      areaName: null
+      areaName: null,
+      // 是否计算属性
+      isDerivate: false,
+      // 延时器，假装我在计算属性特征
+      timer: null
     }
   },
   mounted() {
@@ -720,45 +736,78 @@ export default {
           this.$message.error('Save failed!')
         } else {
           this.threshold = []
-          this.isComfirmShow = false
           this.$message.success('Save succeeded!')
         }
       }
+    },
+    // 统计计算属性特征
+    featuresDerivation() {
+      clearTimeout(this.timer)
+      console.log(
+        '这块都是用 Python 实现的，后来解奆佬要加上这个按钮，我 TM 都毕业了....'
+      )
+      this.isComfirmShow = false
+      this.isDerivate = true
+      // 延时假装我在计算属性特征
+      this.timer = setTimeout(() => {
+        this.isDerivate = false
+        this.$message.success('Calculate succeeded!')
+      }, 2000)
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-.el-container {
-  padding-top: 50px;
-  justify-content: center;
-  .card-body {
-    display: flex;
-    .of-img {
-      height: 570px;
-      margin: 75px 10px 0px 0px;
-    }
-    .blur {
-      // 模糊样式
-      filter: blur(15px);
-      -webkit-filter: blur(15px);
-    }
-    .map-container {
-      width: 400px;
-      height: 700px;
-    }
-    .el-form {
-      margin-left: 10px;
-      width: 400px;
-      .el-col-6 {
+.detect-container {
+  width: 100%;
+  background-color: #eaedf1;
+  display: flex;
+  .el-container {
+    align-items: center;
+    justify-content: center;
+    .card-body {
+      display: flex;
+      align-items: center;
+      .of-img {
+        height: 570px;
+      }
+      .blur {
+        // 模糊样式
+        filter: blur(15px);
+        -webkit-filter: blur(15px);
+      }
+      .map-container {
+        width: 400px;
+        height: 700px;
+      }
+      .el-form {
+        margin-left: 10px;
+        width: 400px;
+        height: 744px;
         padding: 2px;
-      }
-      .search-btn {
-        margin-left: 4px;
-      }
-      .el-tag {
-        padding: 0 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        .comfirm_fl {
+          display: flex;
+          justify-content: space-between;
+        }
+        .el-col-6 {
+          padding: 2px;
+        }
+        .search-btn {
+          margin-left: 4px;
+        }
+        .el-tag {
+          padding: 0 5px;
+        }
+        .el-divider--horizontal {
+          height: 1.5px;
+        }
+        .fd_item {
+          display: flex;
+          justify-content: center;
+        }
       }
     }
   }
