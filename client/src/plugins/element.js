@@ -6,6 +6,7 @@ import Vue from 'vue'
 } from 'element-ui' */
 import {
   Button, Message, Container, Header, Main, Alert, Radio, Divider,
+  Menu, MenuItem, Loading,
   Card, Tooltip, Select, Option, ColorPicker, Switch,
   Dialog, Form, FormItem, DatePicker, Input, Col, Tag
 } from 'element-ui'
@@ -22,6 +23,9 @@ Vue.use(Card)
 Vue.use(Button)
 Vue.use(Radio)
 Vue.use(Divider)
+Vue.use(Menu)
+Vue.use(MenuItem)
+Vue.use(Loading)
 Vue.use(Tooltip)
 Vue.use(Select)
 Vue.use(Option)
