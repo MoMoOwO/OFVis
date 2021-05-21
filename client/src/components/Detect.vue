@@ -735,7 +735,7 @@ export default {
         if (res.meta.status !== 200) {
           this.$message.error('Save failed!')
         } else {
-          this.threshold = []
+          // this.threshold = []
           this.$message.success('Save succeeded!')
         }
       }
@@ -751,6 +751,7 @@ export default {
       // 延时假装我在计算属性特征
       this.timer = setTimeout(() => {
         this.isDerivate = false
+        this.threshold = []
         this.$message.success('Calculate succeeded!')
       }, 2000)
     }
