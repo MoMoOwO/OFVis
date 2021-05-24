@@ -280,7 +280,7 @@ export default {
     barItemClicked(e) {
       if (this.queryInfo.regionId === 'all') {
         // 当为所有区域面积的时候才支持向下响应
-        // 当选择柱状图上某个月时，显示箱线图显示该月份的海区统计，地图画廊显示该月份 30 天的情况
+        // 当选择柱状图上某个月时，显示箱线图显示该月份的海区统计，地图画廊显示该月份 30 天的情况(暂时取消画廊联动)
         this.$store.commit(
           'selectedDateOnBar',
           this.yearChoosed + (e.dataIndex + 1 + '').padStart(2, '0')
@@ -327,6 +327,9 @@ export default {
       this.selectedDateIndex = []
       this.selectDateOnCalendar = []
       this.$store.commit('changeDateArrOnGallery', [])
+      // 先修改一下 2015 再恢复原来，否则不修改
+      this.$store.commit('changeYearOnGallery', 2015)
+      this.$store.commit('changeYearOnGallery', this.yearChoosed)
     }
   }
 }

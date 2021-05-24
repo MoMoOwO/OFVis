@@ -533,7 +533,7 @@ export default {
     this.swiper.slideTo(3, 10, false)
   },
   watch: {
-    '$store.state.barDateChoosed': {
+    /* '$store.state.barDateChoosed': {
       // 联动，监听选择年月份的改变
       handler: function (newVal) {
         this.imgList = []
@@ -542,7 +542,7 @@ export default {
         this.getImgData()
       },
       deep: true
-    },
+    }, */
     '$store.state.yearOnGallery': {
       // 联动，监听选择年月份的改变
       handler: function (newVal) {
