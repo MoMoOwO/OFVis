@@ -156,8 +156,9 @@ export default {
           max: 0,
           range: [0, 0],
           text: ['High', 'Low'],
-          bottom: 330,
+          bottom: 'center',
           precision: 4,
+          itemHeight: 460,
           calculable: true, // 显示手柄
           hoverLink: false,
           inRange: {
