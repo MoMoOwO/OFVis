@@ -582,7 +582,7 @@ export default {
     },
     // 跟据传递的参数获取对应海区的 GeoJson 和 Options
     getRegionGeoJsonShowOnMap(ids, colors) {
-      console.log(ids)
+      // console.log(ids)
       const features = []
       for (const index of ids) {
         for (const feature of this.geojson.features) {
