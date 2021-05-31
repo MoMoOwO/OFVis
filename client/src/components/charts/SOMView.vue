@@ -51,7 +51,10 @@
         </span>
         <!-- 作用域插槽 -->
         <template v-slot:treeNodeIcon="slotProps">
-          <el-checkbox value="false"></el-checkbox>
+          <el-checkbox
+            v-model="clustersSelected[slotProps.model.clusterId]"
+            @change="changeSelectedCluaters"
+          ></el-checkbox>
           <el-color-picker
             class="icon"
             v-model="clustersColors[slotProps.model.clusterId]"
@@ -165,6 +168,7 @@ export default {
       ],
       // 聚类选用的颜色
       clustersColors: ['#E41A1C', '#377EB8', '#4DAF4A', '#984EA3'],
+      clustersSelected: [false, false, true, false],
       // unit 样本统计数据，用于刷新 series，无类别标识
       unitCountData: [],
       // 散点原数据，无类别标识
@@ -563,6 +567,9 @@ export default {
       } else {
         // 获取颜色数组
         this.clustersColors = res.data.colors
+        this.clustersSelected = new Array(this.clustersColors.length).fill(
+          false
+        )
         // 为树结构的数据赋值
         // console.log(res.data.children)
         this.treeData = new Tree(res.data.children)
@@ -913,6 +920,35 @@ export default {
       // 数据赋值创建时空演化图
       this.timeVariantChartOpt.series.data = timeVariantChartData
     },
+    // 改变选择的 Clusters
+    changeSelectedCluaters() {
+      if (this.clustersSelected.indexOf(true) === -1) {
+        // 没有选中的聚类簇
+        this.$store.commit('selectSampleDataOnSom', {
+          date: [],
+          regionId: [],
+          color: []
+        })
+      } else {
+        // 从聚类树数据中获取该聚类簇下节点编号
+        const unitIDArr = []
+
+        this.clustersSelected.forEach((item, index) => {
+          if (item) {
+            const clusterItems = this.treeData.children[index].children
+            const len = clusterItems.length
+            for (let i = 0; i < len; i++) {
+              unitIDArr.push(clusterItems[i].unitId)
+            }
+          }
+        })
+
+        this.$store.commit(
+          'selectSampleDataOnSom',
+          this.getSampleDetailData(unitIDArr)
+        )
+      }
+    },
     // 为类选择了新的 color
     changeClusterColor() {
       // uMaxtrix 配色改变
@@ -947,12 +983,14 @@ export default {
         // 改变 clusterId
         // 不改变 id， id 一直往后迭代
         this.clustersColors.pop()
+        this.clustersSelected.pop()
         node.remove()
       }
     },
     // 添加新的类
     addNewCluster() {
       this.clustersColors.push('') // 添加一种空颜色
+      this.clustersSelected.push(false)
       const node = new TreeNode({
         isLeaf: false,
         clusterId: this.clustersColors.length - 1,
@@ -1382,6 +1420,9 @@ export default {
     .title-label {
       display: block;
       margin-bottom: 5px;
+    }
+    .el-checkbox {
+      margin-right: 5px;
     }
   }
   /* 滚动条整体样式(高宽分别对应横竖滚动条的尺寸) */
