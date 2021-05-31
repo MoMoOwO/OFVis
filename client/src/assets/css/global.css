@@ -44,3 +44,12 @@ body,
 .el-form .el-form-item__label {
   font-weight: bold;
 }
+
+.vtl-node-main .vtl-operation {
+  margin-left: 1rem;
+}
+
+.vtl-node-main > span {
+  display: flex;
+  align-items: center;
+}

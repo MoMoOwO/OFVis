@@ -743,6 +743,9 @@ export default {
   height: 205px;
   width: 100%;
   background-color: #ccc;
+  .swiper-lazy-preloader {
+    z-index: 999;
+  }
   .swiper-slide {
     /* display: flex;
 		justify-content: center;
