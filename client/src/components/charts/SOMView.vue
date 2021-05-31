@@ -51,6 +51,7 @@
         </span>
         <!-- 作用域插槽 -->
         <template v-slot:treeNodeIcon="slotProps">
+          <el-checkbox value="false"></el-checkbox>
           <el-color-picker
             class="icon"
             v-model="clustersColors[slotProps.model.clusterId]"
