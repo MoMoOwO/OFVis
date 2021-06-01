@@ -13,12 +13,13 @@
         text-color="#fff"
         active-text-color="#409EFF"
         router
+        :default-active="activePath"
       >
-        <el-menu-item index="/detect"
+        <el-menu-item index="/detect" @click="saveNavState('/detect')"
           >OCEAN FRONT DETECTION & FEATURES DERIVATION</el-menu-item
         >
         <el-menu-item index="0" disabled>·</el-menu-item>
-        <el-menu-item index="/analysis"
+        <el-menu-item index="/analysis" @click="saveNavState('/analysis')"
           >VISUAL ANALYSIS OF OCEAN FRONT</el-menu-item
         >
       </el-menu>
@@ -32,7 +33,20 @@
 <script>
 export default {
   data() {
-    return {}
+    return {
+      // 默认活动标签
+      activePath: ''
+    }
+  },
+  created() {
+    this.activePath = window.sessionStorage.getItem('activePath')
+  },
+  methods: {
+    // 保存当前导航路由 path
+    saveNavState(activePath) {
+      window.sessionStorage.setItem('activePath', activePath)
+      this.activePath = activePath
+    }
   }
 }
 </script>
